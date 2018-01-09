@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusterWood.Caching
+namespace BusterWood.Collections
 {
     public static class DictionaryExtensions
     {
@@ -21,6 +21,17 @@ namespace BusterWood.Caching
                 dictionary.Add(key, value);
                 return false;
             }
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TKey, TValue> valueFactory)
+        {
+            TValue value;
+            if (!dic.TryGetValue(key, out value))
+            {
+                value = valueFactory(key);
+                dic.Add(key, value);
+            }
+            return value;
         }
 
         public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue @default = default(TValue))
