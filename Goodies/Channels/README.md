@@ -1,6 +1,6 @@
 # BusterWood.Channels
 
-[CSP-like](https://en.wikipedia.org/wiki/Communicating_sequential_processes) channels for .NET 4.6 or above and .NET Core.
+[CSP-like](https://en.wikipedia.org/wiki/Communicating_sequential_processes) channels for communicating between (logical) asychronous thread.
 
 > As its name suggests, CSP allows the description of systems in terms of component processes that operate independently, 
 > and interact with each other solely through message-passing communication.

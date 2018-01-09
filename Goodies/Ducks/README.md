@@ -1,6 +1,6 @@
 # Ducks
 
-[Duck typing](https://en.wikipedia.org/wiki/Duck_typing) of *interfaces* at runtime for .NET 4.6 and .NET Core (.NET Standard 1.3).
+[Duck typing](https://en.wikipedia.org/wiki/Duck_typing) of *interfaces* at runtime.
 
 > if it walks like a duck, and talks like a duck, then its a duck.
 

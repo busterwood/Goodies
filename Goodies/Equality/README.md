@@ -1,6 +1,6 @@
 # Equality
 
-Declarative run-time creation of `IEqualityComparer<T>`.  Supports NetStandard 1.6 and .NET 4.6.2.
+Declarative run-time creation of `IEqualityComparer<T>`.
 
 For example, to get (or create) an equality comparer for the `Test1` class that just compares the `Id` property:
 ```
