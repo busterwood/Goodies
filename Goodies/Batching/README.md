@@ -20,7 +20,6 @@ public class OrderDataAccess
   {
     using (var cnn = new SqlConnection(_connectionString))
     {
-      await cnn.OpenAsync();
       return await cnn.QueryAsync("select * from [order] where order_id=@orderId", new {orderId}).SingleOrDefaultAsync<Order>();
     }
   }
@@ -56,10 +55,10 @@ public class OrderDataAccess
   private async Task<Dictionary<int, Order>> FindByManyIdsAsync(IReadOnlyCollection<int> orderIds) 
   {
     // use a SQL Server Table-Valued-Parameter
-    var idsTable = orderIds.ToTableType(new [] { new SqlMetaData("ID", SqlType.Int) }, "IdType");
+    var type = new SqlTableType("dbo.IdType", new SqlMetaData("ID", SqlDbType.Int));
+    var idsTable = orderIds.ToSqlTable(type);
     using (var cnn = new SqlConnection(_connectionString))
     {
-      await cnn.OpenAsync();
       return await cnn.QueryAsync("select o.* from [order] o join @idsTable ids on ids.id = o.id", new {idsTable}).ToDictionaryAsync<int, Order>(ord => ord.Id);
     }
   }
