@@ -1,4 +1,4 @@
-# Caching
+# BusterWood.Caching
 A low memory overhead read-through cache implemented using generations.
 
 The design is layered so you can choose the functionality that you require:
