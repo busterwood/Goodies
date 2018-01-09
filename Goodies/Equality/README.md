@@ -1,4 +1,4 @@
-# Equality
+# BusterWood.Equality
 
 Declarative run-time creation of `IEqualityComparer<T>`.
 
