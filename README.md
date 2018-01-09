@@ -3,6 +3,7 @@ So much useful & free stuff for .NET, supports .NET Standard 2.0.
 
 ### Selected highlights
 
+* `BusterWood.Batching` namespace contains classes for batching together asynchronous method calls for efficiency.
 * `BusterWood.Caching` namespace contains time and space effecient `Cache<,>` and `ReadThroughCache<,>`.
 * `BusterWood.Channels` namespace contains CSP-like communication between (logical) asynchronous threads.
 * `BusterWood.Collections` namespace contains the time and space effecient `UniqueList` which is both a `IList<>` and `ISet<>`.
