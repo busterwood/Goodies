@@ -1,4 +1,4 @@
-# Money
+# BusterWood.Monies
 
 The `Money` struct prevents you accidently adding numbers together that repesents *different currencies*.
 
