@@ -14,7 +14,6 @@ namespace BusterWood.Caching
     {
         protected readonly Dictionary<TKey, TaskCompletionSource<TValue>> _inProgress; // only populated keys currently being read
         protected readonly IDataSource<TKey, TValue> _dataSource;
-        readonly EvictionHandler<TKey, TValue> _dataSourceEvicted;
 
         public ThunderingHerdProtection(IDataSource<TKey, TValue> dataSource)
         {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using BusterWood.Tasks;
 
 namespace BusterWood.Restarting
 {
@@ -18,7 +19,7 @@ namespace BusterWood.Restarting
         public void Monitor(IRestartable restartable, int attempt = 0)
         {
             if (restartable.MonitoredTask == null) throw new ArgumentException("restartable.Running is null");
-            restartable.MonitoredTask.ContinueWith(t => { AttemptRestart(restartable, attempt, t.Exception); }, TaskContinuationOptions.OnlyOnFaulted);
+            restartable.MonitoredTask.ContinueWith(t => { AttemptRestart(restartable, attempt, t.Exception).DontWait(); }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         async Task AttemptRestart(IRestartable restartable, int attempt, Exception error)
