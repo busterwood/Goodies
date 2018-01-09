@@ -52,7 +52,7 @@ The `ReadThroughCache<TKey, TValue>` contructor takes two arguments that control
 
 One or both parameters neeed to be set, i.e.
 
-* you can just specify a `gen0Limit`, but then an the cache will never be cleared, even if it is not used again for a long time
+* you can just specify a `gen0Limit`, but then an the cache *might* never be cleared if less than `gen0Limit` are added
 * you can just specify a `timeToLive` which will let the cache grow to any size but will ensure items not used for "a long time" are evicted
 * you can specify both `gen0Limit` and `halfLife` to combine the attributes of both
 
