@@ -5,7 +5,7 @@ So much useful & free stuff for .NET, support .NET Standard 2.0.
 
 * `BusterWood.Caching` namespace contains time and space effecient caches and read-through caches
 * `BusterWood.Channels` namespace contains CSP-like communication between (logical) asynchronous threads
-* `BusterWood.Collections` namespace contains `UniqueList` which is a list with a unique contraint, with hashset-like performance
+* `BusterWood.Collections` namespace contains the time and space effecient `UniqueList` which is both a `IList<>` and `ISet<>`
 * `BusterWood.Ducks` namespace contains run-time duck typing
 * `BusterWood.Equality` namespace contains run-time creation of equality comparers using property names
 * `BusterWood.Goodies` namespace contains `Id<,>`, `IntId<>`, etc  to ensure you don't mix up your customer and order identifiers
