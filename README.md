@@ -3,7 +3,7 @@ So much useful & free stuff for .NET, support .NET Standard 2.0.
 
 ### Selected highlights
 
-* `BusterWood.Caching` namespace contains time and space effecient `Cache<,>` and `ReadThrougCache<,>`.
+* `BusterWood.Caching` namespace contains time and space effecient `Cache<,>` and `ReadThroughCache<,>`.
 * `BusterWood.Channels` namespace contains CSP-like communication between (logical) asynchronous threads.
 * `BusterWood.Collections` namespace contains the time and space effecient `UniqueList` which is both a `IList<>` and `ISet<>`.
 * `BusterWood.Ducks` namespace contains run-time duck typing.
