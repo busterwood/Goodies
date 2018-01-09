@@ -4,12 +4,7 @@ using System.Linq;
 
 namespace BusterWood.Linq
 {
-#if UNIQUELIST_INTERNAL
-    internal
-#else
-    public
-#endif
-    static class Enumerables
+    public static class Enumerables
     {
         /// <summary>Creation of a list with a predicate.</summary>
         public static List<T> ToList<T>(this IEnumerable<T> source, Func<T, bool> predicate)
