@@ -38,6 +38,7 @@ using BusterWood.Mapper; // easy reading and mapping from the database
 
 public class OrderDataAccess 
 {
+  private static readonly SqlTableType _idTableType = new SqlTableType("dbo.IdType", new SqlMetaData("ID", SqlDbType.Int));
   private readonly _connectionString;
   private readonly SingleResultAsyncBatcher<int, Order> _orderBatcher;
   
@@ -54,9 +55,7 @@ public class OrderDataAccess
 
   private async Task<Dictionary<int, Order>> FindByManyIdsAsync(IReadOnlyCollection<int> orderIds) 
   {
-    // use a SQL Server Table-Valued-Parameter
-    var type = new SqlTableType("dbo.IdType", new SqlMetaData("ID", SqlDbType.Int));
-    var idsTable = orderIds.ToSqlTable(type);
+    var idsTable = orderIds.ToSqlTable(_idTableType);  // use a SQL Server Table-Valued-Parameter
     using (var cnn = new SqlConnection(_connectionString))
     {
       return await cnn.QueryAsync("select o.* from [order] o join @idsTable ids on ids.id = o.id", new {idsTable}).ToDictionaryAsync<int, Order>(ord => ord.Id);
