@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>BusterWood.Core</AssemblyName>
+    <AssemblyName>BusterWood.Goodies</AssemblyName>
     <RootNamespace>BusterWood</RootNamespace>
   </PropertyGroup>
 

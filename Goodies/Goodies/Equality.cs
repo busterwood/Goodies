@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using BusterWood.Reflection.Emit;
 
-namespace BusterWood
+namespace BusterWood.Goodies
 {
     /// <summary>Runtime creation of an <see cref="IEqualityComparer<T>"/> based on property names.</summary>
     public static class Equality

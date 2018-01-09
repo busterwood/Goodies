@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace BusterWood
+namespace BusterWood.Goodies
 {
     /// <summary>Generic ID type to prevent different types of IDs being mixed up, e.g. client ID and order ID</summary>
     /// <typeparam name="TEntity">The type of the ID is for, e.g. Order</typeparam>
