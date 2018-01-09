@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>BusterWood.Core</AssemblyName>
+    <RootNamespace>BusterWood</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Monies\" />
+    <Folder Include="Caching\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
