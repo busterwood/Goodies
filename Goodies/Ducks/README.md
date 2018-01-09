@@ -1,4 +1,4 @@
-# Ducks
+# BusterWood.Ducks
 
 [Duck typing](https://en.wikipedia.org/wiki/Duck_typing) of *interfaces* at runtime.
 
