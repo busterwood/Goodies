@@ -1,5 +1,5 @@
 # BusterWood.Goodies
-Useful stuff missing from .NET for example:
+So much useful & free stuff for .NET, support .NET Standard 2.0.
 
 ### Selected highlights
 
