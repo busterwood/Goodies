@@ -1,5 +1,5 @@
 # BusterWood.Goodies
-So much useful & free stuff for .NET, support .NET Standard 2.0.
+So much useful & free stuff for .NET, supports .NET Standard 2.0.
 
 ### Selected highlights
 
