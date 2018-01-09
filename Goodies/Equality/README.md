@@ -19,7 +19,7 @@ IEqualityComparer<Test1> eq = EqualityComparer.Create<Test1>(StringComparer.Ordi
 
 ## Implementation
 
-A class (and assembly) are dynamically generated at run-time using `System.Reflection.Emit`.
+An assembly containing the comparer class is dynamically generated at run-time using `System.Reflection.Emit`.
 
 The generated class implements:
 * `IEqualityComparer<T>.Equals(x, y)`, null parameters are handled when T is a class
