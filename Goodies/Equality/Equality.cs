@@ -6,16 +6,16 @@ using System.Reflection;
 using System.Reflection.Emit;
 using BusterWood.Reflection.Emit;
 
-namespace BusterWood.Goodies
+namespace BusterWood.Equality
 {
     /// <summary>Runtime creation of an <see cref="IEqualityComparer<T>"/> based on property names.</summary>
-    public static class Equality
+    public static class EqualityComparer
     {
         static readonly ConcurrentDictionary<Key, object> _comparers = new ConcurrentDictionary<Key, object>();
 
-        public static IEqualityComparer<T> Comparer<T>(params string[] properties) => (IEqualityComparer<T>)_comparers.GetOrAdd(new Key(typeof(T), properties, StringComparer.Ordinal), CreateInstance);
+        public static IEqualityComparer<T> Create<T>(params string[] properties) => (IEqualityComparer<T>)_comparers.GetOrAdd(new Key(typeof(T), properties, StringComparer.Ordinal), CreateInstance);
 
-        public static IEqualityComparer<T> Comparer<T>(StringComparer stringComparer, params string[] properties) => (IEqualityComparer<T>)_comparers.GetOrAdd(new Key(typeof(T), properties, stringComparer), CreateInstance);
+        public static IEqualityComparer<T> Create<T>(StringComparer stringComparer, params string[] properties) => (IEqualityComparer<T>)_comparers.GetOrAdd(new Key(typeof(T), properties, stringComparer), CreateInstance);
 
         private static object CreateInstance(Key key)
         {

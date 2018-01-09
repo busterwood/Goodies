@@ -4,17 +4,17 @@ Declarative run-time creation of `IEqualityComparer<T>`.  Supports NetStandard 1
 
 For example, to get (or create) an equality comparer for the `Test1` class that just compares the `Id` property:
 ```
-IEqualityComparer<Test1> eq = Equality.Comparer<Test1>(nameof(Test1.Id));
+IEqualityComparer<Test1> eq = EqualityComparer.Create<Test1>(nameof(Test1.Id));
 ```
 
 To compare multiple properties:
 ```
-IEqualityComparer<Test1> eq = Equality.Comparer<Test1>(nameof(Test1.Id), nameof(Test1.Name));
+IEqualityComparer<Test1> eq = EqualityComparer.Create<Test1>(nameof(Test1.Id), nameof(Test1.Name));
 ```
 
 To compare ignoring case you can pass a `StringComparer` as the first argument:
 ```
-IEqualityComparer<Test1> eq = Equality.Comparer<Test1>(StringComparer.OrdinalIgnoreCase, nameof(Test1.Name));
+IEqualityComparer<Test1> eq = EqualityComparer.Create<Test1>(StringComparer.OrdinalIgnoreCase, nameof(Test1.Name));
 ```
 
 ## Implementation
