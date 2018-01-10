@@ -34,7 +34,7 @@ namespace BusterWood.Ducks
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName);
 
             TypeBuilder proxyBuilder = moduleBuilder.DefineType("Proxy");
-            foreach (var face in @interface.GetInterfaces().Concat(@interface, typeof(IDuck)))
+            foreach (var face in @interface.GetTypeInfo().GetInterfaces().Concat(@interface, typeof(IDuck)))
                 proxyBuilder.AddInterfaceImplementation(face);
     
             var duckField = proxyBuilder.DefineField("duck", duck, FieldAttributes.Private | FieldAttributes.InitOnly);
@@ -42,7 +42,7 @@ namespace BusterWood.Ducks
             var ctor = proxyBuilder.DefineConstructor(duck, duckField);
 
             bool defined = false;
-            foreach (var face in @interface.GetInterfaces().Concat(@interface))
+            foreach (var face in @interface.GetTypeInfo().GetInterfaces().Concat(@interface))
                 DefineMembers(duck, face, proxyBuilder, duckField, ref defined);
 
             proxyBuilder.DefineUnwrapMethod(duckField);
@@ -69,12 +69,12 @@ namespace BusterWood.Ducks
 
         static void DefineMembers(Type duck, Type @interface, TypeBuilder typeBuilder, FieldBuilder duckField, ref bool defined)
         {
-            foreach (var method in @interface.GetMethods().Where(mi => !mi.IsSpecialName)) // ignore get and set property methods
+            foreach (var method in @interface.GetTypeInfo().GetMethods().Where(mi => !mi.IsSpecialName)) // ignore get and set property methods
             {
                 if (defined)
                     throw new InvalidCastException("More than one method one interface");
                 CheckDelegateMatchesMethod(duck, @interface, method);
-                var duckMethod = duck.GetMethod("Invoke");
+                var duckMethod = duck.GetTypeInfo().GetMethod("Invoke");
                 typeBuilder.AddMethod(duckMethod, method, duckField);
                 defined = true;
             }
@@ -82,7 +82,7 @@ namespace BusterWood.Ducks
 
         static void CheckDelegateMatchesMethod(Type duck, Type @interface, MethodInfo method)
         {
-            var duckMethod = duck.GetMethod("Invoke");
+            var duckMethod = duck.GetTypeInfo().GetMethod("Invoke");
             if (method.GetParameters().Length != duckMethod.GetParameters().Length)
                 throw new InvalidCastException($"Delegate has a different number of parameters to {@interface.Name}.{method.Name}");
 

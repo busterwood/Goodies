@@ -36,14 +36,14 @@ namespace BusterWood.Ducks
 
             TypeBuilder proxyBuilder = moduleBuilder.DefineType("Proxy", TypeAttributes.Public);
 
-            foreach (var face in @interface.GetInterfaces().Concat(@interface, typeof(IDuck)))
+            foreach (var face in @interface.GetTypeInfo().GetInterfaces().Concat(@interface, typeof(IDuck)))
                 proxyBuilder.AddInterfaceImplementation(face);
 
             var duckField = proxyBuilder.DefineField("duck", duck, FieldAttributes.Private | FieldAttributes.InitOnly);
 
             var ctor = proxyBuilder.DefineConstructor(duck, duckField);
 
-            foreach (var face in @interface.GetInterfaces().Concat(@interface))
+            foreach (var face in @interface.GetTypeInfo().GetInterfaces().Concat(@interface))
                 DefineMembers(duck, face, proxyBuilder, duckField, missingMethods);
 
             proxyBuilder.DefineUnwrapMethod(duckField);
@@ -71,19 +71,19 @@ namespace BusterWood.Ducks
 
         static void DefineMembers(Type duck, Type @interface, TypeBuilder typeBuilder, FieldBuilder duckField, MissingMethods missingMethods)
         {
-            foreach (var method in @interface.GetMethods().Where(mi => !mi.IsSpecialName)) // ignore get and set property methods
+            foreach (var method in @interface.GetTypeInfo().GetMethods().Where(mi => !mi.IsSpecialName)) // ignore get and set property methods
             {
                 var duckMethod = duck.FindDuckMethod(method, PublicInstance, missingMethods);
                 typeBuilder.AddMethod(duckMethod, method, duckField);
             }
 
-            foreach (var prop in @interface.GetProperties())
+            foreach (var prop in @interface.GetTypeInfo().GetProperties())
             {
                 var duckProp = duck.FindDuckProperty(prop, PublicInstance, missingMethods);
                 AddProperty(typeBuilder, duckProp, prop, duckField);
             }
 
-            foreach (var evt in @interface.GetEvents())
+            foreach (var evt in @interface.GetTypeInfo().GetEvents())
             {
                 var duckEvent = duck.FindDuckEvent(evt, PublicInstance, missingMethods);
                 AddEvent(typeBuilder, duckEvent, evt, duckField);

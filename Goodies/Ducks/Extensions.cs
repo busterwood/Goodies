@@ -70,7 +70,7 @@ namespace BusterWood.Ducks
         {
             try
             {
-                var found = duck.GetEvent(evt.Name, bindingFlags);
+                var found = duck.GetTypeInfo().GetEvent(evt.Name, bindingFlags);
                 if (found == null && missingMethods == MissingMethods.NotImplemented)
                     return null;
                 if (found == null)
@@ -93,7 +93,7 @@ namespace BusterWood.Ducks
             il.Emit(OpCodes.Ldarg_1); // push duck
             il.Emit(OpCodes.Stfld, duckField); // store the parameter in the duck field
             il.Emit(OpCodes.Ldarg_0); // push this
-            il.Emit(OpCodes.Call, typeof(object).GetConstructor(EmptyTypes));
+            il.Emit(OpCodes.Call, typeof(object).GetTypeInfo().GetConstructor(EmptyTypes));
             il.Emit(OpCodes.Ret);   // end of ctor
             return ctor;
         }
@@ -128,7 +128,7 @@ namespace BusterWood.Ducks
             if (duckMethod == null)
             {
                 // throw a not implemented exception 
-                il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetConstructor(Type.EmptyTypes));
+                il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetTypeInfo().GetConstructor(Type.EmptyTypes));
                 il.Emit(OpCodes.Throw);
                 il.Emit(OpCodes.Ret);
                 return mb;

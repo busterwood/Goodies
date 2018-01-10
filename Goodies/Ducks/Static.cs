@@ -35,12 +35,12 @@ namespace BusterWood.Ducks
 
             TypeBuilder typeBuilder = moduleBuilder.DefineType("Proxy");
 
-            foreach (var face in @interface.GetInterfaces().Concat(@interface))
+            foreach (var face in @interface.GetTypeInfo().GetInterfaces().Concat(@interface))
                 typeBuilder.AddInterfaceImplementation(face);
 
             var ctor = typeBuilder.DefineDefaultConstructor(Public);
 
-            foreach (var face in @interface.GetInterfaces().Concat(@interface))
+            foreach (var face in @interface.GetTypeInfo().GetInterfaces().Concat(@interface))
                 DefineMethods(typeBuilder, duck, face, missingMethods);
 
             return Activator.CreateInstance(typeBuilder.CreateTypeInfo().AsType());
@@ -49,19 +49,19 @@ namespace BusterWood.Ducks
 
         static void DefineMethods(TypeBuilder typeBuilder, Type duck, Type @interface, MissingMethods missingMethods)
         {
-            foreach (var method in @interface.GetMethods().Where(m => !m.IsSpecialName))
+            foreach (var method in @interface.GetTypeInfo().GetMethods().Where(m => !m.IsSpecialName))
             {
                 MethodInfo duckMethod = duck.FindDuckMethod(method, PublicStatic, missingMethods);
                 AddMethod(typeBuilder, duckMethod, method);
             }
 
-            foreach (var prop in @interface.GetProperties())
+            foreach (var prop in @interface.GetTypeInfo().GetProperties())
             {
                 var duckProp = duck.FindDuckProperty(prop, PublicStatic, missingMethods);
                 AddProperty(typeBuilder, duckProp, prop);
             }
 
-            foreach (var evt in @interface.GetEvents())
+            foreach (var evt in @interface.GetTypeInfo().GetEvents())
             {
                 var duckEvent = duck.FindDuckEvent(evt, PublicStatic, missingMethods);
                 AddEvent(typeBuilder, duckEvent, evt);
@@ -76,7 +76,7 @@ namespace BusterWood.Ducks
             if (duckMethod == null)
             {
                 // throw a not implemented exception 
-                il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetConstructor(Type.EmptyTypes));
+                il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetTypeInfo().GetConstructor(Type.EmptyTypes));
                 il.Emit(OpCodes.Throw);
                 il.Emit(OpCodes.Ret);
                 return mb;
