@@ -27,7 +27,7 @@ namespace BusterWood.Caching
             for (int i = 0; i < partitions; i++)
             {
                 _partitions[i] = new Cache<TKey, TValue>(gen0Limit / partitions, timeToLive);
-                _partitions[i].Evicted += (sender, args) => Evicted(sender, args);
+                _partitions[i].Evicted += (sender, args) => Evicted?.Invoke(sender, args);
             }
         }
 
