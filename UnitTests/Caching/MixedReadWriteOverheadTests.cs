@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UnitTests
 {
-    [TestFixture]
+    [TestFixture, Ignore("too slow")]
     public class MixedReadWriteOverheadTests
     {
         ValueIsKey<string, string> valueIsKey = new ValueIsKey<string, string> {  };

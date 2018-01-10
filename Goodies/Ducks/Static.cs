@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using static System.Reflection.MethodAttributes;
 using static System.Reflection.CallingConventions;
+using BusterWood.Reflection.Emit;
 
 namespace BusterWood.Ducks
 {
@@ -76,22 +77,18 @@ namespace BusterWood.Ducks
             if (duckMethod == null)
             {
                 // throw a not implemented exception 
-                il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetTypeInfo().GetConstructor(Type.EmptyTypes));
-                il.Emit(OpCodes.Throw);
-                il.Emit(OpCodes.Ret);
+                il.ThrowException(typeof(NotImplementedException));
+                il.Return();
                 return mb;
             }
 
             // push all the arguments onto the stack
             int i = 1;
             foreach (var p in interfaceMethod.GetParameters())
-                il.Emit(OpCodes.Ldarg, i++);
-
-            // call the duck's method
-            il.EmitCall(OpCodes.Call, duckMethod, null);
-
-            // return
-            il.Emit(OpCodes.Ret);
+                il.Arg(i++);
+            
+            il.Call(duckMethod); // call the duck's method
+            il.Return();
             return mb;
         }
 

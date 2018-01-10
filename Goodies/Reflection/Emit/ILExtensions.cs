@@ -125,6 +125,12 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        public static ILGenerator Cast(this ILGenerator il, Type toType)
+        {
+            il.Emit(OpCodes.Castclass, toType);
+            return il;
+        }
+
         public static ILGenerator New(this ILGenerator il, ConstructorInfo ctor)
         {
             il.Emit(OpCodes.Newobj, ctor);

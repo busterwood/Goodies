@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UnitTests
 {
-    [TestFixture]
+    [TestFixture, Ignore("too slow")]
     public class ThunderingHerdOverheadTests
     {
         ValueIsKey<string, string> valueIsKey;

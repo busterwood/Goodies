@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using static System.Reflection.MethodAttributes;
 using static System.Reflection.CallingConventions;
+using BusterWood.Reflection.Emit;
 
 namespace BusterWood.Ducks
 {
@@ -89,12 +90,9 @@ namespace BusterWood.Ducks
         {
             var ctor = typeBuilder.DefineConstructor(Public, HasThis, new[] { duck });
             var il = ctor.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0); // push this
-            il.Emit(OpCodes.Ldarg_1); // push duck
-            il.Emit(OpCodes.Stfld, duckField); // store the parameter in the duck field
-            il.Emit(OpCodes.Ldarg_0); // push this
-            il.Emit(OpCodes.Call, typeof(object).GetTypeInfo().GetConstructor(EmptyTypes));
-            il.Emit(OpCodes.Ret);   // end of ctor
+            il.This().Arg1().Store(duckField); // store the parameter in the duck field
+            il.This().Call(typeof(object).GetTypeInfo().GetConstructor(EmptyTypes));
+            il.Return();
             return ctor;
         }
 
@@ -102,10 +100,9 @@ namespace BusterWood.Ducks
         {
             var create = typeBuilder.DefineMethod(nameof(IDuck.Unwrap), Public | Virtual | Final, HasThis, typeof(object), new Type[0]);
             var il = create.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0); // push this
-            il.Emit(OpCodes.Ldfld, duckField); // push duck field
-            il.Emit(OpCodes.Castclass, typeof(object));   // cast duck to object
-            il.Emit(OpCodes.Ret);   // return the object
+            il.This().Load(duckField); // push duck field
+            il.Cast(typeof(object));   // cast duck to object
+            il.Return();
             return create;
         }
 
@@ -113,10 +110,9 @@ namespace BusterWood.Ducks
         {
             var create = typeBuilder.DefineMethod("Create", Public | MethodAttributes.Static, Standard, typeof(object), new[] { paramType });
             var il = create.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0); // push obj
-            il.Emit(OpCodes.Castclass, duck);   // cast obj to duck
-            il.Emit(OpCodes.Newobj, ctor);  // call ctor(duck)
-            il.Emit(OpCodes.Ret);   // end of create
+            il.Arg0().Cast(duck);   // cast obj to duck
+            il.New(ctor);  // call ctor(duck)
+            il.Return();
             return create;
         }
 
@@ -128,26 +124,21 @@ namespace BusterWood.Ducks
             if (duckMethod == null)
             {
                 // throw a not implemented exception 
-                il.Emit(OpCodes.Newobj, typeof(NotImplementedException).GetTypeInfo().GetConstructor(Type.EmptyTypes));
-                il.Emit(OpCodes.Throw);
-                il.Emit(OpCodes.Ret);
+                il.ThrowException(typeof(NotImplementedException));
+                il.Return();
                 return mb;
             }
             
-            il.Emit(OpCodes.Ldarg_0); // push this
-            il.Emit(OpCodes.Ldfld, duckField); // push duck field
+            il.This().Load(duckField); // push duck field
 
             // push all the arguments onto the stack
             int i = 1;
             foreach (var p in interfaceMethod.GetParameters())
-                il.Emit(OpCodes.Ldarg, i++);
+                il.Arg(i++);
 
             // call the duck's method
-            il.EmitCall(OpCodes.Callvirt, duckMethod, null);
-
-            // return
-            il.Emit(OpCodes.Ret);
-
+            il.CallVirt(duckMethod);
+            il.Return();
             return mb;
         }
         

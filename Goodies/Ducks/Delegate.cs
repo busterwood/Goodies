@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using static System.Reflection.MethodAttributes;
 using static System.Reflection.CallingConventions;
+using BusterWood.Reflection.Emit;
 
 namespace BusterWood.Ducks
 {
@@ -60,10 +61,9 @@ namespace BusterWood.Ducks
 
             var create = typeBuilder.DefineMethod("Create", Public | Virtual | Final, HasThis, typeof(object), new[] { typeof(Delegate) });
             var il = create.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_1); // push delegate parameter
-            il.Emit(OpCodes.Castclass, duck);   // cast delegate to duck
-            il.Emit(OpCodes.Newobj, ctor);  // call ctor(duck)
-            il.Emit(OpCodes.Ret);   // end of create
+            il.Arg1().Cast(duck); // cast delegate to duck
+            il.New(ctor);  // call ctor(duck)
+            il.Return();
             return typeBuilder;
         }
 
