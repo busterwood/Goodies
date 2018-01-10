@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/6ecfrrp2q2x0xvxm?svg=true)](https://ci.appveyor.com/project/busterwood/goodies/branch/master)
+
 # BusterWood.Goodies
 So much useful & free stuff for .NET, built as a library for .NET Standard 2.0.
 
