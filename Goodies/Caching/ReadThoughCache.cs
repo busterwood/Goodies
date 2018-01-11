@@ -23,10 +23,7 @@ namespace BusterWood.Caching
         public ReadThroughCache(IDataSource<TKey, TValue> dataSource, int? gen0Limit, TimeSpan? timeToLive)
             : base(gen0Limit, timeToLive)
         {
-            if (dataSource == null)
-                throw new ArgumentNullException(nameof(dataSource));
-
-            _dataSource = dataSource;
+            _dataSource = dataSource ?? throw new ArgumentNullException(nameof(dataSource));
             _gen0 = new Dictionary<TKey, TValue>();
         }
        

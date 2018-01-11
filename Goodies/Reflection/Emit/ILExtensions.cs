@@ -70,25 +70,28 @@ namespace BusterWood.Reflection.Emit
             il.Emit(OpCodes.Ldarg, index);
             return il;
         }
-
+        /// <summary>Goto label is last two arguments on the stack are equal</summary>
         public static ILGenerator IfEqualGoto(this ILGenerator il, Label label)
         {
             il.Emit(OpCodes.Beq, label);
             return il;
         }
 
+        /// <summary>Goto label is last argument on the stack is false</summary>
         public static ILGenerator IfFalseGoto(this ILGenerator il, Label notEqual)
         {
             il.Emit(OpCodes.Brfalse, notEqual);
             return il;
         }
 
+        /// <summary>Goto label is last two arguments on the stack are equal</summary>
         public static ILGenerator IfNotEqualGoto(this ILGenerator il, Label notEqual)
         {
             il.Emit(OpCodes.Bne_Un, notEqual);
             return il;
         }
 
+        /// <summary>Goto label is last argument on the stack is true</summary>
         public static ILGenerator IfTrueGoto(this ILGenerator il, Label label)
         {
             il.Emit(OpCodes.Brtrue, label);

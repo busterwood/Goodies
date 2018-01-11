@@ -15,13 +15,11 @@ namespace BusterWood.Ducks
             if (addFunc == null)
                 throw new ArgumentNullException(nameof(addFunc));
 
-            TValue value;
-
             // simple case of we already have a value for the key
             _rwLock.EnterReadLock();
             try
             {
-                if (_map.TryGetValue(key, out value)) return value;
+                if (_map.TryGetValue(key, out var value)) return value;
             }
             finally
             {
@@ -33,9 +31,9 @@ namespace BusterWood.Ducks
             try
             {
                 // some other thread may have just added it
-                if (_map.TryGetValue(key, out value)) return value;
+                if (_map.TryGetValue(key, out var value)) return value;
 
-                // the function may take "some time" so evalutate it outside of the write lock so other threads can still read the dictionary
+                // the function may take "some time" so evaluate it outside of the write lock so other threads can still read the dictionary
                 value = addFunc(key);
 
                 _rwLock.EnterWriteLock();

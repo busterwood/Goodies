@@ -51,7 +51,7 @@ namespace BusterWood.Monies
         /// <summary>Returns a string containing a formatted <see cref="Amount"/> and <see cref="Currency"/></summary>
         public string ToString(string format) => $"{Amount.ToString(format)} {Currency}";
 
-        /// <summary>Ordered comparision of money amounts.  Sorts by <see cref="Currency"/> and then by <see cref="Amount"/></summary>
+        /// <summary>Ordered comparison of money amounts.  Sorts by <see cref="Currency"/> and then by <see cref="Amount"/></summary>
         public int CompareTo(Money other)
         {
             int result = (Currency?.CompareTo(other.Currency ?? "")).GetValueOrDefault();

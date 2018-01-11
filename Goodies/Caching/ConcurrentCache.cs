@@ -14,7 +14,7 @@ namespace BusterWood.Caching
         /// <summary>Create a new cache that has a Gen0 size limit and/or a periodic collection time</summary>
         /// <param name="gen0Limit">(Optional) limit on the number of items allowed in Gen0 before a collection</param>
         /// <param name="timeToLive">(Optional) time period after which a unread item is evicted from the cache</param>
-        /// <param name="partitions">The number of paritions to split the cache into, defaults to <see cref="Environment.ProcessorCount"/></param>
+        /// <param name="partitions">The number of partitions to split the cache into, defaults to <see cref="Environment.ProcessorCount"/></param>
         public ConcurrentCache(int? gen0Limit, TimeSpan? timeToLive, int partitions = 0)
         {
             if (partitions == 0)

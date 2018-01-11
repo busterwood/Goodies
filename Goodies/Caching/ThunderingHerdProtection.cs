@@ -17,9 +17,7 @@ namespace BusterWood.Caching
 
         public ThunderingHerdProtection(IDataSource<TKey, TValue> dataSource)
         {
-            if (dataSource == null)
-                throw new ArgumentNullException(nameof(dataSource));
-            _dataSource = dataSource;
+            _dataSource = dataSource ?? throw new ArgumentNullException(nameof(dataSource));
             _inProgress = new Dictionary<TKey, TaskCompletionSource<TValue>>();
         }
 

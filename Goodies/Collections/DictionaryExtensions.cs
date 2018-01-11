@@ -23,10 +23,12 @@ namespace BusterWood.Collections
             }
         }
 
+        /// <summary>
+        /// Get a existing value from <paramref name="dictionary"/> or adds a value to the <paramref name="dictionary"/> using the <paramref name="valueFactory"/>.
+        /// </summary>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TKey, TValue> valueFactory)
         {
-            TValue value;
-            if (!dic.TryGetValue(key, out value))
+            if (!dic.TryGetValue(key, out TValue value))
             {
                 value = valueFactory(key);
                 dic.Add(key, value);
@@ -34,10 +36,12 @@ namespace BusterWood.Collections
             return value;
         }
 
+        /// <summary>
+        /// Get a existing value from <paramref name="dictionary"/> returns the default value for TValue (null, 0, etc).
+        /// </summary>
         public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key, TValue @default = default(TValue))
         {
-            TValue result;
-            return dictionary.TryGetValue(key, out result) ? result : @default;
+            return dictionary.TryGetValue(key, out TValue result) ? result : @default;
         }
 
         public static void RemoveRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IEnumerable<TKey> keys)

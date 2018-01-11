@@ -18,9 +18,6 @@ namespace BusterWood.Ducks
             return factory.Create(from);
         }
 
-        /// <param name="duck">The duck</param>
-        /// <param name="interface">the interface to cast <paramref name="duck"/></param>
-        /// <param name="missingMethods">How to handle missing methods</param>
         static IDuckDelegateFactory CreateProxy(Type duck, Type @interface, MissingMethods missingMethods)
         {
             if (duck == null)

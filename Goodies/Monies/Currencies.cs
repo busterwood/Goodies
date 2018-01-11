@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace BusterWood.Monies
 {
@@ -55,17 +54,13 @@ namespace BusterWood.Monies
             { "ZEC", 8 },
         };
 
-        /// <summary>
-        /// Returns the number of decimal places used for differnt currency codes
-        /// </summary>
-        /// <param name="isoCode"></param>
-        /// <returns></returns>
+        /// <summary>Returns the number of decimal places used for different currency codes</summary>
         public static int? DecimalPlaces(string isoCode)
         {
             int? dps;
             if (decimalPlaces.TryGetValue(isoCode, out dps))
                 return dps;
-            return 2; // the default, most currencies
+            return 2; // the default for most currencies
         }
     }
 }

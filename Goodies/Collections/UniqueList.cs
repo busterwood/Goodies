@@ -21,6 +21,7 @@ namespace BusterWood.Collections
         T[] values;
         int count;
 
+        /// <summary>Copies the <paramref name="other"/> list.</summary>
         public UniqueList(UniqueList<T> other)
         {
             if (other == null)
@@ -32,6 +33,7 @@ namespace BusterWood.Collections
             Equality = other.Equality;
         }
 
+        /// <summary>Create a new list, optionally setting an <see cref="IEqualityComparer{T}"/></summary>
         public UniqueList(IEqualityComparer<T> equality = null)
         {
             const int InitialSize = 3;
@@ -42,14 +44,21 @@ namespace BusterWood.Collections
             Equality = equality ?? EqualityComparer<T>.Default;
         }
 
+        /// <summary>The equality comparer used</summary>
         public IEqualityComparer<T> Equality { get; }
 
+        /// <summary>The current capacity of the list, automatically grows if needed</summary>
         public int Capacity => values.Length;
 
+        /// <summary>The number of items in the list</summary>
         public int Count => count;
 
         public bool IsReadOnly => false;
 
+        /// <summary>Gets or sets the value stored at an <paramref name="index"/> in the list</summary>
+        /// <exception cref="IndexOutOfRangeException">Thrown if the index is less than zero or greater that allowed</exception>
+        /// <exception cref="ArgumentNullException">Throw if you try to set a value to null</exception>
+        /// <exception cref="ArgumentException">Thrown when trying to set value if the value already exists in the list at a different <paramref name="index"/></exception>
         public T this[int index]
         {
             get
@@ -96,6 +105,9 @@ namespace BusterWood.Collections
             Add(item);
         }
 
+        /// <summary>
+        /// Adds an <paramref name="item"/> to the list.  Returns TRUE if the <paramref name="item"/> was added or FALSE if the <paramref name="item"/> is already present in the list.
+        /// </summary>
         public bool Add(T item)
         {
             if (item == null)
@@ -157,10 +169,10 @@ namespace BusterWood.Collections
         void Resize()
         {
             // we want 25% free space in indexes array to keep hashing efficient,
-            // but hashcodes and values arrays can be smaller than the indexes array
+            // but hash codes and values arrays can be smaller than the indexes array
             // For example, to contain 100 items:
             // values = new T[100];
-            // hashcodes = new int[100];
+            // hash codes = new int[100];
             // indexes = new int[100 * 1.25 = 125];
             int newSize = (indexes.Length * 2) + 1;
             Array.Resize(ref hashCodes, newSize); 
@@ -248,10 +260,11 @@ namespace BusterWood.Collections
             }
         }
 
+        /// <summary>Adds then <paramref name="item"/> if not present, else replaces the existing <paramref name="item"/></summary>
         public void AddOrUpdate(T item)
         {
             if (item == null)
-                return; // dont allow null to be added, considered as this.union(empty set)
+                return; // don't allow null to be added, considered as this.union(empty set)
 
             int index = IndexOf(item);
             if (index < 0)
@@ -260,6 +273,7 @@ namespace BusterWood.Collections
                 this[index] = item;
         }
 
+        /// <summary>Return TRUE if the <paramref name="item"/> is present in the list, otherwise returns FALSE</summary>
         public bool Contains(T item)
         {
             if (item == null) return false;
@@ -268,6 +282,7 @@ namespace BusterWood.Collections
             return result.Found;
         }
 
+        /// <summary>Returns the index of the <paramref name="item"/> in the list, or -1 if the <paramref name="item"/> is not present</summary>
         public int IndexOf(T item)
         {
             if (item == null) return -1;
@@ -329,6 +344,7 @@ namespace BusterWood.Collections
 
         public bool SetEquals(IEnumerable<T> other) => SetExtensions.SetEquals(this, other);
 
+        /// <summary>Removes all items from the list</summary>
         public void Clear()
         {
             Array.Clear(indexes, 0, indexes.Length);
@@ -337,6 +353,7 @@ namespace BusterWood.Collections
             count = 0;
         }
 
+        /// <summary>Copies items to the <paramref name="array"/> starting at <paramref name="arrayIndex"/>.</summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
             if (array == null) throw new ArgumentNullException(nameof(array));
@@ -344,11 +361,13 @@ namespace BusterWood.Collections
             Array.Copy(values, 0, array, arrayIndex, toCopy);
         }
 
-        public void Insert(int index, T item)
-        {
-            throw new NotImplementedException();
-        }
+        /// <summary>Not supported</summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void Insert(int index, T item) => throw new NotImplementedException();
 
+        /// <summary>
+        /// Removes a <paramref name="item"/> from the list, returns TRUE if the <paramref name="item"/> was removed, FALSE if the <paramref name="item"/> was not found.
+        /// </summary>
         public bool Remove(T item)
         {
             var hc = PositiveHashCode(item);
@@ -381,12 +400,14 @@ namespace BusterWood.Collections
             return true;
         }
 
+        /// <summary>Removes an item at a <paramref name="index"/></summary>
         public void RemoveAt(int index)
         {
             var item  = this[index];
             Remove(item);
         }
 
+        /// <summary>Creates a copy of this list</summary>
         public UniqueList<T> Copy() => new UniqueList<T>(this);
     }
 }

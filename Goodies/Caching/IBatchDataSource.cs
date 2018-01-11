@@ -11,7 +11,7 @@ namespace BusterWood.Caching
         /// <returns>An array the same size as the input <paramref name="keys"/> that contains the value for each key in the corresponding index</returns>
         TValue[] GetBatch(IReadOnlyCollection<TKey> keys);
 
-        /// <summary>Tries to get the values associated with the <paramref name="keys"/> asynchronusly</summary>
+        /// <summary>Tries to get the values associated with the <paramref name="keys"/> asynchronously</summary>
         /// <param name="keys">The keys to find</param>
         /// <returns>An array the same size as the input <paramref name="keys"/> that contains the value for each key in the corresponding index</returns>
         Task<TValue[]> GetBatchAsync(IReadOnlyCollection<TKey> keys);

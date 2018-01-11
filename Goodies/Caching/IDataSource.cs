@@ -2,7 +2,7 @@
 
 namespace BusterWood.Caching
 {
-    /// <summary>A readonly source of data</summary>
+    /// <summary>A read-only source of data</summary>
     public interface IDataSource<TKey, TValue>
     {
         /// <summary>Gets the value associated with a <paramref name="key"/></summary>

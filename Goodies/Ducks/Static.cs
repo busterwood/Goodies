@@ -18,9 +18,6 @@ namespace BusterWood.Ducks
             return proxies.GetOrAdd(new TypePair(from, to, missingMethods), pair => CreateStaticProxy(pair.From, pair.To, pair.MissingMethods));
         }
 
-        /// <param name="duck">The duck</param>
-        /// <param name="interface">the interface to cast <paramref name="duck"/></param>
-        /// <param name="missingMethods">How to handle missing methods</param>
         static object CreateStaticProxy(Type duck, Type @interface, MissingMethods missingMethods)
         {
             if (duck == null)

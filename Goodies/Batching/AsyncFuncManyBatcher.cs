@@ -11,7 +11,6 @@ namespace BusterWood.Batching
     /// <summary>Batches calls to the <see cref="QueryAsync(TKey)"/> method, which returns multiple items per key</summary>
     public class AsyncFuncManyBatcher<TKey, TValue>
     {
-        readonly TimeSpan _delay = TimeSpan.FromMilliseconds(100);
         readonly object _gate = new object();
         readonly Func<IReadOnlyCollection<TKey>, Task<ILookup<TKey, TValue>>> _queryMany;
         readonly Timer _timer;
@@ -20,21 +19,20 @@ namespace BusterWood.Batching
 
         /// <summary>The configured batching delay</summary>
         /// <remarks>Set in the constructor</remarks>
-        public TimeSpan Delay => _delay;
+        public TimeSpan Delay { get; } = TimeSpan.FromMilliseconds(100);
 
         /// <summary>Creates a batcher</summary>
         /// <param name="queryMany">The function to call to get the results for a set of keys</param>
         /// <param name="delay">Optional batching delay, defaults to 100ms</param>
         public AsyncFuncManyBatcher(Func<IReadOnlyCollection<TKey>, Task<ILookup<TKey, TValue>>> queryMany, TimeSpan? delay = null)
         {
-            if (queryMany == null) throw new ArgumentNullException(nameof(queryMany));
             if (delay.HasValue && delay.Value <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(delay));
-            _queryMany = queryMany;
+            _queryMany = queryMany ?? throw new ArgumentNullException(nameof(queryMany));
             _timer = new Timer(TimerCallback, null, Timeout.Never, Timeout.Never);
             _completionSources = new Dictionary<TKey, TaskCompletionSource<IEnumerable<TValue>>>();
             _tcsFactory = _ => new TaskCompletionSource<IEnumerable<TValue>>();
             if (delay.HasValue)
-                _delay = delay.Value;
+                Delay = delay.Value;
         }
 
         /// <summary>Gets the results for a <paramref name="key"/></summary>
@@ -46,7 +44,7 @@ namespace BusterWood.Batching
             {
                 var tcs = _completionSources.GetOrAdd(key, _tcsFactory);
                 if (_completionSources.Count == 1)
-                    _timer.Change(_delay, Timeout.Never);
+                    _timer.Change(Delay, Timeout.Never);
                 return tcs.Task;
             }
         }
@@ -68,7 +66,7 @@ namespace BusterWood.Batching
             ILookup<TKey, TValue> results;
             try
             {
-                results = await _queryMany(completionSources.Keys.ToList()); // on .NET 4.6 we don't need ".ToList()" as Keys implments IReadOnlyCollection
+                results = await _queryMany(completionSources.Keys);
             }
             catch (Exception ex)
             {

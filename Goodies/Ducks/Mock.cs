@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Reflection;
 
 namespace BusterWood.Ducks
 {
     /// <summary>
-    /// Casts any object, delegeate, or the static methods of a type to an interface. Methods that don't match will return <see cref="NotImplementedException"/>.
+    /// Casts any object, delegate, or the static methods of a type to an interface. Methods that don't match will return <see cref="NotImplementedException"/>.
     /// </summary>
     public static class Mock
     {
@@ -48,10 +47,10 @@ namespace BusterWood.Ducks
                 from = duck.Unwrap();
 
             if (from is Type) // static cast
-                return Cast((Type)from, to); 
+                return Cast((Type)from, to);
 
             if (from is Delegate) // delegate cast
-                return Cast((Delegate)from, to);    
+                return Cast((Delegate)from, to);
             
             // else instance cast try
             return Instance.Cast(from, to, MissingMethods.NotImplemented);

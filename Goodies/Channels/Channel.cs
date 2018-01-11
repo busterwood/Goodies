@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace BusterWood.Channels
 {
     /// <summary>A channel for communicating between two asynchronous threads.</summary>
-    public class Channel<T> : IReceiver<T>, ISender<T>
+    public class Channel<T> : IReceiver<T>, ISender<T>, ISelectable
     {
         readonly object _gate = new object();
         LinkedQueue<Sender<T>> _senders;        // senders waiting for a receiver
@@ -19,7 +19,7 @@ namespace BusterWood.Channels
             get { return _closed.IsCancellationRequested; }
         }
 
-        /// <summary>Closing a channel prevents any further values being sent and will cancel the tasks of any waiting receviers, <see cref="ReceiveAsync"/></summary>
+        /// <summary>Closing a channel prevents any further values being sent and will cancel the tasks of any waiting receivers, <see cref="ReceiveAsync"/></summary>
         public void Close()
         {
             lock (_gate)
@@ -185,7 +185,7 @@ namespace BusterWood.Channels
         }
 
         /// <summary>Adds a waiter for a <see cref="Select"/></summary>
-        internal void AddWaiter(Waiter waiter)
+        void ISelectable.AddWaiter(Waiter waiter)
         {
             lock (_gate)
             {
@@ -198,7 +198,7 @@ namespace BusterWood.Channels
         }
 
         /// <summary>Removes a waiter for a <see cref="Select"/></summary>
-        internal void RemoveWaiter(Waiter waiter)
+        void ISelectable.RemoveWaiter(Waiter waiter)
         {
             lock (_gate)
             {
@@ -233,7 +233,7 @@ namespace BusterWood.Channels
         }
     }
 
-    class Waiter : TaskCompletionSource<bool>, INext<Waiter>
+    public class Waiter : TaskCompletionSource<bool>, INext<Waiter>
     {
         public Waiter Next { get; set; } // linked list
 

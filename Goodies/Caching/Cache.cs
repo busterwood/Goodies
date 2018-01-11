@@ -30,10 +30,9 @@ namespace BusterWood.Caching
         {
             get
             {
-                TValue value;
                 lock (SyncRoot)
                 {
-                    if (_gen0.TryGetValue(key, out value))
+                    if (_gen0.TryGetValue(key, out var value))
                         return value;
 
                     if (_gen1?.TryGetValue(key, out value) == true)

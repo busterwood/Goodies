@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace BusterWood.Batching
 {
-    /// <summary>Batches calls to the <see cref="DoAsync(T)"/> method, delgating to method that takes many values at once</summary>
+    /// <summary>Batches calls to the <see cref="DoAsync(T)"/> method, delegating to method that takes many values at once</summary>
     public class AsyncActionBatcher<T>
     {
-        readonly TimeSpan _delay = TimeSpan.FromMilliseconds(100);
         readonly object _gate = new object();
         readonly Func<IReadOnlyCollection<T>, Task> _doMany;
         readonly Timer _timer;
@@ -17,20 +16,19 @@ namespace BusterWood.Batching
 
         /// <summary>The configured batching delay</summary>
         /// <remarks>Set in the constructor</remarks>
-        public TimeSpan Delay => _delay;
+        public TimeSpan Delay { get; } = TimeSpan.FromMilliseconds(100);
 
         /// <summary>Creates a batcher</summary>
         /// <param name="doMany">The function to call to get the results for a set of keys</param>
         /// <param name="delay">Optional batching delay, defaults to 100ms</param>
         public AsyncActionBatcher(Func<IReadOnlyCollection<T>, Task> doMany, TimeSpan? delay = null)
         {
-            if (doMany == null) throw new ArgumentNullException(nameof(doMany));
             if (delay.HasValue && delay.Value <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(delay));
-            _doMany = doMany;
+            _doMany = doMany ?? throw new ArgumentNullException(nameof(doMany));
             _timer = new Timer(TimerCallback, null, Timeout.Never, Timeout.Never);
             _completionSource = new TaskCompletionSource<bool>();
             if (delay.HasValue)
-                _delay = delay.Value;
+                Delay = delay.Value;
         }
 
         /// <summary>Performs an async action to the <paramref name="input"/></summary>
@@ -44,7 +42,7 @@ namespace BusterWood.Batching
                 {
                     _inputs = new List<T> { input };
                     _completionSource = new TaskCompletionSource<bool>();
-                    _timer.Change(_delay, Timeout.Never);
+                    _timer.Change(Delay, Timeout.Never);
                 }
                 return _completionSource.Task;
             }

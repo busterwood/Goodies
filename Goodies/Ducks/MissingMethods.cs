@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BusterWood.Ducks
+﻿namespace BusterWood.Ducks
 {
     enum MissingMethods
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace BusterWood.Channels
 {
-    /// <summary>A Select allows for receving on one on many channels, in priority order</summary>
+    /// <summary>A Select allows for receiving on one on many channels, in priority order</summary>
     public class Select
     {
         static readonly Task<bool> True = Task.FromResult(true);
@@ -13,9 +13,9 @@ namespace BusterWood.Channels
         List<ICase> cases = new List<ICase>();
 
         /// <summary>Adds a action to perform when a channel can be read</summary>
-        /// <param name="ch">The channel to try to read from</param>
+        /// <param name="ch">The channel to try to read from (which must also implement <see cref="ISelectable"/>)</param>
         /// <param name="action">the synchronous action to perform with the value that was read</param>
-        public Select OnReceive<T>(Channel<T> ch, Action<T> action)
+        public Select OnReceive<T>(IReceiver<T> ch, Action<T> action)
         {
             if (ch == null) throw new ArgumentNullException(nameof(ch));
             if (action == null) throw new ArgumentNullException(nameof(action));
@@ -24,9 +24,9 @@ namespace BusterWood.Channels
         }
 
         /// <summary>Adds a asynchronous action to perform when a channel can be read</summary>
-        /// <param name="ch">The channel to try to read from</param>
+        /// <param name="ch">The channel to try to read from (which must also implement <see cref="ISelectable"/>)</param>
         /// <param name="action">the asynchronous action to perform with the value that was read</param>
-        public Select OnReceiveAsync<T>(Channel<T> ch, Func<T, Task> action)
+        public Select OnReceiveAsync<T>(IReceiver<T> ch, Func<T, Task> action)
         {
             if (ch == null) throw new ArgumentNullException(nameof(ch));
             if (action == null) throw new ArgumentNullException(nameof(action));
@@ -87,13 +87,15 @@ namespace BusterWood.Channels
 
         class ReceiveAsyncCase<T> : ICase
         {
-            readonly Channel<T> ch;
+            readonly IReceiver<T> ch;
             readonly Func<T, Task> asyncAction;
 
-            public ReceiveAsyncCase(Channel<T> ch, Func<T, Task> asyncAction)
+            public ReceiveAsyncCase(IReceiver<T> ch, Func<T, Task> asyncAction)
             {
                 this.ch = ch;
                 this.asyncAction = asyncAction;
+                if (!(ch is ISelectable))
+                    throw new ArgumentException("receiver must implement " + nameof(ISelectable), nameof(ch));
             }
 
             public Task<bool> TryExecuteAsync()
@@ -110,24 +112,26 @@ namespace BusterWood.Channels
 
             public void AddWaiter(Waiter tcs)
             {
-                ch.AddWaiter(tcs);
+                ((ISelectable)ch).AddWaiter(tcs);
             }
 
             public void RemoveWaiter(Waiter tcs)
             {
-                ch.RemoveWaiter(tcs);
+                ((ISelectable)ch).RemoveWaiter(tcs);
             }
         }
 
         class ReceiveCase<T> : ICase
         {
-            readonly Channel<T> ch;
+            readonly IReceiver<T> ch;
             readonly Action<T> action;
 
-            public ReceiveCase(Channel<T> ch, Action<T> action)
+            public ReceiveCase(IReceiver<T> ch, Action<T> action)
             {
                 this.ch = ch;
                 this.action = action;
+                if (!(ch is ISelectable))
+                    throw new ArgumentException("receiver must implement " + nameof(ISelectable), nameof(ch));
             }
 
             public Task<bool> TryExecuteAsync()
@@ -142,12 +146,12 @@ namespace BusterWood.Channels
 
             public void AddWaiter(Waiter tcs)
             {
-                ch.AddWaiter(tcs);
+                ((ISelectable)ch).AddWaiter(tcs);
             }
 
             public void RemoveWaiter(Waiter tcs)
             {
-                ch.RemoveWaiter(tcs);
+                ((ISelectable)ch).RemoveWaiter(tcs);
             }
         }
     }

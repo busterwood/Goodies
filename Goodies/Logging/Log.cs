@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Runtime.CompilerServices;
@@ -78,8 +76,7 @@ namespace BusterWood.Logging
 
         public static Popper Push(object value)
         {
-            var newCtx = new LogContext(value, LogContext.Current);
-            _logContext.Value = newCtx;
+            _logContext.Value = new LogContext(value, LogContext.Current);
             return new Popper();
         }
 
@@ -94,7 +91,7 @@ namespace BusterWood.Logging
         {
             public void Dispose()
             {
-                Log.Pop();
+                Pop();
             }
         }
     }

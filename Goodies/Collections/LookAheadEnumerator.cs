@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace BusterWood.Collections
 {
-    /// <summary>An <see cref="IEnumerator{T}"/> that has a a look ahead of one item</summary>
+    /// <summary>An <see cref="IEnumerator{T}"/> that has a a look ahead of one item, which is useful if you are parsing</summary>
     /// <typeparam name="T"></typeparam>
     public class LookAheadEnumerator<T> : IEnumerator<T>
     {
@@ -25,9 +25,7 @@ namespace BusterWood.Collections
 
         public LookAheadEnumerator(IEnumerator<T> inner)
         {
-            if (inner == null)
-                throw new ArgumentNullException(nameof(inner));
-            this.inner = inner;
+            this.inner = inner ?? throw new ArgumentNullException(nameof(inner));
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
