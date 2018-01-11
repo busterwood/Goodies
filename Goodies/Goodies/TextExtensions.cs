@@ -19,13 +19,13 @@ namespace BusterWood.Goodies
         public static IEnumerable<char> ToUpper(this IEnumerable<char> chars) => chars.Select(c => c.ToUpper());
         public static IEnumerable<char> ToLower(this IEnumerable<char> chars) => chars.Select(c => c.ToLower());
 
-        /// <summary>Turns a sequnce of characters into a string</summary>
+        /// <summary>Turns a sequence of characters into a string</summary>
         public static string String(this IEnumerable<char> items) => items is string ? (string)items : new string(items.ToArray());
 
-        /// <summary>Turns a sequnce of objects into a string with a <param name="separator"/> between each</summary>
+        /// <summary>Turns a sequence of objects into a string with a <param name="separator"/> between each</summary>
         public static string String(this IEnumerable items, string separator = " ") => string.Join(separator, items.Cast<object>().Select(i => i?.ToString()));
 
-        /// <summary>Turns a sequnce of strings into a big string with a <param name="separator"/> between each</summary>
+        /// <summary>Turns a sequence of strings into a big string with a <param name="separator"/> between each</summary>
         public static string String(this IEnumerable<string> items, string separator = " ") => string.Join(separator, items);
 
         /// <summary>Separate "TitleCase" text into "Title Case"</summary>
@@ -36,20 +36,6 @@ namespace BusterWood.Goodies
             .SplitOn(c => !c.IsLetter())
             .Select(word => word.First().ToUpper().Concat(word.Rest().ToLower()).String())
             .String("");
-
-        public delegate bool TryParser<T>(string text, out T result);
-
-        public static T? Parse<T>(this string text, TryParser<T> parser, T? @default = null) where T : struct
-        {
-            T temp;
-            return parser(text, out temp) ? temp : @default;
-        }
-
-        public static int? ParseInt(this string text, int? @default = null) => text.Parse(int.TryParse, @default);
-
-        public static long? ParseLong(this string text, long? @default = null) => text.Parse(long.TryParse, @default);
-
-        public static DateTime? ParseDateTime(this string text, DateTime? @default = null) => text.Parse(DateTime.TryParse, @default);
 
         public static StringBuilder ToBuilder(this string text) => new StringBuilder(text);
 

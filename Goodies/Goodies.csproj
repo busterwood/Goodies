@@ -8,6 +8,13 @@
     <AssemblyOriginatorKeyFile>..\Goodies.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\BusterWood.Goodies.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net461|AnyCPU'">
+    <DocumentationFile>bin\Release\net461\BusterWood.Goodies.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
