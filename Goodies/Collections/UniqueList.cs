@@ -53,6 +53,7 @@ namespace BusterWood.Collections
         /// <summary>The number of items in the list</summary>
         public int Count => count;
 
+        /// <summary>Returns FALSE</summary>
         public bool IsReadOnly => false;
 
         /// <summary>Gets or sets the value stored at an <paramref name="index"/> in the list</summary>
