@@ -5,6 +5,7 @@ using System.Reflection.Emit;
 using static System.Reflection.MethodAttributes;
 using static System.Reflection.CallingConventions;
 using BusterWood.Reflection.Emit;
+using BusterWood.Collections;
 
 namespace BusterWood.Ducks
 {

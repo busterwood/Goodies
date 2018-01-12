@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace BusterWood.Ducks
+namespace BusterWood.Collections
 {
     /// <summary>A dictionary that is mostly read from, hardly ever written too</summary>
     class MostlyReadDictionary<TKey, TValue>

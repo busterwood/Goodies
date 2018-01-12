@@ -1,6 +1,5 @@
 ﻿using BusterWood.Caching;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace UnitTests

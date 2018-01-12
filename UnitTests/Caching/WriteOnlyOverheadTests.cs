@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Caching;
-using System.Threading.Tasks;
 
 namespace UnitTests
 {

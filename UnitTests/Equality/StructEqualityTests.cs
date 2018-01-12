@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using BusterWood.Equality;
 
 namespace UnitTests
