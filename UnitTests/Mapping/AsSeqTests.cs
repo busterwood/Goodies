@@ -38,13 +38,7 @@ namespace BusterWood.Mapping
             Assert.AreEqual(value, pair.Value);
         }
 
-        [Test]
-        public void sequence_does_not_contain_value_of_null_class()
-        {
-            HasProperties item = new HasProperties();
-            Assert.IsFalse(item.AsSeq().Any(p => p.Key == nameof(HasProperties.Text)));
-        }
-
+        [TestCase(null)]
         [TestCase("")]
         [TestCase("hello")]
         public void sequence_contains_value_of_class(string value)
@@ -55,10 +49,11 @@ namespace BusterWood.Mapping
         }
 
         [Test]
-        public void sequence_does_not_contain_value_of_nullable_struct()
+        public void sequence_contains_default_value_of_nullable_struct()
         {
             HasProperties item = new HasProperties();
-            Assert.IsFalse(item.AsSeq().Any(p => p.Key == nameof(HasProperties.OptLong)));
+            var pair = item.AsSeq().FirstOrDefault(p => p.Key == nameof(HasProperties.OptLong));
+            Assert.AreEqual(default(long?), pair.Value);
         }
 
         [TestCase(0L)]
