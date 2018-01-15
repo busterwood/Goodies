@@ -1,5 +1,6 @@
 ﻿using BusterWood.Ducks;
 using System;
+using System.Diagnostics;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -10,6 +11,7 @@ namespace BusterWood.Goodies
     /// <typeparam name="TEntity">The type of the ID is for, e.g. Order</typeparam>
     /// <typeparam name="TKey">The type of ID, e.g. int</typeparam>
     /// <remarks>Does NOT support XML serialization</remarks>
+    [DebuggerDisplay("{DebuggerValue}")]
     public struct Id<TEntity, TKey> : IEquatable<Id<TEntity, TKey>>, IXmlSerializable
         where TKey : IEquatable<TKey>
     {
@@ -18,8 +20,9 @@ namespace BusterWood.Goodies
             Value = value;
         }
 
+        private string DebuggerValue => $"{typeof(TEntity).Name} = {ToString()}";
         public TKey Value { get; private set; }
-        public override string ToString() => $"{typeof(TEntity)} {Value}";
+        public override string ToString() => Value.ToString();
         public override bool Equals(object obj) => obj is Id<TEntity, TKey> && Equals((Id<TEntity, TKey>)obj);
         public bool Equals(Id<TEntity, TKey> other) => Value.Equals(other.Value);
         public override int GetHashCode() => Value.GetHashCode();
@@ -39,6 +42,7 @@ namespace BusterWood.Goodies
 
     /// <summary>Generic Int32 ID type to prevent different types of IDs being mixed up, e.g. client ID and order ID</summary>
     /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    [DebuggerDisplay("{DebuggerValue}")]
     public struct Int32<T> : IEquatable<Int32<T>>, IXmlSerializable
     {
         public Int32(int value)
@@ -46,8 +50,9 @@ namespace BusterWood.Goodies
             Value = value;
         }
 
+        private string DebuggerValue => $"{typeof(T).Name} = {ToString()}";
         public int Value { get; private set; }
-        public override string ToString() => $"{typeof(T)} {Value}";
+        public override string ToString() => Value.ToString();
         public override bool Equals(object obj) => obj is Int32<T> && Equals((Int32<T>)obj);
         public bool Equals(Int32<T> other) => Value == other.Value;
         public override int GetHashCode() => Value.GetHashCode();
@@ -62,6 +67,7 @@ namespace BusterWood.Goodies
 
     /// <summary>Generic Int64 ID type to prevent different types of IDs being mixed up, e.g. client ID and order ID</summary>
     /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    [DebuggerDisplay("{DebuggerValue}")]
     public struct Int64<T> : IEquatable<Int64<T>>, IXmlSerializable
     {
         public Int64(long value)
@@ -69,8 +75,9 @@ namespace BusterWood.Goodies
             Value = value;
         }
 
+        private string DebuggerValue => $"{typeof(T).Name} = {ToString()}";
         public long Value { get; private set; }
-        public override string ToString() => $"{typeof(T)} {Value}";
+        public override string ToString() => Value.ToString();
         public override bool Equals(object obj) => obj is Int64<T> && Equals((Int64<T>)obj);
         public bool Equals(Int64<T> other) => Value == other.Value;
         public override int GetHashCode() => Value.GetHashCode();
@@ -85,6 +92,7 @@ namespace BusterWood.Goodies
 
     /// <summary>Generic GUID ID type to prevent different types of IDs being mixed up, e.g. client ID and order ID</summary>
     /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    [DebuggerDisplay("{DebuggerValue}")]
     public struct Guid<T> : IEquatable<Guid<T>>, IXmlSerializable
     {
         public Guid(Guid value)
@@ -92,8 +100,9 @@ namespace BusterWood.Goodies
             Value = value;
         }
 
+        private string DebuggerValue => $"{typeof(T).Name} = {ToString()}";
         public Guid Value { get; private set; }
-        public override string ToString() => $"{typeof(T)} {Value}";
+        public override string ToString() => Value.ToString();
         public override bool Equals(object obj) => obj is Guid<T> && Equals((Guid<T>)obj);
         public bool Equals(Guid<T> other) => Value == other.Value;
         public override int GetHashCode() => Value.GetHashCode();
@@ -108,6 +117,7 @@ namespace BusterWood.Goodies
     
     /// <summary>Generic string ID type to prevent different types of IDs being mixed up, e.g. client ID and order ID</summary>
     /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    [DebuggerDisplay("{DebuggerValue}")]
     public struct String<T> : IEquatable<String<T>>, IXmlSerializable
     {
         public String(String value)
@@ -115,8 +125,9 @@ namespace BusterWood.Goodies
             Value = value;
         }
 
+        private string DebuggerValue => $"{typeof(T).Name} = {ToString()}";
         public String Value { get; private set; }
-        public override string ToString() => $"{typeof(T)} {Value}";
+        public override string ToString() => Value;
         public override bool Equals(object obj) => obj is String<T> && Equals((String<T>)obj);
         public bool Equals(String<T> other) => Value == other.Value;
         public override int GetHashCode() => Value.GetHashCode();
@@ -131,6 +142,7 @@ namespace BusterWood.Goodies
 
     /// <summary>Generic decimal value type to prevent different types of things being mixed up, e.g. price and quantity</summary>
     /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    [DebuggerDisplay("{DebuggerValue}")]
     public struct Decimal<T> : IEquatable<Decimal<T>>, IXmlSerializable, IFormattable
     {
         public Decimal(Decimal value)
@@ -138,9 +150,10 @@ namespace BusterWood.Goodies
             Value = value;
         }
 
+        private string DebuggerValue => $"{typeof(T).Name} = {ToString()}";
         public Decimal Value { get; private set; }
-        public override string ToString() => $"{typeof(T)} {Value}";
-        public string ToString(string format, IFormatProvider formatProvider) => $"{typeof(T)} {Value.ToString(format, formatProvider)}";
+        public override string ToString() => Value.ToString();
+        public string ToString(string format, IFormatProvider formatProvider) => Value.ToString(format, formatProvider);
         public override bool Equals(object obj) => obj is Decimal<T> && Equals((Decimal<T>)obj);
         public bool Equals(Decimal<T> other) => Value == other.Value;
         public override int GetHashCode() => Value.GetHashCode();
