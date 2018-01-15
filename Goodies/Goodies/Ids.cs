@@ -127,6 +127,30 @@ namespace BusterWood.Goodies
         public static explicit operator String<T>(String id) => new String<T>(id);
         public static bool operator ==(String<T> left, String<T> right) => left.Equals(right);
         public static bool operator !=(String<T> left, String<T> right) => !left.Equals(right);
+    }    
+
+    /// <summary>Generic decimal value type to prevent different types of things being mixed up, e.g. price and quantity</summary>
+    /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    public struct Decimal<T> : IEquatable<Decimal<T>>, IXmlSerializable, IFormattable
+    {
+        public Decimal(Decimal value)
+        {
+            Value = value;
+        }
+
+        public Decimal Value { get; private set; }
+        public override string ToString() => $"{typeof(T)} {Value}";
+        public string ToString(string format, IFormatProvider formatProvider) => $"{typeof(T)} {Value.ToString(format, formatProvider)}";
+        public override bool Equals(object obj) => obj is Decimal<T> && Equals((Decimal<T>)obj);
+        public bool Equals(Decimal<T> other) => Value == other.Value;
+        public override int GetHashCode() => Value.GetHashCode();
+        XmlSchema IXmlSerializable.GetSchema() => null;
+        void IXmlSerializable.ReadXml(XmlReader reader) { Value = reader.ReadElementContentAsDecimal(); }
+        void IXmlSerializable.WriteXml(XmlWriter writer) { writer.WriteValue(Value); }
+        public static explicit operator Decimal(Decimal<T> id) => id.Value;
+        public static explicit operator Decimal<T>(Decimal id) => new Decimal<T>(id);
+        public static bool operator ==(Decimal<T> left, Decimal<T> right) => left.Equals(right);
+        public static bool operator !=(Decimal<T> left, Decimal<T> right) => !left.Equals(right);
     }
 
 }
