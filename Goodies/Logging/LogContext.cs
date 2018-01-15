@@ -7,7 +7,7 @@ using System.Threading;
 namespace BusterWood.Logging
 {
 
-    /// <summary>Immutable context information used for logging, use the <see cref="Push"/> and <see cref="Pop()"/> methods to add and remove context information</summary>
+    /// <summary>Immutable context information used for logging, use the <see cref="Log.Push"/> and <see cref="Log.Pop()"/> methods to add and remove context information</summary>
     /// <remarks>Uses the LogicalCallContext so it works with async methods as well as normal methods</remarks>
     public class LogContext : IEnumerable<LogContext>
     {

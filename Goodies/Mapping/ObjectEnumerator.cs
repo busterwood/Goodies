@@ -5,33 +5,6 @@ using System.Reflection;
 
 namespace BusterWood.Mapping
 {
-    public static class Seq
-    {
-        public static bool Contains<T>(this IEnumerable<T> items, Func<T, bool> predicate)
-        {
-            if (predicate == null)
-                throw new ArgumentNullException(nameof(predicate));
-            if (items == null)
-                return false;
-            foreach (var item in items)
-            {
-                if (predicate(item))
-                    return true;
-            }
-            return false;
-        }
-
-        public static IEnumerable<T> Lazy<T>(Func<T[]> itemFunc)
-        {
-            if (itemFunc == null)
-                throw new ArgumentNullException(nameof(itemFunc));
-            foreach (var item in itemFunc())
-            {
-                yield return item;
-            }
-        }
-    }
-
     public static class ObjectEnumerator
     {       
         /// <summary>Turns an object into a sequence of key value pairs</summary>
@@ -45,14 +18,14 @@ namespace BusterWood.Mapping
 
             var type = item.GetType();
 
-            var fields = Seq.Lazy(() => type.GetFields(PublicInstance))
+            var fields = type.GetFields(PublicInstance)
                 .Select(f => new KeyValuePair<string, object>(f.Name, f.GetValue(item)));
 
-            var properties = Seq.Lazy(() => type.GetProperties(PublicInstance))
+            var properties = type.GetProperties(PublicInstance)
                 .Where(p => p.CanRead)
                 .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(item)));
             
-            return fields.Concat(properties).Where(pair => pair.Value != null);
+            return fields.Concat(properties);
         }
 
         /// <summary>Turns a sequence of key value pairs into an object using the ctor or writeable fields and properties (if the ctor has zero parameters)</summary>
@@ -95,7 +68,6 @@ namespace BusterWood.Mapping
                 ((PropertyInfo)member).SetValue(obj, value);
             else
                 ((FieldInfo)member).SetValue(obj, value);
-
         }
 
         private static object ConvertValue(object value, Type targetType)

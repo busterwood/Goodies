@@ -26,12 +26,12 @@ namespace BusterWood.Collections
         /// <summary>
         /// Get a existing value from <paramref name="dictionary"/> or adds a value to the <paramref name="dictionary"/> using the <paramref name="valueFactory"/>.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dic, TKey key, Func<TKey, TValue> valueFactory)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> valueFactory)
         {
-            if (!dic.TryGetValue(key, out TValue value))
+            if (!dictionary.TryGetValue(key, out TValue value))
             {
                 value = valueFactory(key);
-                dic.Add(key, value);
+                dictionary.Add(key, value);
             }
             return value;
         }

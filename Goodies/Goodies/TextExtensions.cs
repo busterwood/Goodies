@@ -21,10 +21,10 @@ namespace BusterWood.Goodies
         /// <summary>Turns a sequence of characters into a string</summary>
         public static string String(this IEnumerable<char> items) => items is string ? (string)items : new string(items.ToArray());
 
-        /// <summary>Turns a sequence of objects into a string with a <param name="separator"/> between each</summary>
+        /// <summary>Turns a sequence of objects into a string with a <paramref name="separator"/> between each</summary>
         public static string String(this IEnumerable items, string separator = " ") => string.Join(separator, items.Cast<object>().Select(i => i?.ToString()));
 
-        /// <summary>Turns a sequence of strings into a big string with a <param name="separator"/> between each</summary>
+        /// <summary>Turns a sequence of strings into a big string with a <paramref name="separator"/> between each</summary>
         public static string String(this IEnumerable<string> items, string separator = " ") => string.Join(separator, items);
 
         /// <summary>Separate "TitleCase" text into "Title Case"</summary>

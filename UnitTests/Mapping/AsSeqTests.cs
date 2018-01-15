@@ -26,7 +26,7 @@ namespace BusterWood.Mapping
         public void sequence_contains_pair_for_default_value_of_int()
         {
             HasProperties item = new HasProperties();
-            Assert.IsTrue(item.AsSeq().Contains(p => p.Key == nameof(HasProperties.Int1)));
+            Assert.IsTrue(item.AsSeq().Any(p => p.Key == nameof(HasProperties.Int1)));
         }
 
         [TestCase(0)]
@@ -42,7 +42,7 @@ namespace BusterWood.Mapping
         public void sequence_does_not_contain_value_of_null_class()
         {
             HasProperties item = new HasProperties();
-            Assert.IsFalse(item.AsSeq().Contains(p => p.Key == nameof(HasProperties.Text)));
+            Assert.IsFalse(item.AsSeq().Any(p => p.Key == nameof(HasProperties.Text)));
         }
 
         [TestCase("")]
@@ -58,7 +58,7 @@ namespace BusterWood.Mapping
         public void sequence_does_not_contain_value_of_nullable_struct()
         {
             HasProperties item = new HasProperties();
-            Assert.IsFalse(item.AsSeq().Contains(p => p.Key == nameof(HasProperties.OptLong)));
+            Assert.IsFalse(item.AsSeq().Any(p => p.Key == nameof(HasProperties.OptLong)));
         }
 
         [TestCase(0L)]

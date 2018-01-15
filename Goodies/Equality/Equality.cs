@@ -7,7 +7,7 @@ using BusterWood.Reflection.Emit;
 
 namespace BusterWood.Equality
 {
-    /// <summary>Runtime creation of an <see cref="IEqualityComparer<T>"/> based on property names.</summary>
+    /// <summary>Runtime creation of an <see cref="IEqualityComparer{T}"/> based on property names.</summary>
     public static class EqualityComparer
     {
         static readonly ConcurrentDictionary<Key, object> _comparers = new ConcurrentDictionary<Key, object>();

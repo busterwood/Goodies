@@ -104,6 +104,29 @@ namespace BusterWood.Goodies
         public static explicit operator Guid<T>(Guid id) => new Guid<T>(id);
         public static bool operator ==(Guid<T> left, Guid<T> right) => left.Equals(right);
         public static bool operator !=(Guid<T> left, Guid<T> right) => !left.Equals(right);
+    }    
+    
+    /// <summary>Generic string ID type to prevent different types of IDs being mixed up, e.g. client ID and order ID</summary>
+    /// <typeparam name="T">The type of the ID is for, e.g. Order</typeparam>
+    public struct String<T> : IEquatable<String<T>>, IXmlSerializable
+    {
+        public String(String value)
+        {
+            Value = value;
+        }
+
+        public String Value { get; private set; }
+        public override string ToString() => $"{typeof(T)} {Value}";
+        public override bool Equals(object obj) => obj is String<T> && Equals((String<T>)obj);
+        public bool Equals(String<T> other) => Value == other.Value;
+        public override int GetHashCode() => Value.GetHashCode();
+        XmlSchema IXmlSerializable.GetSchema() => null;
+        void IXmlSerializable.ReadXml(XmlReader reader) { Value = reader.ReadElementContentAsString(); }
+        void IXmlSerializable.WriteXml(XmlWriter writer) { writer.WriteValue(Value); }
+        public static explicit operator String(String<T> id) => id.Value;
+        public static explicit operator String<T>(String id) => new String<T>(id);
+        public static bool operator ==(String<T> left, String<T> right) => left.Equals(right);
+        public static bool operator !=(String<T> left, String<T> right) => !left.Equals(right);
     }
 
 }

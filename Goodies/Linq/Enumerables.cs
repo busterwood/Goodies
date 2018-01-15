@@ -23,7 +23,7 @@ namespace BusterWood.Linq
             return lst;
         }
 
-        /// <summary>returns up to <paramref cref="count"/> values from the <paramref cref="source"/>, padding the result with <paramref cref="@default"/> values</summary>
+        /// <summary>returns up to <paramref name="count"/> values from the <paramref name="source"/>, padding the result with <paramref name="default"/> values</summary>
         public static T[] ToArrayOf<T>(this IEnumerable<T> source, int count, T @default = default(T))
         {
             if (source == null)
@@ -45,7 +45,7 @@ namespace BusterWood.Linq
             return result;
         }
 
-        /// <summary>returns up to <paramref cref="count"/> values from the <paramref cref="source"/>, padding the result with <paramref cref="@default"/> values</summary>
+        /// <summary>returns up to <paramref name="count"/> values from the <paramref name="source"/>, padding the result with <paramref name="default"/> values</summary>
         public static List<T> ToListOf<T>(this IEnumerable<T> source, int count, T @default = default(T))
         {
             if (source == null)
