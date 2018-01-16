@@ -65,65 +65,51 @@ namespace BusterWood.Mapping
         static Expression ReadValue(ParameterExpression input, Mapping<Thing, Thing> map)
         {
             Expression value = Expression.PropertyOrField(input, map.From.Name);
-            var fromType = map.From.Type;
-            var toType = map.To.Type;
+            return ReadValueRecursive(value, map.From.Type, map.To.Type);
+        }
+
+        static Expression ReadValueRecursive(Expression value, Type fromType, Type toType)
+        {
             if (fromType == toType)
             {
                 return value;
             }
-            if (Types.CanBeCast(fromType, toType)) // e.g. int to long
+
+            if (Types.IsNullable(fromType))
+            {
+                if (Types.IsNullable(toType))
+                {
+                    var toArgType = toType.GetGenericArguments()[0];
+                    // recursive call with unwrapped generic type
+                    return Expression.Condition(Expression.PropertyOrField(value, "HasValue"), Expression.Convert(ReadValueRecursive(value, fromType, toArgType), toType), Expression.Default(toType));
+                }
+
+                // then toType is not nullable at this point
+
+                // use value or default of nullable value
+                var fromArgType = fromType.GetGenericArguments()[0];
+                value = Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
+                fromType = fromArgType;
+
+                // we might have the correct types now
+                if (fromType == toType)
+                {
+                    return value;
+                }
+            }
+
+            if (Types.CanBeCast(fromType, toType)) // e.g. int? to long
             {
                 return Expression.Convert(value, toType);
             }
-            if (Types.IsNullable(fromType))
-            {
-                Expression fromValueOrDefault = Expression.Call(value, fromType.GetMethod("GetValueOrDefault", Type.EmptyTypes));
-                var fromArgType = Types.NullableOf(fromType);
-                if (fromArgType == toType) // e.g. int? to int
-                {
-                    return fromValueOrDefault;
-                }
-                var cast = Types.GetExplicitCastOperator(fromArgType, toType); 
-                if (cast != null) // e.g. Int32<>? to int
-                {
-                    return Expression.Call(cast, fromValueOrDefault);
-                }
-                if (Types.IsNullable(toType))
-                {
-                    // nullable<> to nullable<> conversion must handle null to null as a special case
 
-                    var toArgType = toType.GetGenericArguments()[0];
-                    if (Types.CanBeCast(fromArgType, toType)) // e.g. int? to long?
-                    {
-                        return Expression.Condition(Expression.PropertyOrField(value, "HasValue"), Expression.Convert(fromValueOrDefault, toType), Expression.Default(toType));
-                    }
-
-                    cast = Types.GetExplicitCastOperator(fromArgType, toArgType);  // e.g. Int32<>? to int?
-                    if (cast != null)
-                        fromValueOrDefault = Expression.Call(cast, fromValueOrDefault);
-
-                    return Expression.Condition(Expression.PropertyOrField(value, "HasValue"), Expression.Convert(fromValueOrDefault, toType), Expression.Default(toType));
-                }
-                if (Types.CanBeCast(fromArgType, toType)) // e.g. int? to long
-                {
-                    return Expression.Convert(fromValueOrDefault, toType);
-                }
-            }
-            if (Types.IsNullable(toType))
+            var cast = Types.GetExplicitCastOperator(fromType, toType);
+            if (cast != null) // e.g. Int32<>? to int
             {
-                var toArgType = toType.GetGenericArguments()[0];
-                var cast2 = Types.GetExplicitCastOperator(fromType, toArgType); // e.g. Int32<> to int?
-                if (cast2 != null)
-                {
-                    return Expression.Convert(Expression.Call(cast2, value), toType);
-                }
+                return Expression.Call(cast, value);
             }
-            var cast3 = Types.GetExplicitCastOperator(fromType, toType); // e.g. Int32<> to int
-            if (cast3 != null)
-            {
-                return Expression.Call(cast3, value);
-            }
-            throw new InvalidOperationException("Should never get here has types compatibility has been checked");
+
+            throw new InvalidOperationException("Should never get here as type compatibility has already been checked");
         }
 
     }
