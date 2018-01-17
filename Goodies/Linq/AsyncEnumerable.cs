@@ -136,7 +136,10 @@ namespace BusterWood.Linq
         }
 
         /// <summary>Returns an array containing all the items in the sequence</summary>
-        public async static Task<T[]> ToArrayAsync<T>(this IAsyncEnumerator<T> source) => (await source.ToListAsync()).ToArray();
+        public async static Task<T[]> ToArrayAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return (await source.ToListAsync(cancellationToken)).ToArray();
+        }
 
         /// <summary>Returns a list containing all the items in the sequence</summary>
         public async static Task<List<T>> ToListAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
