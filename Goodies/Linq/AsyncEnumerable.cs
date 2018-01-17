@@ -31,30 +31,35 @@ namespace BusterWood.Linq
         /// <summary>Skips over the items of at the start of the sequence, returns the nth item onwards</summary>
         public static IAsyncEnumerator<T> Skip<T>(this IAsyncEnumerator<T> source, int skip)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return new SkipAsyncEnumerator<T>(source, skip);
         }
 
         /// <summary>Returns first n items in a sequence</summary>
         public static IAsyncEnumerator<T> Take<T>(this IAsyncEnumerator<T> source, int take)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return new TakeAsyncEnumerator<T>(source, take);
         }
 
         /// <summary>Filters a sequence using supplied <paramref name="predicate"/></summary>
         public static IAsyncEnumerator<T> Where<T>(this IAsyncEnumerator<T> source, Func<T, bool> predicate)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return new WhereAsyncEnumerator<T>(source, predicate);
         }
 
         /// <summary>Transforms a sequence from one type to another</summary>
         public static IAsyncEnumerator<TOut> Select<TIn, TOut>(this IAsyncEnumerator<TIn> source, Func<TIn, TOut> transform)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return new SelectAsyncEnumerator<TIn, TOut>(source, transform);
         }
 
         /// <summary>Casts each item of a untyped sequence to a known type</summary>
         public static IAsyncEnumerator<T> Cast<T>(this IAsyncEnumerator source)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return new CastAsyncEnumerator<T>(source);
         }
 
@@ -62,6 +67,7 @@ namespace BusterWood.Linq
         /// <exception cref="InvalidOperationException"> thrown when the sequence is empty</exception>
         public async static Task<T> FirstAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (!await source.MoveNextAsync(cancellationToken))
                 throw new InvalidOperationException("Sequence is empty");
             return source.Current;
@@ -70,6 +76,7 @@ namespace BusterWood.Linq
         /// <summary>Returns the first item in the sequence, or the default value if the sequence is empty</summary>
         public async static Task<T> FirstOrDefaultAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             return await source.MoveNextAsync(cancellationToken) ? source.Current : default(T);
         }
 
@@ -77,6 +84,7 @@ namespace BusterWood.Linq
         /// <exception cref="InvalidOperationException"> thrown when the sequence does not contain exactly one item</exception>
         public async static Task<T> SingleAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (!await source.MoveNextAsync(cancellationToken))
                 throw new InvalidOperationException("Sequence is empty");
             var result = source.Current;
@@ -89,6 +97,7 @@ namespace BusterWood.Linq
         /// <exception cref="InvalidOperationException"> thrown when the sequence does not contain exactly one item</exception>
         public async static Task<T> SingleOrDefaultAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (!await source.MoveNextAsync(cancellationToken))
                 return default(T);
             var result = source.Current;
@@ -101,6 +110,7 @@ namespace BusterWood.Linq
         /// <exception cref="InvalidOperationException"> thrown when the sequence is empty</exception>
         public async static Task<T> LastAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (!await source.MoveNextAsync(cancellationToken))
                 throw new InvalidOperationException("Sequence is empty");
             for (;;)
@@ -114,6 +124,7 @@ namespace BusterWood.Linq
         /// <summary>Returns the last item in the sequence, or the default value if the sequence is empty</summary>
         public async static Task<T> LastOrDefaultAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             if (!await source.MoveNextAsync(cancellationToken))
                 return default(T);
             for (;;)
@@ -130,6 +141,7 @@ namespace BusterWood.Linq
         /// <summary>Returns a list containing all the items in the sequence</summary>
         public async static Task<List<T>> ToListAsync<T>(this IAsyncEnumerator<T> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             var result = new List<T>();
             while (await source.MoveNextAsync(cancellationToken))
             {
@@ -141,6 +153,7 @@ namespace BusterWood.Linq
         /// <summary>Returns a dictionary containing all the items in the sequence</summary>
         public async static Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this IAsyncEnumerator<TValue> source, Func<TValue, TKey> keyFunc, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             var result = new Dictionary<TKey, TValue>();
             while (await source.MoveNextAsync(cancellationToken))
             {
@@ -153,6 +166,7 @@ namespace BusterWood.Linq
         /// <summary>Returns a <see cref="HashLookup{TKey, TElement}"/> containing all the items in the sequence grouped by key</summary>
         public async static Task<HashLookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this IAsyncEnumerator<TValue> source, Func<TValue, TKey> keyFunc, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
             var result = new HashLookup<TKey, TValue>();
             while (await source.MoveNextAsync(cancellationToken))
             {
