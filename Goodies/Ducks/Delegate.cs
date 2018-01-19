@@ -59,7 +59,7 @@ namespace BusterWood.Ducks
 
             var create = typeBuilder.DefineMethod("Create", Public | Virtual | Final, HasThis, typeof(object), new[] { typeof(Delegate) });
             var il = create.GetILGenerator();
-            il.Arg1().Cast(duck); // cast delegate to duck
+            il.Arg(1).Cast(duck); // cast delegate to duck
             il.New(ctor);  // call ctor(duck)
             il.Return();
             return typeBuilder;

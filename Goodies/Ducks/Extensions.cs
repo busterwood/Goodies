@@ -90,7 +90,7 @@ namespace BusterWood.Ducks
         {
             var ctor = typeBuilder.DefineConstructor(Public, HasThis, new[] { duck });
             var il = ctor.GetILGenerator();
-            il.This().Arg1().Store(duckField); // store the parameter in the duck field
+            il.This().Arg(1).Store(duckField); // store the parameter in the duck field
             il.This().Call(typeof(object).GetTypeInfo().GetConstructor(EmptyTypes));
             il.Return();
             return ctor;
@@ -110,7 +110,7 @@ namespace BusterWood.Ducks
         {
             var create = typeBuilder.DefineMethod("Create", Public | MethodAttributes.Static, Standard, typeof(object), new[] { paramType });
             var il = create.GetILGenerator();
-            il.Arg0().Cast(duck);   // cast obj to duck
+            il.Arg(0).Cast(duck);   // cast obj to duck
             il.New(ctor);  // call ctor(duck)
             il.Return();
             return create;

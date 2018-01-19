@@ -32,7 +32,7 @@ namespace BusterWood.Equality
             var ctor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new[] { typeof(StringComparer) });
             var il = ctor.GetILGenerator();
             il.This().Call(typeof(object).GetTypeInfo().GetConstructor(new Type[0]));
-            il.This().Arg1().Store(strEq);
+            il.This().Arg(1).Store(strEq);
             il.Return();
 
             //typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);

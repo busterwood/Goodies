@@ -29,47 +29,52 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>Loads "this" onto the stack, i.e. argument zero</summary>
         public static ILGenerator This(this ILGenerator il)
         {
             il.Emit(OpCodes.Ldarg_0);
             return il;
         }
 
-        public static ILGenerator Arg0(this ILGenerator il)
+        public static ILGenerator ArgAddress(this ILGenerator il, int index)
         {
-            il.Emit(OpCodes.Ldarg_0);
+            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "index cannot be negative");
+
+            if (index <= 255)
+                il.Emit(OpCodes.Ldarga_S, index); // short form, more compact IL
+            else
+                il.Emit(OpCodes.Ldarga, index);
             return il;
         }
 
-        public static ILGenerator Arg1(this ILGenerator il)
-        {
-            il.Emit(OpCodes.Ldarg_1);
-            return il;
-        }
-
-        public static ILGenerator Arg2(this ILGenerator il)
-        {
-            il.Emit(OpCodes.Ldarg_2);
-            return il;
-        }
-
-        public static ILGenerator Arg1Address(this ILGenerator il)
-        {
-            il.Emit(OpCodes.Ldarga_S, 1);
-            return il;
-        }
-
-        public static ILGenerator Arg2Address(this ILGenerator il)
-        {
-            il.Emit(OpCodes.Ldarga_S, 2);
-            return il;
-        }
-
+        /// <summary>Loads an argument onto the stack</summary>
         public static ILGenerator Arg(this ILGenerator il, int index)
         {
-            il.Emit(OpCodes.Ldarg, index);
+            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "index cannot be negative");
+            switch (index)
+            {
+                case 0:
+                    il.Emit(OpCodes.Ldarg_0);
+                    break;
+                case 1:
+                    il.Emit(OpCodes.Ldarg_1);
+                    break;
+                case 2:
+                    il.Emit(OpCodes.Ldarg_2);
+                    break;
+                case 3:
+                    il.Emit(OpCodes.Ldarg_3);
+                    break;
+                default:
+                    if (index <= 255)
+                        il.Emit(OpCodes.Ldarg_S, index);  // short form, more compact IL
+                    else
+                        il.Emit(OpCodes.Ldarg, index);
+                    break;
+            }
             return il;
         }
+
         /// <summary>Goto label is last two arguments on the stack are equal</summary>
         public static ILGenerator IfEqualGoto(this ILGenerator il, Label label)
         {
@@ -137,12 +142,6 @@ namespace BusterWood.Reflection.Emit
         public static ILGenerator New(this ILGenerator il, ConstructorInfo ctor)
         {
             il.Emit(OpCodes.Newobj, ctor);
-            return il;
-        }
-
-        public static ILGenerator Constant(this ILGenerator il, int i)
-        {
-            il.Emit(OpCodes.Ldc_I4, i);
             return il;
         }
 
@@ -225,6 +224,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>Loads null onto the stack</summary>
         public static ILGenerator Null(this ILGenerator il)
         {
             il.Emit(OpCodes.Ldnull);
@@ -237,6 +237,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>Tries to cast the value on the stack to a type, result is the cast value or null</summary>
         public static ILGenerator AsType(this ILGenerator il, Type type)
         {
             il.Emit(OpCodes.Isinst, type);

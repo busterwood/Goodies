@@ -7,7 +7,6 @@ using BusterWood.Reflection.Emit;
 
 namespace BusterWood.Equality
 {
-
     static class StructEqualityBulider
     {
         public static MethodBuilder DefineEquals(Key key, TypeBuilder typeBuilder, FieldBuilder strEq)
@@ -31,36 +30,36 @@ namespace BusterWood.Equality
                 {
                     // string equality via field: strEq.Equals(x, y)
                     il.This().Load(strEq);
-                    il.Arg1Address().CallGetProperty(prop); // cast to object?
-                    il.Arg2Address().CallGetProperty(prop);
+                    il.ArgAddress(1).CallGetProperty(prop); // cast to object?
+                    il.ArgAddress(2).CallGetProperty(prop);
                     il.CallVirt(strEquals).IfFalseGoto(returnFalse);
                 }
                 else if (propType.IsClass)
                 {
                     // reference type call object.Equals(x, y)
-                    il.Arg1Address().CallGetProperty(prop); // cast to object?
-                    il.Arg2Address().CallGetProperty(prop);
+                    il.ArgAddress(1).CallGetProperty(prop); // cast to object?
+                    il.ArgAddress(2).CallGetProperty(prop);
                     il.Call(equalsXY).IfFalseGoto(returnFalse);
                 }
                 else if (propType.IsPrimitive)
                 {
-                    il.Arg1Address().CallGetProperty(prop); // cast to object?
-                    il.Arg2Address().CallGetProperty(prop);
+                    il.ArgAddress(1).CallGetProperty(prop); // cast to object?
+                    il.ArgAddress(2).CallGetProperty(prop);
                     il.IfNotEqualGoto(returnFalse);
                 }
                 //else if (propType.ImplementedInterfaces.Contains(equatable))
                 //{
                 //    IEnumerable<MethodInfo> eqOverloads = propType.GetDeclaredMethods(nameof(object.Equals));
                 //    var equitableXY = equalsOverloads.First(m => m.GetParameters().Length == 2 && m.GetParameters().All(p => p.ParameterType == propType));
-                //    il.Arg1().CallGetProperty(prop); // cast to object?
-                //    il.Arg2().CallGetProperty(prop);
+                //    il.Arg(1).CallGetProperty(prop); // cast to object?
+                //    il.Arg(2).CallGetProperty(prop);
                 //    il.CallVirt(equitableXY).IfFalseGoto(returnFalse);
                 //}
                 else
                 {
                     // ValueType type
-                    il.Arg1Address().CallGetProperty(prop);
-                    il.Arg2Address().CallGetProperty(prop);
+                    il.ArgAddress(1).CallGetProperty(prop);
+                    il.ArgAddress(2).CallGetProperty(prop);
                     il.Call(equals).IfFalseGoto(returnFalse);
                 }
             }
@@ -96,7 +95,7 @@ namespace BusterWood.Equality
                     // if (obj.Prop != null) hc += strEq.GetHashCode(obj.Prop)
                     var next = il.DefineLabel();
                     var temp = il.DeclareLocal(prop.PropertyType);
-                    il.Arg1Address().CallGetProperty(prop).Store(temp);
+                    il.ArgAddress(1).CallGetProperty(prop).Store(temp);
                     il.Load(temp).Null().IfEqualGoto(next);
                     il.This().Load(strEq);
                     il.Load(temp);
@@ -108,7 +107,7 @@ namespace BusterWood.Equality
                     // if (prop != null) hc += prop.GetHashCode();
                     var next = il.DefineLabel();
                     var temp = il.DeclareLocal(prop.PropertyType);
-                    il.Arg1Address().CallGetProperty(prop).Store(temp);
+                    il.ArgAddress(1).CallGetProperty(prop).Store(temp);
                     il.Load(temp).Null().IfEqualGoto(next);
                     il.Load(temp).CallVirt(getHashCode).Load(hc).Add().Store(hc);
                     il.MarkLabel(next);
@@ -119,7 +118,7 @@ namespace BusterWood.Equality
                     // hc += temp.GetHashCode();
                     var ghc = propType.GetDeclaredMethods(nameof(object.GetHashCode)).First(m => m.GetParameters().Length == 0); // GetHashCode must be overridden on a struct
                     var temp = il.DeclareLocal(prop.PropertyType);
-                    il.Arg1Address().CallGetProperty(prop).Store(temp);
+                    il.ArgAddress(1).CallGetProperty(prop).Store(temp);
                     il.LoadAddress(temp).Call(ghc).Load(hc).Add().Store(hc);
                 }
             }

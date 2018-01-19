@@ -22,7 +22,7 @@ namespace BusterWood.Equality
 
             //if (obj == null) return 0;
             var @return = il.DefineLabel();
-            il.Arg1().Null().IfEqualGoto(@return);
+            il.Arg(1).Null().IfEqualGoto(@return);
 
             var strGetHashCode = typeof(StringComparer).GetTypeInfo().GetDeclaredMethods("GetHashCode").First(m => m.GetParameters().Length == 1);
             foreach (var propName in key.Properties)
@@ -35,7 +35,7 @@ namespace BusterWood.Equality
                     // if (obj.Prop != null) hc += strEq.GetHashCode(obj.Prop)
                     var next = il.DefineLabel();
                     var temp = il.DeclareLocal(prop.PropertyType);
-                    il.Arg1().CallGetProperty(prop).Store(temp);
+                    il.Arg(1).CallGetProperty(prop).Store(temp);
                     il.Load(temp).Null().IfEqualGoto(next);
                     il.This().Load(strEq);
                     il.Load(temp);
@@ -47,7 +47,7 @@ namespace BusterWood.Equality
                     // if (prop != null) hc += prop.GetHashCode();
                     var next = il.DefineLabel();
                     var temp = il.DeclareLocal(prop.PropertyType);
-                    il.Arg1().CallGetProperty(prop).Store(temp);
+                    il.Arg(1).CallGetProperty(prop).Store(temp);
                     il.Load(temp).Null().IfEqualGoto(next);
                     il.Load(temp).CallVirt(getHashCode).Load(hc).Add().Store(hc);
                     il.MarkLabel(next);
@@ -58,7 +58,7 @@ namespace BusterWood.Equality
                     // hc += temp.GetHashCode();
                     var ghc = propType.GetDeclaredMethods(nameof(object.GetHashCode)).First(m => m.GetParameters().Length == 0); // GetHashCode must be overridden on a struct
                     var temp = il.DeclareLocal(prop.PropertyType);
-                    il.Arg1().CallGetProperty(prop).Store(temp);
+                    il.Arg(1).CallGetProperty(prop).Store(temp);
                     il.LoadAddress(temp).Call(ghc).Load(hc).Add().Store(hc);
                 }
             }
@@ -75,11 +75,11 @@ namespace BusterWood.Equality
             var returnTrue = il.DefineLabel();
 
             // reference equality
-            il.Arg1().Arg2().Call<object>(nameof(object.ReferenceEquals)).IfTrueGoto(returnTrue);
+            il.Arg(1).Arg(2).Call<object>(nameof(object.ReferenceEquals)).IfTrueGoto(returnTrue);
 
             // generate null checks
-            il.Arg1().Null().Call<object>(nameof(object.ReferenceEquals)).IfTrueGoto(returnFalse);
-            il.Arg2().Null().Call<object>(nameof(object.ReferenceEquals)).IfTrueGoto(returnFalse);
+            il.Arg(1).Null().Call<object>(nameof(object.ReferenceEquals)).IfTrueGoto(returnFalse);
+            il.Arg(2).Null().Call<object>(nameof(object.ReferenceEquals)).IfTrueGoto(returnFalse);
 
             IEnumerable<MethodInfo> equalsOverloads = typeof(object).GetTypeInfo().GetDeclaredMethods(nameof(object.Equals));
             var equals = equalsOverloads.First(m => m.GetParameters().Length == 1);
@@ -95,36 +95,36 @@ namespace BusterWood.Equality
                 {
                     // string equality via field: strEq.Equals(x, y)
                     il.This().Load(strEq);
-                    il.Arg1().CallGetProperty(prop); // cast to object?
-                    il.Arg2().CallGetProperty(prop);
+                    il.Arg(1).CallGetProperty(prop); // cast to object?
+                    il.Arg(2).CallGetProperty(prop);
                     il.CallVirt(strEquals).IfFalseGoto(returnFalse);
                 }
                 else if (propType.IsClass)
                 {
                     // reference type call object.Equals(x, y)
-                    il.Arg1().CallGetProperty(prop); // cast to object?
-                    il.Arg2().CallGetProperty(prop);
+                    il.Arg(1).CallGetProperty(prop); // cast to object?
+                    il.Arg(2).CallGetProperty(prop);
                     il.Call(equalsXY).IfFalseGoto(returnFalse);
                 }
                 else if (propType.IsPrimitive)
                 {
-                    il.Arg1().CallGetProperty(prop); // cast to object?
-                    il.Arg2().CallGetProperty(prop);
+                    il.Arg(1).CallGetProperty(prop); // cast to object?
+                    il.Arg(2).CallGetProperty(prop);
                     il.IfNotEqualGoto(returnFalse);
                 }
                 //else if (propType.ImplementedInterfaces.Contains(equatable))
                 //{
                 //    IEnumerable<MethodInfo> eqOverloads = propType.GetDeclaredMethods(nameof(object.Equals));
                 //    var equitableXY = equalsOverloads.First(m => m.GetParameters().Length == 2 && m.GetParameters().All(p => p.ParameterType == propType));
-                //    il.Arg1().CallGetProperty(prop); // cast to object?
-                //    il.Arg2().CallGetProperty(prop);
+                //    il.Arg(1).CallGetProperty(prop); // cast to object?
+                //    il.Arg(2).CallGetProperty(prop);
                 //    il.CallVirt(equitableXY).IfFalseGoto(returnFalse);
                 //}
                 else
                 {
                     // ValueType type
-                    il.Arg1().CallGetProperty(prop);
-                    il.Arg2().CallGetProperty(prop);
+                    il.Arg(1).CallGetProperty(prop);
+                    il.Arg(2).CallGetProperty(prop);
                     il.CallVirt(equals).IfFalseGoto(returnFalse);
                 }
             }
