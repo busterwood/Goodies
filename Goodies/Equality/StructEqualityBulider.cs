@@ -67,11 +67,11 @@ namespace BusterWood.Equality
 
             // drops through to here is all properties are equal
             il.MarkLabel(returnTrue);
-            il.Load1().Return();
+            il.Load(1).Return();
 
             // something is not equal
             il.MarkLabel(returnFalse);
-            il.Load0().Return();
+            il.Load(0).Return();
             return method;
         }
 
@@ -83,7 +83,7 @@ namespace BusterWood.Equality
             var getHashCode = getHashCodeOverLoads.First(m => m.GetParameters().Length == 0);
 
             var hc = il.DeclareLocal<int>();
-            il.Load0().Store(hc); // hc = 0
+            il.Load(0).Store(hc); // hc = 0
 
             var strGetHashCode = typeof(StringComparer).GetTypeInfo().GetDeclaredMethods("GetHashCode").First(m => m.GetParameters().Length == 1);
             foreach (var propName in key.Properties)

@@ -170,21 +170,45 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        public static ILGenerator Load0(this ILGenerator il)
-        {
-            il.Emit(OpCodes.Ldc_I4_0);
-            return il;
-        }
-
-        public static ILGenerator Load1(this ILGenerator il)
-        {
-            il.Emit(OpCodes.Ldc_I4_1);
-            return il;
-        }
-
+        /// <summary>Loads an integer onto the stack.  Uses optimized code for i between 0 and 8</summary>
         public static ILGenerator Load(this ILGenerator il, int i)
         {
-            il.Emit(OpCodes.Ldc_I4, i);
+            switch (i)
+            {
+                case -1:
+                    il.Emit(OpCodes.Ldc_I4_M1);
+                    break;
+                case 0:
+                    il.Emit(OpCodes.Ldc_I4_0);
+                    break;
+                case 1:
+                    il.Emit(OpCodes.Ldc_I4_1);
+                    break;
+                case 2:
+                    il.Emit(OpCodes.Ldc_I4_2);
+                    break;
+                case 3:
+                    il.Emit(OpCodes.Ldc_I4_3);
+                    break;
+                case 4:
+                    il.Emit(OpCodes.Ldc_I4_4);
+                    break;
+                case 5:
+                    il.Emit(OpCodes.Ldc_I4_5);
+                    break;
+                case 6:
+                    il.Emit(OpCodes.Ldc_I4_6);
+                    break;
+                case 7:
+                    il.Emit(OpCodes.Ldc_I4_7);
+                    break;
+                case 8:
+                    il.Emit(OpCodes.Ldc_I4_8);
+                    break;
+                default:
+                    il.Emit(OpCodes.Ldc_I4, i);
+                    break;
+            }
             return il;
         }
 
