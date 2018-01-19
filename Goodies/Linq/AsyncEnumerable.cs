@@ -49,11 +49,25 @@ namespace BusterWood.Linq
             return new WhereAsyncEnumerator<T>(source, predicate);
         }
 
+        /// <summary>Filters a sequence using supplied async <paramref name="predicate"/></summary>
+        public static IAsyncEnumerator<T> WhereAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            return new WhereAsyncEnumerator2<T>(source.GetEnumerator(), predicate);
+        }
+
         /// <summary>Transforms a sequence from one type to another</summary>
         public static IAsyncEnumerator<TOut> Select<TIn, TOut>(this IAsyncEnumerator<TIn> source, Func<TIn, TOut> transform)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             return new SelectAsyncEnumerator<TIn, TOut>(source, transform);
+        }        
+        
+        /// <summary>Transforms a sequence from one type to another via an async <paramref name="transform"/></summary>
+        public static IAsyncEnumerator<TOut> SelectAsync<TIn, TOut>(this IEnumerable<TIn> source, Func<TIn, Task<TOut>> transform)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            return new SelectAsyncEnumerator2<TIn, TOut>(source.GetEnumerator(), transform);
         }
 
         /// <summary>Casts each item of a untyped sequence to a known type</summary>
@@ -206,6 +220,32 @@ namespace BusterWood.Linq
         }
     }
 
+    class WhereAsyncEnumerator2<T> : IAsyncEnumerator<T>
+    {
+        readonly IEnumerator<T> source;
+        readonly Func<T, Task<bool>> predicate;
+
+        public WhereAsyncEnumerator2(IEnumerator<T> source, Func<T, Task<bool>> predicate)
+        {
+            this.source = source;
+            this.predicate = predicate;
+        }
+
+        object IAsyncEnumerator.Current => Current;
+
+        public T Current => source.Current;
+
+        public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+        {
+            while (source.MoveNext())
+            {
+                if (await predicate(source.Current))
+                    return true;
+            }
+            return false;
+        }
+    }
+
     class SkipAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         readonly IAsyncEnumerator<T> source;
@@ -277,6 +317,33 @@ namespace BusterWood.Linq
             if (await source.MoveNextAsync(cancellationToken))
             {
                 Current = transform(source.Current);
+                return true;
+            }
+            Current = default(TRes);
+            return false;
+        }
+    }
+
+    class SelectAsyncEnumerator2<T, TRes> : IAsyncEnumerator<TRes>
+    {
+        readonly IEnumerator<T> source;
+        readonly Func<T, Task<TRes>> transform;
+
+        public SelectAsyncEnumerator2(IEnumerator<T> source, Func<T, Task<TRes>> transform)
+        {
+            this.source = source;
+            this.transform = transform;
+        }
+
+        object IAsyncEnumerator.Current => Current;
+
+        public TRes Current { get; private set; }
+
+        public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
+        {
+            if (source.MoveNext())
+            {
+                Current = await transform(source.Current);
                 return true;
             }
             Current = default(TRes);
