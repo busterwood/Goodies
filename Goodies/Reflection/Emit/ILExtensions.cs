@@ -265,6 +265,30 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        public static ILGenerator Load(this ILGenerator il, long i)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Ldc_I8, i);
+            return il;
+        }
+
+        public static ILGenerator Load(this ILGenerator il, float i)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Ldc_R4, i);
+            return il;
+        }
+
+        public static ILGenerator Load(this ILGenerator il, double i)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Ldc_R8, i);
+            return il;
+        }
+
         /// <summary>Loads an integer onto the stack.  Uses optimized code for i between 0 and 8</summary>
         public static ILGenerator Load(this ILGenerator il, int i)
         {
@@ -359,7 +383,8 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        public static ILGenerator Load(this ILGenerator il, FieldBuilder field)
+        /// <summary>Loads a static or non-static field onto the stack</summary>
+        public static ILGenerator Load(this ILGenerator il, FieldBuilder field, bool @volatile = false, bool unaligned = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
@@ -367,11 +392,23 @@ namespace BusterWood.Reflection.Emit
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
 
-            il.Emit(OpCodes.Ldfld, field);
+            if (unaligned && field.IsStatic)
+                throw new ArgumentException("Static fields cannot be un-aligned");
+
+            if (@volatile)
+                il.Emit(OpCodes.Volatile);
+            if (unaligned)
+                il.Emit(OpCodes.Unaligned);
+
+            if (field.IsStatic)
+                il.Emit(OpCodes.Ldsfld, field);
+            else
+                il.Emit(OpCodes.Ldfld, field);
             return il;
         }
 
-        public static ILGenerator Store(this ILGenerator il, FieldBuilder field)
+        /// <summary>Sets an instance or static field with the value on top of the stack</summary>
+        public static ILGenerator Store(this ILGenerator il, FieldBuilder field, bool @volatile = false, bool unaligned = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
@@ -379,7 +416,18 @@ namespace BusterWood.Reflection.Emit
             if (field == null)
                 throw new ArgumentNullException(nameof(field));
 
-            il.Emit(OpCodes.Stfld, field);
+            if (unaligned && field.IsStatic)
+                throw new ArgumentException("Static fields cannot be un-aligned");
+
+            if (@volatile)
+                il.Emit(OpCodes.Volatile);
+            if (unaligned)
+                il.Emit(OpCodes.Unaligned);
+
+            if (field.IsStatic)
+                il.Emit(OpCodes.Stsfld, field);
+            else
+                il.Emit(OpCodes.Stfld, field);
             return il;
         }
 
@@ -412,5 +460,93 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        public static ILGenerator ToByte(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Conv_I1);
+            return il;
+        }
+
+        public static ILGenerator ToShort(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Conv_I2);
+            return il;
+        }
+
+        public static ILGenerator ToInt(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Conv_I4);
+            return il;
+        }
+
+        public static ILGenerator ToLong(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Conv_I8);
+            return il;
+        }
+
+        public static ILGenerator ToFloat(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Conv_R4);
+            return il;
+        }
+
+        public static ILGenerator ToDouble(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Conv_R8);
+            return il;
+        }
+
+        /// <summary>Duplicates the value on the top of the stack</summary>
+        public static ILGenerator Duplicate(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Dup);
+            return il;
+        }
+
+        /// <summary>
+        /// Sets a block of memory to a value.  Requires an address, byte value to set, and number of bytes to set (int32) to be pushed to the stack
+        /// </summary>
+        public static ILGenerator InitBlock(this ILGenerator il, bool @volatile = false, bool unaligned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (@volatile)
+                il.Emit(OpCodes.Volatile);
+            if (unaligned)
+                il.Emit(OpCodes.Unaligned);
+
+            il.Emit(OpCodes.Initblk);
+            return il;
+        }
+
+        /// <summary>
+        /// Copies a block of memory.  Requires an destination address, source address, and number of bytes to copy (int32) to be pushed to the stack
+        /// </summary>
+        public static ILGenerator CopyBlock(this ILGenerator il, bool @volatile = false, bool unaligned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (@volatile)
+                il.Emit(OpCodes.Volatile);
+            if (unaligned)
+                il.Emit(OpCodes.Unaligned);
+
+            il.Emit(OpCodes.Cpblk);
+            return il;
+        }
     }
 }
