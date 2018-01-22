@@ -190,13 +190,16 @@ namespace BusterWood.Reflection.Emit
             return il.Call(typeof(T).GetTypeInfo().GetDeclaredMethod(method));
         }
 
-        public static ILGenerator Call(this ILGenerator il, MethodInfo method)
+        public static ILGenerator Call(this ILGenerator il, MethodInfo method, bool tailCall = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
 
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
+
+            if (tailCall)
+                il.Emit(OpCodes.Tailcall, method);
 
             il.Emit(OpCodes.Call, method);
             return il;
@@ -243,7 +246,7 @@ namespace BusterWood.Reflection.Emit
         /// Call an instance method of a class, or interface.
         /// </summary>
         /// <param name="constrainedType">Used for allowing virtual method calls on generic types which *might* be a value type</param>
-        public static ILGenerator CallVirt(this ILGenerator il, MethodInfo method, Type constrainedType = null)
+        public static ILGenerator CallVirt(this ILGenerator il, MethodInfo method, bool tailCall = false, Type constrainedType = null)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
@@ -253,6 +256,9 @@ namespace BusterWood.Reflection.Emit
 
             if (constrainedType != null)
                 il.Emit(OpCodes.Constrained, constrainedType);
+
+            if (tailCall)
+                il.Emit(OpCodes.Tailcall, method);
 
             il.Emit(OpCodes.Callvirt, method);
             return il;
@@ -812,6 +818,36 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(il));
 
             il.Emit(OpCodes.Stelem_Ref);
+            return il;
+        }
+
+        public static ILGenerator Throw(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            il.Emit(OpCodes.Throw);
+            return il;
+        }      
+
+        public static ILGenerator Rethrow(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            il.Emit(OpCodes.Rethrow);
+            return il;
+        }      
+
+        public static ILGenerator SizeOf(this ILGenerator il, Type type)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            il.Emit(OpCodes.Sizeof, type);
             return il;
         }
 
