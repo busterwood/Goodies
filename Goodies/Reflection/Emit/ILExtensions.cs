@@ -70,6 +70,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>Stores a value type in a managed <see cref="Object"/></summary>
         public static ILGenerator Box(this ILGenerator il, Type type)
         {
             if (il == null)
@@ -79,6 +80,34 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(type));
 
             il.Emit(OpCodes.Box, type);
+            return il;
+        }
+
+        /// <summary>Gets the value of a boxed value type</summary>
+        public static ILGenerator Unbox(this ILGenerator il, Type type)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            il.Emit(OpCodes.Unbox, type);
+            return il;
+        }
+
+        /// <summary>
+        /// Like <see cref="Unbox(ILGenerator, Type)"/> but equivilant to <see cref="Cast(ILGenerator, Type)"/> for reference types
+        /// </summary>
+        public static ILGenerator UnboxAny(this ILGenerator il, Type type)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            il.Emit(OpCodes.Unbox_Any, type);
             return il;
         }
 
