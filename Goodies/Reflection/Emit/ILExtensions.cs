@@ -116,21 +116,6 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>
-        /// Transfers control to <paramref name="method"/>, including all the arguments of the current method, which must match the destination method argument list.
-        /// </summary>
-        public static ILGenerator Jump(this ILGenerator il, MethodInfo method)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-
-            il.Emit(OpCodes.Jmp, method);
-            return il;
-        }
-
         /// <summary>Bitwise AND of the two integer values that are on the top of the stack</summary>
         public static ILGenerator And(this ILGenerator il)
         {
@@ -155,6 +140,24 @@ namespace BusterWood.Reflection.Emit
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
             il.Emit(OpCodes.Xor);
+            return il;
+        }
+
+        /// <summary>Bitwise complement of the two integer values that are on the top of the stack</summary>
+        public static ILGenerator Not(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Not);
+            return il;
+        }
+        
+        /// <summary>Discards the value on the top of the stack</summary>
+        public static ILGenerator Pop(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Pop);
             return il;
         }
 
@@ -185,7 +188,8 @@ namespace BusterWood.Reflection.Emit
         }
 
         /// <summary>
-        /// Like <see cref="Unbox(ILGenerator, Type)"/> but equivilant to <see cref="Cast(ILGenerator, Type)"/> for reference types
+        /// Like <see cref="Unbox(ILGenerator, Type)"/> but equivilant to <see cref="Cast(ILGenerator, Type)"/> for reference types.
+        /// Useful for generic types when you don't know if the generic argument is a value or reference type.
         /// </summary>
         public static ILGenerator UnboxAny(this ILGenerator il, Type type)
         {
@@ -347,12 +351,12 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        public static ILGenerator Call<T>(this ILGenerator il, string method)
+        public static ILGenerator Call<T>(this ILGenerator il, string method, bool tailCall = false)
         {
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
 
-            return il.Call(typeof(T).GetTypeInfo().GetDeclaredMethod(method));
+            return il.Call(typeof(T).GetTypeInfo().GetDeclaredMethod(method), tailCall);
         }
 
         public static ILGenerator Call(this ILGenerator il, MethodInfo method, bool tailCall = false)
@@ -429,6 +433,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>Cast a reference type.</summary>
         public static ILGenerator Cast(this ILGenerator il, Type toType)
         {
             if (il == null)
@@ -441,15 +446,19 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        public static ILGenerator New(this ILGenerator il, ConstructorInfo ctor)
+        /// <summary>
+        /// Creates a new instance of a reference type via the supplied <paramref name="constructor"/>.
+        /// Does *not* work for value types.
+        /// </summary>
+        public static ILGenerator New(this ILGenerator il, ConstructorInfo constructor)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
 
-            if (ctor == null)
-                throw new ArgumentNullException(nameof(ctor));
+            if (constructor == null)
+                throw new ArgumentNullException(nameof(constructor));
 
-            il.Emit(OpCodes.Newobj, ctor);
+            il.Emit(OpCodes.Newobj, constructor);
             return il;
         }
 
@@ -514,6 +523,8 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
+            // use short form of instruction for -1 >= i <= 8
             switch (i)
             {
                 case -1:
@@ -547,7 +558,7 @@ namespace BusterWood.Reflection.Emit
                     il.Emit(OpCodes.Ldc_I4_8);
                     break;
                 default:
-                    il.Emit(OpCodes.Ldc_I4, i);
+                    il.Emit(OpCodes.Ldc_I4, i); // long form of instruction
                     break;
             }
             return il;
@@ -634,7 +645,27 @@ namespace BusterWood.Reflection.Emit
                 il.Emit(OpCodes.Ldelem_Ref, type); // use long form for reference types
             return il;
         }
-        
+
+        /// <summary>
+        /// Loads the address of a array element (as a managed pointer).  Requires 1) the array and 2) the index to be pushed to the stack.
+        /// </summary>
+        /// <param name="type">The type of element</param>
+        /// <param name="readonly">Means the returned managed pointer cannot be changed, and run-time type checks are bypassed</param>
+        public static ILGenerator LoadElementAddress(this ILGenerator il, Type type, bool @readonly = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (@readonly)
+                il.Emit(OpCodes.Readonly);
+
+            il.Emit(OpCodes.Ldelema, type);
+            return il;
+        }
+
         /// <summary>Loads null onto the stack</summary>
         public static ILGenerator Null(this ILGenerator il)
         {
@@ -942,5 +973,19 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>
+        /// Transfers control to <paramref name="method"/>, including all the arguments of the current method, which must match the destination method argument list.
+        /// </summary>
+        public static ILGenerator Jump(this ILGenerator il, MethodInfo method)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            il.Emit(OpCodes.Jmp, method);
+            return il;
+        }
     }
 }
