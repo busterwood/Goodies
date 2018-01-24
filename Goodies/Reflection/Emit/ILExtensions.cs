@@ -17,10 +17,12 @@ namespace BusterWood.Reflection.Emit
         /// Adds one value from another.  
         /// Given val1 and val2 have been pushed to the stack, this instruction returns val1 + val1
         /// </summary>
-        public static ILGenerator Add(this ILGenerator il, bool checkOverflow = false)
+        public static ILGenerator Add(this ILGenerator il, bool checkOverflow = false, bool unsignedValue = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+            if (checkOverflow && unsignedValue)
+                il.Emit(OpCodes.Add_Ovf_Un);
             if (checkOverflow)
                 il.Emit(OpCodes.Add_Ovf);
             else
@@ -32,14 +34,100 @@ namespace BusterWood.Reflection.Emit
         /// Subtracts one value from another.  
         /// Given val1 and val2 have been pushed to the stack, this instruction returns val2 - val1
         /// </summary>
-        public static ILGenerator Subtract(this ILGenerator il, bool checkOverflow = false)
+        public static ILGenerator Subtract(this ILGenerator il, bool checkOverflow = false, bool unsignedValue = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+            if (checkOverflow && unsignedValue)
+                il.Emit(OpCodes.Sub_Ovf_Un);
             if (checkOverflow)
                 il.Emit(OpCodes.Sub_Ovf);
             else
                 il.Emit(OpCodes.Sub);
+            return il;
+        }
+
+
+        public static ILGenerator Multiply(this ILGenerator il, bool checkOverflow = false, bool unsignedValue = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (checkOverflow && unsignedValue)
+                il.Emit(OpCodes.Mul_Ovf_Un);
+            else if (checkOverflow)
+                il.Emit(OpCodes.Mul_Ovf);
+            else
+                il.Emit(OpCodes.Mul);
+            return il;
+        }
+
+        /// <summary>Divides two intergers or floating point numbers</summary>
+        public static ILGenerator Divide(this ILGenerator il, bool unsignedValue = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (unsignedValue)
+                il.Emit(OpCodes.Div_Un);
+            else
+                il.Emit(OpCodes.Div);
+            return il;
+        }
+
+        /// <summary>Negates the value on the top of the stack</summary>
+        public static ILGenerator Negate(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Neg);
+            return il;
+        }
+
+        /// <summary>Divides the top two values on the stack and computes the remainder</summary>
+        public static ILGenerator Remainder(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Rem);
+            return il;
+        }
+
+        /// <summary>
+        /// Shifts an 1) integer value (int32, int64, native int) to the left by 2) the number of bits (int32)
+        /// </summary>
+        public static ILGenerator ShiftLeft(this ILGenerator il)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            il.Emit(OpCodes.Shl);
+            return il;
+        }
+
+        /// <summary>
+        /// Shifts an 1) integer value (int32, int64, native int) to the right by 2) the number of bits (int32)
+        /// </summary>
+        public static ILGenerator ShiftRight(this ILGenerator il, bool unsigned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (unsigned)
+                il.Emit(OpCodes.Shr_Un);
+            else
+                il.Emit(OpCodes.Shr);
+            return il;
+        }
+
+        /// <summary>
+        /// Transfers control to <paramref name="method"/>, including all the arguments of the current method, which must match the destination method argument list.
+        /// </summary>
+        public static ILGenerator Jump(this ILGenerator il, MethodInfo method)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            il.Emit(OpCodes.Jmp, method);
             return il;
         }
 
@@ -175,7 +263,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
         
-        /// <summary>Goto label is last two arguments on the stack are equal</summary>
+        /// <summary>Goto label if the last two arguments on the stack are equal</summary>
         public static ILGenerator IfEqualGoto(this ILGenerator il, Label label)
         {
             if (il == null)
@@ -184,7 +272,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Goto label is last argument on the stack is false</summary>
+        /// <summary>Goto label if the last argument on the stack is false</summary>
         public static ILGenerator IfFalseGoto(this ILGenerator il, Label notEqual)
         {
             if (il == null)
@@ -193,7 +281,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Goto label is last two arguments on the stack are equal</summary>
+        /// <summary>Goto label if the last two arguments on the stack are equal</summary>
         public static ILGenerator IfNotEqualGoto(this ILGenerator il, Label notEqual)
         {
             if (il == null)
@@ -202,12 +290,60 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Goto label is last argument on the stack is true</summary>
+        /// <summary>Goto label if the last argument on the stack is true</summary>
         public static ILGenerator IfTrueGoto(this ILGenerator il, Label label)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
             il.Emit(OpCodes.Brtrue, label);
+            return il;
+        }
+
+        /// <summary>Goto label if the value1 is greater than or equal to value2</summary>
+        public static ILGenerator IfGreaterOrEqualGoto(this ILGenerator il, Label label, bool unsigned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (unsigned)
+                il.Emit(OpCodes.Bge_Un, label);
+            else
+                il.Emit(OpCodes.Bge, label);
+            return il;
+        }
+
+        /// <summary>Goto label if the value1 is greater than value2</summary>
+        public static ILGenerator IfGreaterGoto(this ILGenerator il, Label label, bool unsigned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (unsigned)
+                il.Emit(OpCodes.Bgt_Un, label);
+            else
+                il.Emit(OpCodes.Bgt, label);
+            return il;
+        }
+        
+        /// <summary>Goto label if the value1 is less than value2</summary>
+        public static ILGenerator IfLessGoto(this ILGenerator il, Label label, bool unsigned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (unsigned)
+                il.Emit(OpCodes.Blt_Un, label);
+            else
+                il.Emit(OpCodes.Blt, label);
+            return il;
+        }
+
+        /// <summary>Goto label if the value1 is less than or equal to value2</summary>
+        public static ILGenerator IfLessOrEqualGoto(this ILGenerator il, Label label, bool unsigned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+            if (unsigned)
+                il.Emit(OpCodes.Ble_Un, label);
+            else
+                il.Emit(OpCodes.Ble, label);
             return il;
         }
 
@@ -314,23 +450,6 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(ctor));
 
             il.Emit(OpCodes.Newobj, ctor);
-            return il;
-        }
-
-        public static ILGenerator Multiply(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Mul);
-            return il;
-        }
-
-        /// <summary>Divides two intergers or floating point numbers</summary>
-        public static ILGenerator Divide(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Div);
             return il;
         }
 
@@ -454,10 +573,87 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>Loads a static or non-static field onto the stack</summary>
+        public static ILGenerator Load(this ILGenerator il, FieldBuilder field, bool @volatile = false, bool unaligned = false)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
+            if (unaligned && field.IsStatic)
+                throw new ArgumentException("Static fields cannot be un-aligned");
+
+            if (@volatile)
+                il.Emit(OpCodes.Volatile);
+            if (unaligned)
+                il.Emit(OpCodes.Unaligned);
+
+            if (field.IsStatic)
+                il.Emit(OpCodes.Ldsfld, field);
+            else
+                il.Emit(OpCodes.Ldfld, field);
+            return il;
+        }
+
+        /// <summary>Gets a value stored in an arrary.  Push 1) the array and 2) the index to the stack</summary>
+        public static ILGenerator LoadElement<T>(this ILGenerator il) => LoadElement(il, typeof(T));
+
+        /// <summary>Gets a value stored in an arrary.  Push 1) the array and 2) the index to the stack</summary>
+        public static ILGenerator LoadElement(this ILGenerator il, Type type)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            // use the short form for native structs
+            if (type == typeof(sbyte))
+                il.Emit(OpCodes.Ldelem_I1);
+            else if (type == typeof(short))
+                il.Emit(OpCodes.Ldelem_I2);
+            else if (type == typeof(int))
+                il.Emit(OpCodes.Ldelem_I4);
+            else if (type == typeof(long))
+                il.Emit(OpCodes.Ldelem_I8);
+            else if (type == typeof(byte))
+                il.Emit(OpCodes.Ldelem_U1);
+            else if (type == typeof(ushort))
+                il.Emit(OpCodes.Ldelem_U2);
+            else if (type == typeof(uint))
+                il.Emit(OpCodes.Ldelem_U4);
+            else if (type == typeof(float))
+                il.Emit(OpCodes.Ldelem_R4);
+            else if (type == typeof(double))
+                il.Emit(OpCodes.Ldelem_R8);
+            else if (type.IsValueType)
+                il.Emit(OpCodes.Ldelem, type); // use long form for value types
+            else 
+                il.Emit(OpCodes.Ldelem_Ref, type); // use long form for reference types
+            return il;
+        }
+        
         /// <summary>Loads null onto the stack</summary>
         public static ILGenerator Null(this ILGenerator il)
         {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
             il.Emit(OpCodes.Ldnull);
+            return il;
+        }
+
+        /// <summary>Tries to cast the value on the stack to a type, result is the cast value or null</summary>
+        public static ILGenerator AsType(this ILGenerator il, Type type)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            il.Emit(OpCodes.Isinst, type);
             return il;
         }
 
@@ -483,43 +679,6 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Tries to cast the value on the stack to a type, result is the cast value or null</summary>
-        public static ILGenerator AsType(this ILGenerator il, Type type)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            il.Emit(OpCodes.Isinst, type);
-            return il;
-        }
-
-        /// <summary>Loads a static or non-static field onto the stack</summary>
-        public static ILGenerator Load(this ILGenerator il, FieldBuilder field, bool @volatile = false, bool unaligned = false)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            if (field == null)
-                throw new ArgumentNullException(nameof(field));
-
-            if (unaligned && field.IsStatic)
-                throw new ArgumentException("Static fields cannot be un-aligned");
-
-            if (@volatile)
-                il.Emit(OpCodes.Volatile);
-            if (unaligned)
-                il.Emit(OpCodes.Unaligned);
-
-            if (field.IsStatic)
-                il.Emit(OpCodes.Ldsfld, field);
-            else
-                il.Emit(OpCodes.Ldfld, field);
-            return il;
-        }
-
         /// <summary>Sets an instance or static field with the value on top of the stack</summary>
         public static ILGenerator Store(this ILGenerator il, FieldBuilder field, bool @volatile = false, bool unaligned = false)
         {
@@ -541,6 +700,44 @@ namespace BusterWood.Reflection.Emit
                 il.Emit(OpCodes.Stsfld, field);
             else
                 il.Emit(OpCodes.Stfld, field);
+            return il;
+        }
+
+        /// <summary>
+        /// Sets the value of an array at a specific index.
+        /// Push 1) array reference, 2) array index, 3) the value to store
+        /// </summary>
+        public static ILGenerator StoreElement<T>(this ILGenerator il) => StoreElement(il, typeof(T));
+
+        /// <summary>
+        /// Sets the value of an array at a specific index.
+        /// Push 1) array reference, 2) array index, 3) the value to store
+        /// </summary>
+        public static ILGenerator StoreElement(this ILGenerator il, Type type)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            // use the short form for native structs
+            if (type == typeof(sbyte))
+                il.Emit(OpCodes.Stelem_I1);
+            else if (type == typeof(short))
+                il.Emit(OpCodes.Stelem_I2);
+            else if (type == typeof(int))
+                il.Emit(OpCodes.Stelem_I4);
+            else if (type == typeof(long))
+                il.Emit(OpCodes.Stelem_I8);
+            else if (type == typeof(float))
+                il.Emit(OpCodes.Stelem_R4);
+            else if (type == typeof(double))
+                il.Emit(OpCodes.Stelem_R8);
+            else if (type.IsValueType)
+                il.Emit(OpCodes.Stelem, type); // use long form for value types
+            else
+                il.Emit(OpCodes.Stelem_Ref, type); // use long form for reference types
             return il;
         }
 
@@ -573,51 +770,95 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        public static ILGenerator ToByte(this ILGenerator il)
+        /// <summary>Converts the numeric value on the top of the stack to a different numeric type</summary>
+        public static ILGenerator Convert(this ILGenerator il, Type toType, bool detectOverflow = false, bool unsignedValue = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Conv_I1);
-            return il;
-        }
-
-        public static ILGenerator ToShort(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Conv_I2);
-            return il;
-        }
-
-        public static ILGenerator ToInt(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Conv_I4);
-            return il;
-        }
-
-        public static ILGenerator ToLong(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Conv_I8);
-            return il;
-        }
-
-        public static ILGenerator ToFloat(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Conv_R4);
-            return il;
-        }
-
-        public static ILGenerator ToDouble(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Conv_R8);
+            if (toType == typeof(sbyte))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_I1_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_I1);
+                else
+                    il.Emit(OpCodes.Conv_I1);
+            }
+            else if (toType == typeof(short))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_I2_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_I2);
+                else
+                    il.Emit(OpCodes.Conv_I2);
+            }
+            else if (toType == typeof(int))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_I4_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_I4);
+                else
+                    il.Emit(OpCodes.Conv_I4);
+            }
+            else if (toType == typeof(long))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_I8_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_I8);
+                else
+                    il.Emit(OpCodes.Conv_I8);
+            }
+            else if (toType == typeof(byte))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_U1_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_U1);
+                else
+                    il.Emit(OpCodes.Conv_U1);
+            }
+            else if (toType == typeof(ushort))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_U2_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_U2);
+                else
+                    il.Emit(OpCodes.Conv_U2);
+            }
+            else if (toType == typeof(uint))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_U4_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_U4);
+                else
+                    il.Emit(OpCodes.Conv_U4);
+            }
+            else if (toType == typeof(ulong))
+            {
+                if (detectOverflow && unsignedValue)
+                    il.Emit(OpCodes.Conv_Ovf_U8_Un);
+                else if (detectOverflow)
+                    il.Emit(OpCodes.Conv_Ovf_U8);
+                else
+                    il.Emit(OpCodes.Conv_U8);
+            }
+            else if (toType == typeof(float))
+            {
+                il.Emit(OpCodes.Conv_R4);
+            }
+            else if (toType == typeof(double))
+            {
+                il.Emit(OpCodes.Conv_R8);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(toType), "Only primative number types are supported");
+            }
             return il;
         }
 
@@ -668,185 +909,6 @@ namespace BusterWood.Reflection.Emit
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
             il.Emit(OpCodes.Arglist);
-            return il;
-        }
-
-        /// <summary>Negates the value on the top of the stack</summary>
-        public static ILGenerator Negate(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Neg);
-            return il;
-        }
-
-        /// <summary>Divides the top two values on the stack and computes the remainder</summary>
-        public static ILGenerator Remainder(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Rem);
-            return il;
-        }        
-        
-        /// <summary>
-        /// Shifts an 1) integer value (int32, int64, native int) to the left by 2) the number of bits (int32)
-        /// </summary>
-        public static ILGenerator ShiftLeft(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Shl);
-            return il;
-        }
-        
-        /// <summary>
-        /// Shifts an 1) integer value (int32, int64, native int) to the right by 2) the number of bits (int32)
-        /// </summary>
-        public static ILGenerator ShiftRight(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Shr);
-            return il;
-        }        
-        
-        /// <summary>
-        /// Shifts an 1) unsigned integer value (int32, int64, native int) to the right by 2) the number of bits (int32)
-        /// </summary>
-        public static ILGenerator ShiftRightUnsigned(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-            il.Emit(OpCodes.Shr_Un);
-            return il;
-        }
-
-        /// <summary>
-        /// Transfers control to <paramref name="method"/>, including all the arguments of the current method, which must match the destination method argument list.
-        /// </summary>
-        public static ILGenerator Jump(this ILGenerator il, MethodInfo method)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
-
-            il.Emit(OpCodes.Jmp, method);
-            return il;
-        }
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the value to store
-        /// </summary>
-        public static ILGenerator StoreElement<T>(this ILGenerator il) => StoreElement(il, typeof(T));
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the value to store
-        /// </summary>
-        public static ILGenerator StoreElement(this ILGenerator il, Type type)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            il.Emit(OpCodes.Stelem, type);
-            return il;
-        }
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the int8 value to store
-        /// </summary>
-        public static ILGenerator StoreElementByte(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_I1);
-            return il;
-        }
-        
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the int16 value to store
-        /// </summary>
-        public static ILGenerator StoreElementShort(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_I2);
-            return il;
-        }
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the int32 value to store
-        /// </summary>
-        public static ILGenerator StoreElementInt(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_I4);
-            return il;
-        }
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the int64 value to store
-        /// </summary>
-        public static ILGenerator StoreElementLong(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_I8);
-            return il;
-        }
-        
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the float value to store
-        /// </summary>
-        public static ILGenerator StoreElementFloat(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_R4);
-            return il;
-        }
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the double value to store
-        /// </summary>
-        public static ILGenerator StoreElementDouble(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_R8);
-            return il;
-        }
-
-        /// <summary>
-        /// Sets the value of an array at a specific index.
-        /// Push 1) array reference, 2) array index, 3) the object value to store
-        /// </summary>
-        public static ILGenerator StoreElementObject(this ILGenerator il)
-        {
-            if (il == null)
-                throw new ArgumentNullException(nameof(il));
-
-            il.Emit(OpCodes.Stelem_Ref);
             return il;
         }
 
