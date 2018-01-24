@@ -10,7 +10,7 @@ namespace BusterWood.Channels
         readonly object _gate = new object();
         LinkedQueue<Sender<T>> _senders;        // senders waiting for a receiver
         LinkedQueue<Receiver<T>> _receivers;    // receivers waiting for a sender
-        LinkedQueue<Waiter> _receiverWaiters;   // selects waiting to receive
+        LinkedQueue<Waiter> _selects;   // selects waiting to receive
         CancellationToken _closed;
 
         /// <summary>Has <see cref="Close"/> been called to shut down the channel?</summary>
@@ -106,7 +106,7 @@ namespace BusterWood.Channels
                 }
 
                 // if there is a select waiting then signal a value is ready
-                var waiter = Queue.Dequeue(ref _receiverWaiters);
+                var waiter = Queue.Dequeue(ref _selects);
                 if (waiter != null)
                 {
 #if !NET45
@@ -189,7 +189,7 @@ namespace BusterWood.Channels
         {
             lock (_gate)
             {
-                Queue.Enqueue(ref _receiverWaiters, waiter);
+                Queue.Enqueue(ref _selects, waiter);
 
                 // if there is a waiting sender then signal the select to wake up
                 if (_senders.Head != null)
@@ -202,46 +202,8 @@ namespace BusterWood.Channels
         {
             lock (_gate)
             {
-                Queue.Remove(ref _receiverWaiters, waiter);
+                Queue.Remove(ref _selects, waiter);
             }
-        }
-    }
-
-    class Sender<T> : TaskCompletionSource<bool>, INext<Sender<T>>
-    {
-        public Sender<T> Next { get; set; } // linked list
-        public readonly T Value;
-
-        public Sender(T value)
-#if !NET45
-            : base(TaskCreationOptions.RunContinuationsAsynchronously)
-#endif
-        {
-            Value = value;
-        }
-    }
-
-    class Receiver<T> : TaskCompletionSource<T>, INext<Receiver<T>>
-    {
-        public Receiver<T> Next { get; set; } // linked list
-
-        public Receiver()
-#if !NET45
-             : base(TaskCreationOptions.RunContinuationsAsynchronously)
-#endif
-        {
-        }
-    }
-
-    public class Waiter : TaskCompletionSource<bool>, INext<Waiter>
-    {
-        public Waiter Next { get; set; } // linked list
-
-        public Waiter()
-#if !NET45
-            : base(TaskCreationOptions.RunContinuationsAsynchronously)
-#endif
-        {
         }
     }
 }
