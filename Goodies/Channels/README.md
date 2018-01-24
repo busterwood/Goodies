@@ -18,6 +18,9 @@ The `Channel<T>`class is used for sending and receiving values between threads (
 * `void Close()` prevents any further attempts to send to the channel
 * `bool IsClosed` has the channel been closed?
 
+## `BufferedChannel<T>` class 
+The `BufferedChannel<T>`class has exactly the same interface as the `Channel<T>` class but has a fixed size queue between senders and receivers.
+
 ## `Select` class 
 The `Select `class is used for reading from one of many possible channels, has the following methods:
 

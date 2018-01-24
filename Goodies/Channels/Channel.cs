@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace BusterWood.Channels
 {
-    /// <summary>A channel for communicating between two asynchronous threads.</summary>
+    /// <summary>A mechanism for communicating between two asynchronous threads with CSP semantics.</summary>
     public class Channel<T> : IReceiver<T>, ISender<T>, ISelectable
     {
         readonly object _gate = new object();
@@ -14,10 +14,7 @@ namespace BusterWood.Channels
         CancellationToken _closed;
 
         /// <summary>Has <see cref="Close"/> been called to shut down the channel?</summary>
-        public bool IsClosed
-        {
-            get { return _closed.IsCancellationRequested; }
-        }
+        public bool IsClosed => _closed.IsCancellationRequested;
 
         /// <summary>Closing a channel prevents any further values being sent and will cancel the tasks of any waiting receivers, <see cref="ReceiveAsync"/></summary>
         public void Close()
@@ -37,11 +34,7 @@ namespace BusterWood.Channels
         {
             for (var r = _receivers.Head; r != null; r = r.Next)
             {
-#if !NET45
                 r.TrySetCanceled(_closed);
-#else
-                Task.Run(() => r.SetCanceled());
-#endif
             }
             _receivers = new LinkedQueue<Receiver<T>>();
         }
@@ -87,21 +80,13 @@ namespace BusterWood.Channels
                 if (_closed.IsCancellationRequested)
                 {
                     return Task.FromCanceled(_closed);
-#if !NET45
-#else
-#endif
                 }
 
                 // if there is a waiting receiver then exchange now
                 var receiver = Queue.Dequeue(ref _receivers);
                 if (receiver != null)
                 {
-#if !NET45
                     receiver.TrySetResult(value);
-#else
-                    Task.Run(() => receiver.TrySetResult(value));
-#endif
-
                     return Task.CompletedTask;
                 }
 
@@ -109,11 +94,7 @@ namespace BusterWood.Channels
                 var waiter = Queue.Dequeue(ref _selects);
                 if (waiter != null)
                 {
-#if !NET45
                     waiter.TrySetResult(true);
-#else
-                    Task.Run(() => waiter.TrySetResult(true));
-#endif
                 }
 
 

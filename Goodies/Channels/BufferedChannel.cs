@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace BusterWood.Channels
 {
+    /// <summary>A mechanism for communicating between two asynchronous threads with fixed size a buffer between senders a receivers.</summary>
     public class BufferedChannel<T> : ISender<T>, IReceiver<T>, ISelectable
     {
         readonly CircularQueue<T> _items;
@@ -22,10 +23,7 @@ namespace BusterWood.Channels
         }
 
         /// <summary>Has <see cref="Close"/> been called to shut down the channel?</summary>
-        public bool IsClosed
-        {
-            get { return _closed.IsCancellationRequested; }
-        }
+        public bool IsClosed => _closed.IsCancellationRequested;
 
         /// <summary>Closing a channel prevents any further values being sent and will cancel the tasks of any waiting receivers, <see cref="ReceiveAsync"/></summary>
         public void Close()
@@ -84,7 +82,7 @@ namespace BusterWood.Channels
                 }
                 else
                 {
-                    // there are queued items, just grad the first one
+                    // there are queued items, just grab the first one
                     T value = _items.Dequeue();
 
                     if (_senders.Head != null)
@@ -118,7 +116,7 @@ namespace BusterWood.Channels
                 }
                 else
                 {
-                    // there are queued items, just grad the first one
+                    // there are queued items, just grab the first one
                     value = _items.Dequeue();
                     if (_senders.Head != null)
                         ReleaseWaitingSenderByEnqueuingItsValue();
