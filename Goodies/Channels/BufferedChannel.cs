@@ -105,6 +105,9 @@ namespace BusterWood.Channels
             }
         }
 
+        /// <summary>Tries to receive a value from a waiting sender.</summary>
+        /// <param name="value">the value that was received, or default(T) when no sender is ready</param>
+        /// <returns>TRUE if a sender was ready and <paramref name="value" /> is set, otherwise returns FALSE</returns>
         public bool TryReceive(out T value)
         {
             lock (_items)
@@ -188,6 +191,9 @@ namespace BusterWood.Channels
             }
         }
 
+        /// <summary>Tries to send a value to a waiting receiver.</summary>
+        /// <param name="value">the value to send</param>
+        /// <returns>TRUE if the value was sent, FALSE if the channel was closed or there was no waiting receivers</returns>
         public bool TrySend(T value)
         {
             lock (_items)
