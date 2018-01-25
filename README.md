@@ -13,5 +13,5 @@ So much useful & free stuff for .NET, built as a library for .NET Standard 2.0.
 * [BusterWood.Equality](https://github.com/busterwood/Goodies/blob/master/Goodies/Equality/README.md) namespace contains run-time creation of equality comparers using property names.
 * `BusterWood.Goodies` namespace contains `Int32<>`, `Int64<>` and `Guid<>` structs to ensure you don't mix up your customer and order identifiers.
 * `BusterWood.Logging` namespace contains `Log` static class for structured logging to `Console.Error` (StdErr).
-* [BusterWood.Monies](https://github.com/busterwood/Goodies/blob/master/Goodies/Monies/README.md) namespace contains `Money` struct to ensure that you don't add acciendtly add GBP and USD together.
+* [BusterWood.Monies](https://github.com/busterwood/Goodies/blob/master/Goodies/Monies/README.md) namespace contains `Money` struct to ensure that you don't add accidentally add GBP and USD together.
 * `BusterWood.Restarting` namespace contains `RestartMonitoring` that monitor failures in asychrous processes and restart them on failure (with delay).
