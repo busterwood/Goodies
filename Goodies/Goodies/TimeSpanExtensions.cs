@@ -6,6 +6,10 @@ namespace BusterWood.Goodies
     {
         public static TimeSpan Age(this DateTime when) => DateTime.UtcNow - when;
 
+        public static TimeSpan? Age(this DateTime? when) => when.HasValue ? DateTime.UtcNow - when.Value : (TimeSpan?)null;
+
+        public static string ToHuman(this TimeSpan? time) => time.HasValue ? ToHuman(time.Value) : "";
+
         public static string ToHuman(this TimeSpan time)
         {
             if (time == TimeSpan.Zero)
