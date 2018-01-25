@@ -7,8 +7,8 @@ So much useful & free stuff for .NET, built as a library for .NET Standard 2.0.
 
 * [BusterWood.Batching](https://github.com/busterwood/Goodies/blob/master/Goodies/Batching/README.md) namespace contains classes for batching together asynchronous method calls for efficiency.
 * [BusterWood.Caching](https://github.com/busterwood/Goodies/blob/master/Goodies/Caching/README.md) namespace contains time and space effecient `Cache<,>` and `ReadThroughCache<,>`.
-* [BusterWood.Channels](https://github.com/busterwood/Goodies/blob/master/Goodies/Channels/README.md) namespace contains CSP-like communication between (logical) asynchronous threads.
-* [BusterWood.Collections](https://github.com/busterwood/Goodies/blob/master/Goodies/Collections/README.md) namespace contains the time and space effecient `UniqueList` which implements both `IList<>` and `ISet<>`.
+* [BusterWood.Channels](https://github.com/busterwood/Goodies/blob/master/Goodies/Channels/README.md) namespace contains CSP-like communication between (logical) asynchronous threads, including buffered and multicast channels.
+* [BusterWood.Collections](https://github.com/busterwood/Goodies/blob/master/Goodies/Collections/README.md) namespace contains the time and space effecient `UniqueList` which implements both `IList<>` and `ISet<>`, as well as `HashLookup<,>` and `CircularQueue<>` classes.
 * [BusterWood.Ducks](https://github.com/busterwood/Goodies/blob/master/Goodies/Ducks/README.md) namespace contains run-time duck typing.
 * [BusterWood.Equality](https://github.com/busterwood/Goodies/blob/master/Goodies/Equality/README.md) namespace contains run-time creation of equality comparers using property names.
 * `BusterWood.Goodies` namespace contains `Int32<>`, `Int64<>` and `Guid<>` structs to ensure you don't mix up your customer and order identifiers.
