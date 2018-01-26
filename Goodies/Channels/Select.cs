@@ -41,7 +41,7 @@ namespace BusterWood.Channels
             if (timeout == System.Threading.Timeout.InfiniteTimeSpan || timeout == TimeSpan.MaxValue)
             {
                 await ExecuteAsync();
-                return false;
+                return true;
             }
 
             var timedOut = false;
@@ -50,7 +50,7 @@ namespace BusterWood.Channels
             cases.Add(receiveTimeout);
             await ExecuteAsync();
             cases.RemoveAt(idx);
-            return timedOut;
+            return !timedOut;
         }
 
         /// <summary>Reads from one (and only one) of the added channels and performs the associated action</summary>
