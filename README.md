@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/6ecfrrp2q2x0xvxm?svg=true)](https://ci.appveyor.com/project/busterwood/goodies/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/6ecfrrp2q2x0xvxm?svg=true)](https://ci.appveyor.com/project/busterwood/goodies/branch/master) [![Nuget](https://img.shields.io/nuget/v/BusterWood.Goodies.svg)](https://www.nuget.org/packages/BusterWood.Goodies)
 
 # BusterWood.Goodies
 So much useful & free stuff for .NET, built as a library for .NET Standard 2.0.
