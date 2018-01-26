@@ -44,15 +44,14 @@ namespace BusterWood.Channels
         /// <returns>TRUE if the value was sent, FALSE if the channel was closed or there was no waiting receivers</returns>
         public bool TrySend(T value)
         {
+            Receiver<T> receiver;
             lock (_gate)
             {
                 if (_closed.IsCancellationRequested)
                     return false;
-                var receiver = Queue.Dequeue(ref _receivers);
-                if (receiver == null)
-                    return false;
-                return receiver.TrySetResult(value);
+                receiver = Queue.Dequeue(ref _receivers);
             }
+            return receiver != null && receiver.TrySetResult(value);
         }
 
         /// <summary>Synchronously sends a value to receiver, waiting until a receiver is ready to receive</summary>
@@ -60,14 +59,30 @@ namespace BusterWood.Channels
         /// <exception cref="OperationCanceledException">thrown when the channel <see cref="IsClosed"/></exception>
         public void Send(T value)
         {
-            try
+            Sender<T> sender;
+            Waiter waiter;
+            lock (_gate)
             {
-                SendAsync(value).Wait();
+                if (_closed.IsCancellationRequested)
+                    throw new OperationCanceledException();
+
+                // if there is a waiting receiver then exchange now
+                var receiver = Queue.Dequeue(ref _receivers);
+                if (receiver != null)
+                {
+                    receiver.TrySetResult(value);
+                    return;
+                }
+
+                // the sender must wait
+                sender = new Sender<T>(value);
+                Queue.Enqueue(ref _senders, sender);
+
+                // if there is a select waiting then signal a value is ready
+                waiter = Queue.Dequeue(ref _selects);
             }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
+            waiter?.TrySetResult(true);
+            sender.Task.Wait();
         }
 
         /// <summary>Asynchronously sends a value to receiver, waiting until a receiver is ready to receive</summary>
@@ -75,12 +90,12 @@ namespace BusterWood.Channels
         /// <returns>A task that completes when the value has been sent to a receiver.  The returned task may be cancelled if the channel is closed</returns>
         public Task SendAsync(T value)
         {
+            Sender<T> sender;
+            Waiter waiter;
             lock (_gate)
             {
                 if (_closed.IsCancellationRequested)
-                {
                     return Task.FromCanceled(_closed);
-                }
 
                 // if there is a waiting receiver then exchange now
                 var receiver = Queue.Dequeue(ref _receivers);
@@ -90,19 +105,15 @@ namespace BusterWood.Channels
                     return Task.CompletedTask;
                 }
 
-                // if there is a select waiting then signal a value is ready
-                var waiter = Queue.Dequeue(ref _selects);
-                if (waiter != null)
-                {
-                    waiter.TrySetResult(true);
-                }
-
-
                 // the sender must wait
-                var sender = new Sender<T>(value);
+                sender = new Sender<T>(value);
                 Queue.Enqueue(ref _senders, sender);
-                return sender.Task;
+
+                // if there is a select waiting then signal a value is ready
+                waiter = Queue.Dequeue(ref _selects);
             }
+            waiter?.TrySetResult(true);
+            return sender.Task;
         }
 
         /// <summary>Tries to receive a value from a waiting sender.</summary>
@@ -110,14 +121,19 @@ namespace BusterWood.Channels
         /// <returns>TRUE if a sender was ready and <paramref name="value"/> is set, otherwise returns FALSE</returns>
         public bool TryReceive(out T value)
         {
+            Sender<T> sender;
             lock (_gate)
             {
-                var sender = Queue.Dequeue(ref _senders);
-                if (sender == null)
-                {
-                    value = default(T);
-                    return false;
-                }
+                sender = Queue.Dequeue(ref _senders);
+            }
+
+            if (sender == null)
+            {
+                value = default(T);
+                return false;
+            }
+            else
+            {
                 value = sender.Value;
                 sender.TrySetResult(true);
                 return true;
@@ -129,14 +145,27 @@ namespace BusterWood.Channels
         /// <exception cref="OperationCanceledException">thrown when the channel <see cref="IsClosed"/> and there are no waiting senders</exception>
         public T Receive()
         {
-            try
+            Receiver<T> receiver;
+            lock (_gate)
             {
-                return ReceiveAsync().Result;
+                // if there is a waiting sender then exchange values now
+                var sender = Queue.Dequeue(ref _senders);
+                if (sender != null)
+                {
+                    var value = sender.Value;
+                    sender.TrySetResult(true);
+                    return value;
+                }
+
+                // if the channel has been closed then return a cancelled task
+                if (_closed.IsCancellationRequested)
+                    throw new OperationCanceledException();
+
+                // the receiver must wait
+                receiver = new Receiver<T>();
+                Queue.Enqueue(ref _receivers, receiver);
             }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
+            return receiver.Task.Result;
         }
 
         /// <summary>Asynchronously receives a value, waiting for a sender is one is not ready</summary>

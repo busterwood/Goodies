@@ -59,13 +59,15 @@ namespace BusterWood.Channels
         /// </summary>
         public void Send(T value)
         {
-            try
+            lock (_gate)
             {
-                SendAsync(value).Wait();
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
+                if (_closed.IsCancellationRequested)
+                    throw new OperationCanceledException();
+
+                foreach (var s in _subscriptions)
+                {
+                    s.TrySend(value);  // don't block if a receiver is not ready
+                }
             }
         }
 
