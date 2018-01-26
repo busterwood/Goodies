@@ -41,7 +41,7 @@ namespace BusterWood.Batching
                 if (_inputs == null)
                 {
                     _inputs = new List<T> { input };
-                    _completionSource = new TaskCompletionSource<bool>();
+                    _completionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                     _timer.Change(Delay, Timeout.Never);
                 }
                 return _completionSource.Task;

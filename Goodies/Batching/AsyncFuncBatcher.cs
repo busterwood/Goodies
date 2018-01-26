@@ -29,7 +29,7 @@ namespace BusterWood.Batching
             _queryMany = queryMany ?? throw new ArgumentNullException(nameof(queryMany));
             _timer = new Timer(TimerCallback, null, Timeout.Never, Timeout.Never);
             _completionSources = new Dictionary<TKey, TaskCompletionSource<TValue>>();
-            _tcsFactory = _ => new TaskCompletionSource<TValue>();
+            _tcsFactory = _ => new TaskCompletionSource<TValue>(TaskCreationOptions.RunContinuationsAsynchronously);
             if (delay.HasValue)
                 Delay = delay.Value;
         }
@@ -70,9 +70,8 @@ namespace BusterWood.Batching
             catch (Exception ex)
             {
                 // it failed, pass the exception to all completion sources
-                Action<object> trySetException = s => ((TaskCompletionSource<TValue>)s).TrySetException(ex);
                 foreach (var tcs in completionSources.Values)
-                    Task.Factory.StartNew(trySetException, tcs).DontWait();
+                    tcs.TrySetException(ex);
                 return;
             }
 
@@ -82,7 +81,7 @@ namespace BusterWood.Batching
                 TValue value;
                 results.TryGetValue(pair.Key, out value);  // use default(TValue) if key not in dictionary
                 var tcs = pair.Value;
-                Task.Run(() => tcs.TrySetResult(value)).DontWait(); // make sure continuations run asynchronously
+                tcs.TrySetResult(value);
             }
         }
     }
