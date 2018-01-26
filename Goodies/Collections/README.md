@@ -1,4 +1,4 @@
-# BusterWood.Collections
+# BusterWood.Collections namespace
 
 ## UniqueList<T>
 

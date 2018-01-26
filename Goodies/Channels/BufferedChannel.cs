@@ -77,7 +77,7 @@ namespace BusterWood.Channels
                     Queue.Enqueue(ref _receivers, receiver);
                 }
             }
-            return receiver.Task.Result; // waits for the result
+            return receiver.Task.Result; // wait for the result outside the lock
         }
 
         /// <summary>Asynchronously receives a value, waiting for a sender is one is not ready</summary>

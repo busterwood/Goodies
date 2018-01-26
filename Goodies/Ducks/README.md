@@ -1,4 +1,4 @@
-# BusterWood.Ducks
+# BusterWood.Ducks namespace
 
 [Duck typing](https://en.wikipedia.org/wiki/Duck_typing) of *interfaces* at runtime.
 

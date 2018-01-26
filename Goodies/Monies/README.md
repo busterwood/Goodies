@@ -1,4 +1,4 @@
-# BusterWood.Monies
+# BusterWood.Monies namespace
 
 The `Money` struct prevents you accidently adding numbers together that repesents *different currencies*.
 

@@ -1,4 +1,4 @@
-# BusterWood.Mapping
+# BusterWood.Mapping namespace
 
 Sort of a replacement for Automapper but *much simpler and smaller*.
 

@@ -1,4 +1,4 @@
-# BusterWood.Channels
+# BusterWood.Channels namespace
 
 [CSP-like](https://en.wikipedia.org/wiki/Communicating_sequential_processes) channels for communicating between (logical) asychronous thread.
 
