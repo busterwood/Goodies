@@ -344,10 +344,21 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (unsigned)
                 il.Emit(OpCodes.Ble_Un, label);
             else
                 il.Emit(OpCodes.Ble, label);
+            return il;
+        }
+        
+        /// <summary>Leave a protected region of code</summary>
+        public static ILGenerator Leave(this ILGenerator il, Label label)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            il.Emit(OpCodes.Leave, label);
             return il;
         }
 
@@ -470,7 +481,10 @@ namespace BusterWood.Reflection.Emit
             if (local == null)
                 throw new ArgumentNullException(nameof(local));
 
-            il.Emit(OpCodes.Ldloca, local);
+            if (local.LocalIndex < 256)
+                il.Emit(OpCodes.Ldloca_S, (byte)local.LocalIndex); // short form, more compact IL
+            else
+                il.Emit(OpCodes.Ldloca, local.LocalIndex);
             return il;
         }
 
