@@ -1,4 +1,4 @@
-# BusterWood.Goddies namespace
+# BusterWood.Goodies namespace
 
 ## Generic primative types
 
