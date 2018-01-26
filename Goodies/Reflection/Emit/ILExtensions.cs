@@ -10,6 +10,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             return il.DeclareLocal(typeof(T));
         }
 
@@ -21,9 +22,10 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
-            if (checkOverflow && unsignedValue)
+
+            if (unsignedValue)
                 il.Emit(OpCodes.Add_Ovf_Un);
-            if (checkOverflow)
+            else if (checkOverflow)
                 il.Emit(OpCodes.Add_Ovf);
             else
                 il.Emit(OpCodes.Add);
@@ -38,21 +40,23 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
-            if (checkOverflow && unsignedValue)
+
+            if (unsignedValue)
                 il.Emit(OpCodes.Sub_Ovf_Un);
-            if (checkOverflow)
+            else if (checkOverflow)
                 il.Emit(OpCodes.Sub_Ovf);
             else
                 il.Emit(OpCodes.Sub);
             return il;
         }
 
-
+        /// <summary>Multiply the two numbers on the top of the stack</summary>
         public static ILGenerator Multiply(this ILGenerator il, bool checkOverflow = false, bool unsignedValue = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
-            if (checkOverflow && unsignedValue)
+
+            if (unsignedValue)
                 il.Emit(OpCodes.Mul_Ovf_Un);
             else if (checkOverflow)
                 il.Emit(OpCodes.Mul_Ovf);
@@ -66,6 +70,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (unsignedValue)
                 il.Emit(OpCodes.Div_Un);
             else
@@ -78,6 +83,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Neg);
             return il;
         }
@@ -87,6 +93,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Rem);
             return il;
         }
@@ -98,6 +105,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Shl);
             return il;
         }
@@ -109,6 +117,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (unsigned)
                 il.Emit(OpCodes.Shr_Un);
             else
@@ -121,6 +130,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.And);
             return il;
         }
@@ -130,6 +140,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Or);
             return il;
         }
@@ -139,6 +150,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Xor);
             return il;
         }
@@ -148,6 +160,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Not);
             return il;
         }
@@ -157,6 +170,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Pop);
             return il;
         }
@@ -208,6 +222,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ldarg_0);
             return il;
         }
@@ -234,6 +249,7 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(il));
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index), "index cannot be negative");
+
             switch (index)
             {
                 case 0:
@@ -263,6 +279,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Br, label);
             return il;
         }
@@ -272,6 +289,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Beq, label);
             return il;
         }
@@ -281,6 +299,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Brfalse, notEqual);
             return il;
         }
@@ -290,6 +309,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Bne_Un, notEqual);
             return il;
         }
@@ -299,6 +319,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Brtrue, label);
             return il;
         }
@@ -308,6 +329,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (unsigned)
                 il.Emit(OpCodes.Bge_Un, label);
             else
@@ -320,6 +342,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (unsigned)
                 il.Emit(OpCodes.Bgt_Un, label);
             else
@@ -332,6 +355,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (unsigned)
                 il.Emit(OpCodes.Blt_Un, label);
             else
@@ -504,6 +528,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ldstr, str);
             return il;
         }
@@ -512,6 +537,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ldc_I8, i);
             return il;
         }
@@ -520,6 +546,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ldc_R4, i);
             return il;
         }
@@ -528,6 +555,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ldc_R8, i);
             return il;
         }
@@ -594,6 +622,7 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(local));
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ldloc, local);
             return il;
         }
@@ -708,6 +737,7 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(il));
             if (local == null)
                 throw new ArgumentNullException(nameof(local));
+
             il.Emit(OpCodes.Stloc, local);
             return il;
         }
@@ -717,6 +747,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (argIdx <= 256)
                 il.Emit(OpCodes.Starg_S, argIdx); // short form, smaller IL
             else
@@ -790,6 +821,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(OpCodes.Ret);
             return il;
         }
@@ -798,6 +830,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             il.Emit(val ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             il.Emit(OpCodes.Ret);
             return il;
@@ -820,9 +853,10 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (toType == typeof(sbyte))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_I1_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_I1);
@@ -831,7 +865,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(short))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_I2_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_I2);
@@ -840,7 +874,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(int))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_I4_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_I4);
@@ -849,7 +883,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(long))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_I8_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_I8);
@@ -858,7 +892,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(byte))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_U1_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_U1);
@@ -867,7 +901,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(ushort))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_U2_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_U2);
@@ -876,7 +910,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(uint))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_U4_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_U4);
@@ -885,7 +919,7 @@ namespace BusterWood.Reflection.Emit
             }
             else if (toType == typeof(ulong))
             {
-                if (detectOverflow && unsignedValue)
+                if (unsignedValue)
                     il.Emit(OpCodes.Conv_Ovf_U8_Un);
                 else if (detectOverflow)
                     il.Emit(OpCodes.Conv_Ovf_U8);
