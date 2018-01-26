@@ -61,7 +61,7 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Divides two intergers or floating point numbers</summary>
+        /// <summary>Divides two integers or floating point numbers</summary>
         public static ILGenerator Divide(this ILGenerator il, bool unsignedValue = false)
         {
             if (il == null)
@@ -188,7 +188,7 @@ namespace BusterWood.Reflection.Emit
         }
 
         /// <summary>
-        /// Like <see cref="Unbox(ILGenerator, Type)"/> but equivilant to <see cref="Cast(ILGenerator, Type)"/> for reference types.
+        /// Like <see cref="Unbox(ILGenerator, Type)"/> but equivalent to <see cref="Cast(ILGenerator, Type)"/> for reference types.
         /// Useful for generic types when you don't know if the generic argument is a value or reference type.
         /// </summary>
         public static ILGenerator UnboxAny(this ILGenerator il, Type type)
@@ -622,10 +622,10 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Gets a value stored in an arrary.  Push 1) the array and 2) the index to the stack</summary>
+        /// <summary>Gets a value stored in an array.  Push 1) the array and 2) the index to the stack</summary>
         public static ILGenerator LoadElement<T>(this ILGenerator il) => LoadElement(il, typeof(T));
 
-        /// <summary>Gets a value stored in an arrary.  Push 1) the array and 2) the index to the stack</summary>
+        /// <summary>Gets a value stored in an array.  Push 1) the array and 2) the index to the stack</summary>
         public static ILGenerator LoadElement(this ILGenerator il, Type type)
         {
             if (il == null)
@@ -902,7 +902,7 @@ namespace BusterWood.Reflection.Emit
             }
             else
             {
-                throw new ArgumentOutOfRangeException(nameof(toType), "Only primative number types are supported");
+                throw new ArgumentOutOfRangeException(nameof(toType), "Only primitive number types are supported");
             }
             return il;
         }
