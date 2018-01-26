@@ -21,9 +21,9 @@ The `Channel<T>`class is used for sending and receiving values between threads (
 ## `BufferedChannel<T>` class 
 The `BufferedChannel<T>`class has exactly the same interface as the `Channel<T>` class but has a fixed size queue between senders and receivers.
 
-## `Multicasthannel<T>` class 
-The `Multicasthannel<T>` class allows a publisher to send a value to multiple destination channels.
-Subscribers can calls the following methods:
+## `MulticastChannel<T>` class 
+The `MulticastChannel<T>` class allows a publisher to send a value to multiple destination channels.
+Subscribers can call the following methods:
 * `Subscribe(IReceiver<T>)` to register a channel to get value published in the future
 * `Unsubscribe(IReceiver<T>)` to unregister a channel and stop further values being sent
 
