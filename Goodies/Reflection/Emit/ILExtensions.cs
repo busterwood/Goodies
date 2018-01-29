@@ -497,6 +497,21 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
+        /// <summary>
+        /// Creates a new array of the speificed <paramref name="elementType"/>.  Requires the number of elements to be on the top of the stack
+        /// </summary>
+        public static ILGenerator NewArray(this ILGenerator il, Type elementType)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (elementType == null)
+                throw new ArgumentNullException(nameof(elementType));
+
+            il.Emit(OpCodes.Newarr, elementType);
+            return il;
+        }
+
         public static ILGenerator LoadAddress(this ILGenerator il, LocalBuilder local)
         {
             if (il == null)
