@@ -232,13 +232,14 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
-            if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index), "index cannot be negative");
 
-            if (index <= 255)
-                il.Emit(OpCodes.Ldarga_S, index); // short form, more compact IL
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index), "must be between 0 and " + ushort.MaxValue);
+
+            if (index <= byte.MaxValue)
+                il.Emit(OpCodes.Ldarga_S, (byte)index); // short form, more compact IL
             else
-                il.Emit(OpCodes.Ldarga, index);
+                il.Emit(OpCodes.Ldarga, (ushort)index);
             return il;
         }
 
@@ -247,8 +248,9 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
-            if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index), "index cannot be negative");
+
+            if (index < 0 || index > ushort.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(index), "must be between 0 and " + ushort.MaxValue);
 
             switch (index)
             {
@@ -265,10 +267,10 @@ namespace BusterWood.Reflection.Emit
                     il.Emit(OpCodes.Ldarg_3);
                     break;
                 default:
-                    if (index <= 255)
-                        il.Emit(OpCodes.Ldarg_S, index);  // short form, more compact IL
+                    if (index <= byte.MaxValue)
+                        il.Emit(OpCodes.Ldarg_S, (byte)index);  // short form, more compact IL
                     else
-                        il.Emit(OpCodes.Ldarg, index);
+                        il.Emit(OpCodes.Ldarg, (ushort)index);
                     break;
             }
             return il;
@@ -498,7 +500,7 @@ namespace BusterWood.Reflection.Emit
         }
 
         /// <summary>
-        /// Creates a new array of the speificed <paramref name="elementType"/>.  Requires the number of elements to be on the top of the stack
+        /// Creates a new array of the specified <paramref name="elementType"/>.  Requires the number of elements to be on the top of the stack
         /// </summary>
         public static ILGenerator NewArray(this ILGenerator il, Type elementType)
         {
@@ -520,7 +522,7 @@ namespace BusterWood.Reflection.Emit
             if (local == null)
                 throw new ArgumentNullException(nameof(local));
 
-            if (local.LocalIndex < 256)
+            if (local.LocalIndex <= byte.MaxValue)
                 il.Emit(OpCodes.Ldloca_S, (byte)local.LocalIndex); // short form, more compact IL
             else
                 il.Emit(OpCodes.Ldloca, local.LocalIndex);
@@ -670,7 +672,7 @@ namespace BusterWood.Reflection.Emit
         public static ILGenerator LoadElement<T>(this ILGenerator il) => LoadElement(il, typeof(T));
 
         /// <summary>Gets a value stored in an array.  Push 1) the array and 2) the index to the stack</summary>
-        public static ILGenerator LoadElement(this ILGenerator il, Type type)
+        public static ILGenerator LoadElement(this ILGenerator il, Type type, bool byRef = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
@@ -678,8 +680,9 @@ namespace BusterWood.Reflection.Emit
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            // use the short form for native structs
-            if (type == typeof(sbyte))
+            if (byRef)
+                il.Emit(OpCodes.Ldelem_Ref, type);
+            else if (type == typeof(sbyte))   // try to use the short form for native structs
                 il.Emit(OpCodes.Ldelem_I1);
             else if (type == typeof(short))
                 il.Emit(OpCodes.Ldelem_I2);
@@ -698,9 +701,8 @@ namespace BusterWood.Reflection.Emit
             else if (type == typeof(double))
                 il.Emit(OpCodes.Ldelem_R8);
             else if (type.IsValueType)
-                il.Emit(OpCodes.Ldelem, type); // use long form for value types
-            else 
-                il.Emit(OpCodes.Ldelem_Ref, type); // use long form for reference types
+                il.Emit(OpCodes.Ldelem, type); // use long form
+
             return il;
         }
 
@@ -750,6 +752,7 @@ namespace BusterWood.Reflection.Emit
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
+
             if (local == null)
                 throw new ArgumentNullException(nameof(local));
 
@@ -757,16 +760,19 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        /// <summary>Store the value on the top of the stack in argument slot <paramref name="argIdx"/></summary>
-        public static ILGenerator StoreArg(this ILGenerator il, short argIdx)
+        /// <summary>Store the value on the top of the stack in argument slot <paramref name="index"/></summary>
+        public static ILGenerator StoreArg(this ILGenerator il, int index)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
 
-            if (argIdx <= 256)
-                il.Emit(OpCodes.Starg_S, argIdx); // short form, smaller IL
+            if (index < 0 || index > ushort.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(index), "must be between 0 and " + ushort.MaxValue);
+
+            if (index <= byte.MaxValue)
+                il.Emit(OpCodes.Starg_S, (byte)index); // short form, smaller IL
             else
-                il.Emit(OpCodes.Starg, argIdx);
+                il.Emit(OpCodes.Starg, (ushort)index);
             return il;
         }
 
@@ -804,7 +810,7 @@ namespace BusterWood.Reflection.Emit
         /// Sets the value of an array at a specific index.
         /// Push 1) array reference, 2) array index, 3) the value to store
         /// </summary>
-        public static ILGenerator StoreElement(this ILGenerator il, Type type)
+        public static ILGenerator StoreElement(this ILGenerator il, Type type, bool byRef = false)
         {
             if (il == null)
                 throw new ArgumentNullException(nameof(il));
@@ -812,8 +818,9 @@ namespace BusterWood.Reflection.Emit
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            // use the short form for native structs
-            if (type == typeof(sbyte))
+            if (byRef)            
+                il.Emit(OpCodes.Stelem_Ref, type);            
+            else if (type == typeof(sbyte))  // try to use the short form for native structs
                 il.Emit(OpCodes.Stelem_I1);
             else if (type == typeof(short))
                 il.Emit(OpCodes.Stelem_I2);
@@ -825,10 +832,8 @@ namespace BusterWood.Reflection.Emit
                 il.Emit(OpCodes.Stelem_R4);
             else if (type == typeof(double))
                 il.Emit(OpCodes.Stelem_R8);
-            else if (type.IsValueType)
-                il.Emit(OpCodes.Stelem, type); // use long form for value types
-            else
-                il.Emit(OpCodes.Stelem_Ref, type); // use long form for reference types
+            else 
+                il.Emit(OpCodes.Stelem, type); // use long form
             return il;
         }
 
@@ -1048,6 +1053,33 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(method));
 
             il.Emit(OpCodes.Jmp, method);
+            return il;
+        }
+
+        /// <summary>Compares to values for equality - returns 1 if they are equal, 0 if they differ</summary>
+        public static ILGenerator AreEqual(this ILGenerator il)
+        {
+            il.Emit(OpCodes.Ceq);
+            return il;
+        }
+        
+        /// <summary>If the first value on the stack is greater than the second 1 is returned.  Returns 0 if are equal to or less than</summary>
+        public static ILGenerator GreaterThan(this ILGenerator il, bool unsigned = false)
+        {
+            if (unsigned)
+                il.Emit(OpCodes.Cgt_Un);
+            else
+                il.Emit(OpCodes.Cgt);
+            return il;
+        }
+        
+        /// <summary>If the first value on the stack is less than the second 1 is returned.  Returns 0 if are equal to or greater than</summary>
+        public static ILGenerator LessThan(this ILGenerator il, bool unsigned = false)
+        {
+            if (unsigned)
+                il.Emit(OpCodes.Clt_Un);
+            else
+                il.Emit(OpCodes.Clt);
             return il;
         }
     }
