@@ -11,7 +11,7 @@ namespace BusterWood.Linq
         IAsyncEnumerator GetAsyncEnumerator();
     }
 
-    public interface IAsyncEnumerator
+    public interface IAsyncEnumerator : IDisposable
     {
         /// <summary>The current value of the sequence</summary>
         object Current { get; }
@@ -218,6 +218,11 @@ namespace BusterWood.Linq
             }
             return false;
         }
+
+        public void Dispose()
+        {
+            source.Dispose();
+        }
     }
 
     class WhereAsyncEnumerator2<T> : IAsyncEnumerator<T>
@@ -243,6 +248,11 @@ namespace BusterWood.Linq
                     return true;
             }
             return false;
+        }
+
+        public void Dispose()
+        {
+            source.Dispose();
         }
     }
 
@@ -270,6 +280,11 @@ namespace BusterWood.Linq
 
             return await source.MoveNextAsync(cancellationToken);
         }
+
+        public void Dispose()
+        {
+            source.Dispose();
+        }
     }
 
     class TakeAsyncEnumerator<T> : IAsyncEnumerator<T>
@@ -294,6 +309,11 @@ namespace BusterWood.Linq
 
             take--;
             return source.MoveNextAsync(cancellationToken);
+        }
+
+        public void Dispose()
+        {
+            source.Dispose();
         }
     }
 
@@ -322,6 +342,11 @@ namespace BusterWood.Linq
             Current = default(TRes);
             return false;
         }
+
+        public void Dispose()
+        {
+            source.Dispose();
+        }
     }
 
     class SelectAsyncEnumerator2<T, TRes> : IAsyncEnumerator<TRes>
@@ -349,6 +374,11 @@ namespace BusterWood.Linq
             Current = default(TRes);
             return false;
         }
+
+        public void Dispose()
+        {
+            source.Dispose();
+        }
     }
 
     class CastAsyncEnumerator<TRes> : IAsyncEnumerator<TRes>
@@ -373,6 +403,11 @@ namespace BusterWood.Linq
             }
             Current = default(TRes);
             return false;
+        }
+
+        public void Dispose()
+        {
+            source.Dispose();
         }
     }
 }

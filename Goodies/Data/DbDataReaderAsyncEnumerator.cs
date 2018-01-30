@@ -27,5 +27,11 @@ namespace BusterWood.Data
             Current = hasNext ? _transform(_source) : default(T); 
             return hasNext;
         }
+
+        public void Dispose()
+        {
+            // do we really want to dispose of the reader?  what if there is another result set?
+            //_source.Dispose();
+        }
     }
 }
