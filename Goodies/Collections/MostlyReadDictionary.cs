@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusterWood.Contracts;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -12,8 +13,7 @@ namespace BusterWood.Collections
 
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> addFunc)
         {
-            if (addFunc == null)
-                throw new ArgumentNullException(nameof(addFunc));
+            Contract.RequiresNotNull(addFunc, nameof(addFunc));
 
             // simple case of we already have a value for the key
             _rwLock.EnterReadLock();

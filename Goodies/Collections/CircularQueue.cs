@@ -1,7 +1,7 @@
-﻿using System;
+﻿using BusterWood.Contracts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 
 namespace BusterWood.Collections
 {

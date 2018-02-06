@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using BusterWood.Contracts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace BusterWood.Collections
@@ -67,10 +67,11 @@ namespace BusterWood.Collections
         {
             get
             {
-                Contract.Ensures(Contract.Result<IEnumerable<TElement>>() != null);
                 int hashCode = InternalGetHashCode(key);
                 Grouping<TKey, TElement> grouping = FindGrouping(key, hashCode);
-                return grouping ?? (IEnumerable<TElement>) Empty;
+                var result = grouping ?? (IEnumerable<TElement>) Empty;
+                Contract.Ensures(result != null);
+                return result;
             }
         }
 
@@ -82,10 +83,11 @@ namespace BusterWood.Collections
         {
             get
             {
-                Contract.Ensures(Contract.Result<IEnumerable<TElement>>() != null);
                 int hashCode = InternalGetHashCode(key);
                 Grouping<TKey, TElement> grouping = FindGrouping(key, hashCode);
-                return grouping ?? (IReadOnlyCollection<TElement>)Empty;
+                var result = grouping ?? (IReadOnlyCollection<TElement>)Empty;
+                Contract.Ensures(result != null);
+                return result;
             }
         }
 
@@ -190,9 +192,9 @@ namespace BusterWood.Collections
         public static HashLookup<TKey, TValue> ToHashLookup<TKey, TValue>(this IEnumerable<TValue> source, Func<TValue, TKey> keyFunc)
         {
             Contract.Requires(source != null);
-            Contract.Ensures(Contract.Result<HashLookup<TKey, TValue>>() != null);
             var lookup = new HashLookup<TKey, TValue>();
             lookup.AddRange(source, keyFunc);
+            Contract.Ensures(lookup != null);
             return lookup;
         }
     }
