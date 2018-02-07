@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace BusterWood.Linq
 {
@@ -157,5 +158,13 @@ namespace BusterWood.Linq
             }
         }
 
-    }    
+        // Expression version - needs code generation
+        //public static void SetRelationship<T, TOther>(this IEnumerable<T> source, IEnumerable<TOther> other, Expression<Func<T, TOther, bool>> keyEquality)
+        //{
+        //    foreach (var item in source)
+        //    {
+        //    }
+        //}
+
+    }
 }
