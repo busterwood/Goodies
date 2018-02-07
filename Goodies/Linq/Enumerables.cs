@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusterWood.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -127,6 +128,34 @@ namespace BusterWood.Linq
         /// <summary>Returns results of the <paramref name="chooser"/> function that return a value (the result of the function is not null)</summary>
         public static IEnumerable<TResult> Choose<T, TResult>(this IEnumerable<T> items, Func<T, TResult?> chooser) where TResult : struct
             => items.Select(chooser).Where(res => res.HasValue).Select(res => res.Value);
+
+        public static void SetRelationship<T, TKey, TOther>(this IEnumerable<T> source, Func<T, TKey> keyExtractor, ILookup<TKey, TOther> details, Action<T, IEnumerable<TOther>> mutator)
+        {
+            foreach (var item in source)
+            {
+                var key = keyExtractor(item);
+                mutator(item, details[key]);
+            }
+        }
+
+        public static void SetRelationship<T, TKey, TOther>(this IEnumerable<T> source, Func<T, TKey> keyExtractor, HashLookup<TKey, TOther> details, Action<T, IReadOnlyList<TOther>> mutator)
+        {
+            foreach (var item in source)
+            {
+                var key = keyExtractor(item);
+                mutator(item, details[key]);
+            }
+        }
+
+        public static void SetRelationship<T, TKey, TOther, TOther2>(this IEnumerable<T> source, Func<T, TKey> keyExtractor, HashLookup<TKey, TOther> details, Action<T, IReadOnlyList<TOther>> mutator, HashLookup<TKey, TOther2> details2, Action<T, IReadOnlyList<TOther2>> mutator2)
+        {
+            foreach (var item in source)
+            {
+                var key = keyExtractor(item);
+                mutator(item, details[key]);
+                mutator2(item, details2[key]);
+            }
+        }
 
     }    
 }

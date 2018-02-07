@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace BusterWood.Collections
 {
-    class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyCollection<TElement>
+    class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyList<TElement>
     {
         internal TKey _key;
         internal int _hashCode;

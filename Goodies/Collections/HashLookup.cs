@@ -79,13 +79,13 @@ namespace BusterWood.Collections
         /// <returns>The <see cref="T:System.Collections.Generic.IEnumerable`1"/> sequence of values indexed by the specified key.</returns>
         /// <param name="key">The key of the desired sequence of values.</param>
         /// <remarks>Returns an empty sequence if the key is not present</remarks>
-        public IReadOnlyCollection<TElement> this[TKey key]
+        public IReadOnlyList<TElement> this[TKey key]
         {
             get
             {
                 int hashCode = InternalGetHashCode(key);
                 Grouping<TKey, TElement> grouping = FindGrouping(key, hashCode);
-                var result = grouping ?? (IReadOnlyCollection<TElement>)Empty;
+                var result = grouping ?? (IReadOnlyList<TElement>)Empty;
                 Contract.Ensures(result != null);
                 return result;
             }
