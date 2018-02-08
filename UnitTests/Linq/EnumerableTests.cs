@@ -18,7 +18,9 @@ namespace BusterWood.Linq
             var items = new OrderItem[] { new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 2 } };
 
             orders.SetRelationship(o => o.OrderId, items.ToHashLookup(i => i.OrderId), (order, oi) => order.Items = oi);
-            orders.SetRelationship(items, (o, oi) => o.OrderId == oi.OrderId); // Expression version - needs code generation
+
+            Assert.AreEqual(2, orders.ElementAt(0).Items.Count);
+            Assert.AreEqual(1, orders.ElementAt(1).Items.Count);
         }
 
         void non_test(IEnumerable<Order> master, IEnumerable<OrderItem> details)
@@ -34,18 +36,29 @@ namespace BusterWood.Linq
             }
         }
 
+        [Test]
+        public void can_set_relationship_via_expression()
+        {
+            var orders = new Order[] { new Order { OrderId = 1 }, new Order { OrderId = 2 } };
+            var items = new OrderItem[] { new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 2 } };
+            orders.SetRelationship(items, (o, oi) => o.OrderId == oi.OrderId); // Expression version - needs code generation
+
+            Assert.AreEqual(2, orders.ElementAt(0).Items.Count);
+            Assert.AreEqual(1, orders.ElementAt(1).Items.Count);
+        }
+
         static int GetKey(OrderItem item)
         {
             return item.OrderId;
         }
 
-        class Order
+        public class Order
         {
             public int OrderId { get; set; }
             public IReadOnlyList<OrderItem> Items { get; set; }
         }
 
-        class OrderItem
+        public class OrderItem
         {
             public int OrderId { get; set; }
         }
