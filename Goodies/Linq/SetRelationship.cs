@@ -1,4 +1,5 @@
 ﻿using BusterWood.Collections;
+using BusterWood.Goodies;
 using BusterWood.Reflection.Emit;
 using System;
 using System.Collections.Generic;
@@ -30,16 +31,16 @@ namespace BusterWood.Linq
             if (leftProp.DeclaringType == typeof(TOther))
             {
                 // swap left and right
-                Swap(ref left, ref right);
-                Swap(ref leftMem, ref rightMem);
-                Swap(ref leftProp, ref rightProp);
+                Swapper.Swap(ref left, ref right);
+                Swapper.Swap(ref leftMem, ref rightMem);
+                Swapper.Swap(ref leftProp, ref rightProp);
             }
 
             if (leftProp.DeclaringType != typeof(T))
                 throw new ArgumentException("Expected an expression in the form left.Prop == right.Prop");
 
-            // left == T
-            // right = TOther
+            if (rightProp.DeclaringType != typeof(TOther))
+                throw new ArgumentException("Expected an expression in the form left.Prop == right.Prop");
 
             // find the related property to set - look for a property generic collection type on T of IEnumerable<TOther>
             var relatedProp = FindRelated(typeof(T), typeof(TOther));
@@ -50,64 +51,17 @@ namespace BusterWood.Linq
             var modBuilder = asmBuilder.DefineDynamicModule("mod1");
             var typeBuilder = modBuilder.DefineType($"BusterWood.Linq.SetRelationship{key}", TypeAttributes.Class, typeof(object));
 
-            var getKeyMethod = typeBuilder.DefineMethod("GetKey", MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.Final, CallingConventions.Standard, rightProp.PropertyType, new[] { typeof(TOther) });
-            {
-                // generate the GetKey static method
-                var il = getKeyMethod.GetILGenerator();
-                il.Arg(0).GetProperty(relatedProp);
-                il.Return();
-            }
+            var getKeyMethod = DefineGetKey(rightProp, typeBuilder, typeof(TOther));
 
-            {
-                // generate the SetRelationship static method
-                var setRelMethod = typeBuilder.DefineMethod("SetRelationship", MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.Final, CallingConventions.Standard, null, new[] { typeof(IEnumerable<T>), typeof(IEnumerable<TOther>) });
-                var il = setRelMethod.GetILGenerator();
-
-                Type lookupType = typeof(HashLookup<,>).MakeGenericType(rightProp.PropertyType, typeof(TOther));
-                var lookup = il.DeclareLocal(lookupType);
-                var enm = il.DeclareLocal(typeof(IEnumerator<>).MakeGenericType(typeof(T)));
-                var item = il.DeclareLocal(typeof(T));
-
-                il.Arg(2); // push arg2 so we can later call ToHashLookup
-
-                //// new Func<TOther, TKey> to static GetKey method
-                var ctor = typeof(Func<>).MakeGenericType(typeof(TOther), rightProp.PropertyType).GetConstructor(new Type[] { typeof(object), typeof(IntPtr) });
-                il.Load(getKeyMethod).New(ctor);
-
-                // lookup = ToHashLookup(IEnumerable<TOther>, Func<Tother, TKey>)
-                var toLookup = typeof(Extensions).GetMethod(nameof(Extensions.ToHashLookup)).MakeGenericMethod(rightProp.PropertyType, typeof(TOther));
-                il.Call(toLookup);
-                il.Store(lookup);
-
-                // enum = IEnumerable<T>.GetEnumerator
-                il.Arg(1).CallVirt<IEnumerable<T>>("GetEnumerator").Store(enm);
-
-                var exit = il.DefineLabel();
-                var moveNext = il.DefineLabel();
-                il.MarkLabel(moveNext);
-
-                //if (!enm.MoveNext) return;
-                il.Load(enm).CallVirt<IEnumerator<T>>("MoveNext").IfFalseGoto(exit);
-
-                // var item = enum.Current
-                il.Load(enm).GetProperty<IEnumerator<T>>("Current").Store(item);
-
-                // master.Details = lookup[detail.OrderId]
-                il.Load(item);
-                il.Load(lookup);
-                il.Load(item).GetProperty(leftProp);
-                il.Call(lookupType.GetMethod("get_Item"));
-                il.SetProperty(relatedProp);
-
-                il.Goto(moveNext);
-
-                il.MarkLabel(exit);
-                il.Return();
-            }
+            var setRelationship = DefineSetRelationship<T, TOther>(leftProp, rightProp, relatedProp, typeBuilder, getKeyMethod);
 
             var type = typeBuilder.CreateTypeInfo().AsType();
-            //TODO: create delegate to call static method
-            // call it
+
+            //TODO: separate delegate creation from invoke, cache the delgate in a MostlyReadDictionary
+
+            //create delegate to call static method
+            var action = (Action<IEnumerable<T>, IEnumerable<TOther>>)setRelationship.CreateDelegate(typeof(Action<IEnumerable<T>, IEnumerable<TOther>>));
+            action(source, other);
         }
 
         private static PropertyInfo FindRelated(Type master, Type detail)
@@ -123,12 +77,66 @@ namespace BusterWood.Linq
             return found;
         }
 
-        private static void Swap<T>(ref T left, ref T right)
+        private static MethodBuilder DefineGetKey(PropertyInfo rightProp, TypeBuilder typeBuilder, Type detailsType)
         {
-            T temp = left;
-            left = right;
-            right = temp;
+            var method = typeBuilder.DefineMethod("GetKey", MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.Final, CallingConventions.Standard, rightProp.PropertyType, new[] { detailsType });
+            var il = method.GetILGenerator();
+            il.Arg(0).GetProperty(rightProp);
+            il.Return();
+            return method;
         }
+
+        private static MethodBuilder DefineSetRelationship<T, TOther>(PropertyInfo leftProp, PropertyInfo rightProp, PropertyInfo relatedProp, TypeBuilder typeBuilder, MethodBuilder getKeyMethod)
+        {
+            var method = typeBuilder.DefineMethod("SetRelationship", MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.Final, CallingConventions.Standard, null, new[] { typeof(IEnumerable<T>), typeof(IEnumerable<TOther>) });
+            var il = method.GetILGenerator();
+
+            Type lookupType = typeof(HashLookup<,>).MakeGenericType(rightProp.PropertyType, typeof(TOther));
+            var lookup = il.DeclareLocal(lookupType);
+            var enm = il.DeclareLocal(typeof(IEnumerator<>).MakeGenericType(typeof(T)));
+            var master = il.DeclareLocal(typeof(T));
+
+            il.Arg(2); // push arg2 so we can later call ToHashLookup
+
+            //// new Func<TOther, TKey> to static GetKey method
+            var ctor = typeof(Func<>).MakeGenericType(typeof(TOther), rightProp.PropertyType).GetConstructor(new Type[] { typeof(object), typeof(IntPtr) });
+            il.Load(getKeyMethod).New(ctor);
+
+            // lookup = ToHashLookup(IEnumerable<TOther>, Func<Tother, TKey>)
+            var toLookup = typeof(BusterWood.Collections.Extensions).GetMethod(nameof(BusterWood.Collections.Extensions.ToHashLookup)).MakeGenericMethod(rightProp.PropertyType, typeof(TOther));
+            il.Call(toLookup);
+            il.Store(lookup);
+
+            // enum = IEnumerable<T>.GetEnumerator
+            il.Arg(1).CallVirt<IEnumerable<T>>("GetEnumerator").Store(enm);
+
+            var exit = il.DefineLabel();
+            var moveNext = il.DefineLabel();
+            il.MarkLabel(moveNext);
+
+            //if (!enm.MoveNext) return;
+            il.Load(enm).CallVirt<IEnumerator<T>>("MoveNext").IfFalseGoto(exit);
+
+            // var master = enum.Current
+            il.Load(enm).GetProperty<IEnumerator<T>>("Current").Store(master);
+
+            // master.Details = lookup[master.OrderId]
+            il.Load(master);
+            il.Load(lookup);
+            il.Load(master).GetProperty(leftProp);
+            il.Call(lookupType.GetMethod("get_Item"));
+            il.SetProperty(relatedProp);
+
+            il.Goto(moveNext);
+
+            il.MarkLabel(exit);
+            il.Return();
+
+            return method;
+        }
+
+
+
 
         //Expression version - needs code generation
         public static void SetRelationship2<T, TOther>(this IEnumerable<T> source, IEnumerable<TOther> other, Expression<Func<T, TOther, bool>> keyEquality)
