@@ -18,7 +18,25 @@ namespace BusterWood.Linq
             var items = new OrderItem[] { new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 2 } };
 
             orders.SetRelationship(o => o.OrderId, items.ToHashLookup(i => i.OrderId), (order, oi) => order.Items = oi);
-            //orders.SetRelationship(items, (o, oi) => o.OrderId == oi.OrderId); // Expression version - needs code generation
+            orders.SetRelationship(items, (o, oi) => o.OrderId == oi.OrderId); // Expression version - needs code generation
+        }
+
+        void non_test(IEnumerable<Order> master, IEnumerable<OrderItem> details)
+        {
+            var lookup = details.ToHashLookup(GetKey);
+            var e = master.GetEnumerator();
+            for (;;)
+            {
+                if (!e.MoveNext())
+                    return;
+                Order order = e.Current;
+                order.Items = lookup[order.OrderId];
+            }
+        }
+
+        static int GetKey(OrderItem item)
+        {
+            return item.OrderId;
         }
 
         class Order
@@ -32,4 +50,7 @@ namespace BusterWood.Linq
             public int OrderId { get; set; }
         }
     }
+
+
+
 }

@@ -423,20 +423,29 @@ namespace BusterWood.Reflection.Emit
             return il;
         }
 
-        public static ILGenerator GetPropertyValue<T>(this ILGenerator il, string propName)
+        public static ILGenerator GetProperty<T>(this ILGenerator il, string propName)
         {
             if (propName == null)
                 throw new ArgumentNullException(nameof(propName));
 
-            return il.CallGetProperty(typeof(T).GetTypeInfo().GetDeclaredProperty(propName));
+            return il.GetProperty(typeof(T).GetTypeInfo().GetProperty(propName));
         }
 
-        public static ILGenerator CallGetProperty(this ILGenerator il, PropertyInfo prop)
+        public static ILGenerator GetProperty(this ILGenerator il, PropertyInfo prop)
         {
             if (prop == null)
                 throw new ArgumentNullException(nameof(prop));
 
             il.CallVirt(prop.GetMethod);
+            return il;
+        }
+
+        public static ILGenerator SetProperty(this ILGenerator il, PropertyInfo prop)
+        {
+            if (prop == null)
+                throw new ArgumentNullException(nameof(prop));
+
+            il.CallVirt(prop.SetMethod);
             return il;
         }
 
@@ -574,6 +583,18 @@ namespace BusterWood.Reflection.Emit
                 throw new ArgumentNullException(nameof(il));
 
             il.Emit(OpCodes.Ldc_R8, i);
+            return il;
+        }
+
+        public static ILGenerator Load(this ILGenerator il, MethodInfo method)
+        {
+            if (il == null)
+                throw new ArgumentNullException(nameof(il));
+
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            il.Emit(OpCodes.Ldftn, method);
             return il;
         }
 

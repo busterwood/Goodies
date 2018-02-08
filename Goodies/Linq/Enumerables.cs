@@ -2,11 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace BusterWood.Linq
 {
-    public static class Enumerables
+    public static partial class Enumerables
     {
         /// <summary>Creation of a list with a predicate.</summary>
         public static List<T> ToList<T>(this IEnumerable<T> source, Func<T, bool> predicate)
@@ -158,13 +157,6 @@ namespace BusterWood.Linq
             }
         }
 
-        // Expression version - needs code generation
-        //public static void SetRelationship<T, TOther>(this IEnumerable<T> source, IEnumerable<TOther> other, Expression<Func<T, TOther, bool>> keyEquality)
-        //{
-        //    foreach (var item in source)
-        //    {
-        //    }
-        //}
 
     }
 }
