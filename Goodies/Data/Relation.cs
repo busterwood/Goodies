@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BusterWood.Data
 {
-    public class Relation
+    public class Relation : IRelation
     {
         readonly UniqueList<Column> _columns = new UniqueList<Column>(new Column.NameEquality());
         readonly List<IExpandable> _data = new List<IExpandable>();
@@ -36,6 +36,15 @@ namespace BusterWood.Data
             return new Row(this, rowCount++);
         }
 
+        public Row AddRow(params object[] values)
+        {
+            for (int i = 0; i < _data.Count; i++)
+            {
+                _data[i].Add(values[i]);
+            }
+            return new Row(this, rowCount++);
+        }
+
         public IReadOnlyList<T> GetData<T>(string columnName)
         {
             int index = _columns.IndexOf(new Column(columnName, null));
@@ -52,9 +61,9 @@ namespace BusterWood.Data
 
         internal List<T> GetDataInternal<T>(int index) => (List<T>)_data[index];
 
-        public IList GetData(int index) => (IList)_data[index]; // TODO: a readonly wrapper?
+        public IList GetData(int index) => _data[index]; // TODO: a readonly wrapper?
 
-        interface IExpandable
+        interface IExpandable : IList
         {
             void Expand();
         }
@@ -104,23 +113,23 @@ namespace BusterWood.Data
     {
         readonly Relation _relation;
 
-        public int Index { get; }
+        public int RowIndex { get; }
 
         public Row(Relation relation, int index)
         {
             _relation = relation;
-            Index = index;
+            RowIndex = index;
         }
 
-        public object Get(int ordinal) => _relation.GetData(ordinal)[Index];
+        public object Get(int ordinal) => _relation.GetData(ordinal)[RowIndex];
 
-        public T Get<T>(int ordinal) => _relation.GetData<T>(ordinal)[Index];
+        public T Get<T>(int ordinal) => _relation.GetData<T>(ordinal)[RowIndex];
 
-        public T Get<T>(string columnName) => _relation.GetData<T>(columnName)[Index];
+        public T Get<T>(string columnName) => _relation.GetData<T>(columnName)[RowIndex];
 
-        public void Set<T>(int ordinal, T value) => _relation.GetDataInternal<T>(ordinal)[Index] = value;
+        public void Set<T>(int ordinal, T value) => _relation.GetDataInternal<T>(ordinal)[RowIndex] = value;
 
-        public void Set<T>(string columnName, T value) => _relation.GetDataInternal<T>(columnName)[Index] = value;
+        public void Set<T>(string columnName, T value) => _relation.GetDataInternal<T>(columnName)[RowIndex] = value;
     }
 
 }
