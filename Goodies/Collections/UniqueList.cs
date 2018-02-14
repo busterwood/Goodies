@@ -11,7 +11,7 @@ namespace BusterWood.Collections
 {
     /// <summary>List of unique elements, which acts like a set in that you cannot add duplicates.</summary>
     /// <remarks>Performance is comparable to <see cref="HashSet{T}"/>.  Design was inspired by Python's 3.6 new dict</remarks>
-    public class UniqueList<T> : IReadOnlyList<T>, ISet<T>, IReadOnlySet<T>, IList<T>
+    public class UniqueList<T> : IUniqueList<T>
     {
         const int Lower31BitMask = 0x7FFFFFFF;
         const int FREE = -1;    // index is free, terminate probing when looking for an item

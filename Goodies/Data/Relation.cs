@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace BusterWood.Data
 {
-    public class Relation : IRelation
+    public class Relation : IRelation, IEnumerable<Row>
     {
         readonly UniqueList<Column> _columns = new UniqueList<Column>(new Column.NameEquality());
         readonly List<IExpandable> _data = new List<IExpandable>();
@@ -13,7 +13,7 @@ namespace BusterWood.Data
 
         public int RowCount => rowCount;
 
-        public IReadOnlyList<Column> Columns => _columns;
+        public IReadOnlyUniqueList<Column> Columns => _columns;
 
         public int AddColumn<T>(string name)
         {
@@ -45,23 +45,23 @@ namespace BusterWood.Data
             return new Row(this, rowCount++);
         }
 
-        public IReadOnlyList<T> GetData<T>(string columnName)
+        public IReadOnlyList<T> ColumnData<T>(int index) => (IReadOnlyList<T>)_data[index];
+
+        public IList ColumnData(int index) => _data[index]; // TODO: a readonly wrapper?
+
+        public IEnumerator<Row> GetEnumerator()
         {
-            int index = _columns.IndexOf(new Column(columnName, null));
-            return index >= 0 ? (IReadOnlyList<T>)_data[index] : null;
+            for (int i = 0; i < rowCount; i++)
+            {
+                yield return new Row(this, i);
+            }
         }
 
-        internal List<T> GetDataInternal<T>(string columnName)
-        {
-            int index = _columns.IndexOf(new Column(columnName, null));
-            return index >= 0 ? (List<T>)_data[index] : null;
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IReadOnlyList<T> GetData<T>(int index) => (IReadOnlyList<T>)_data[index];
+        public T GetData<T>(int row, int column) => ((List<T>)_data[column])[row];
 
-        internal List<T> GetDataInternal<T>(int index) => (List<T>)_data[index];
-
-        public IList GetData(int index) => _data[index]; // TODO: a readonly wrapper?
+        public void SetData<T>(int row, int column, T value) => ((List<T>)_data[column])[row] = value;
 
         interface IExpandable : IList
         {
@@ -111,25 +111,66 @@ namespace BusterWood.Data
 
     public struct Row // DynamicObject? this would involve boxing?
     {
-        readonly Relation _relation;
+        internal readonly Relation Relation;
 
         public int RowIndex { get; }
 
         public Row(Relation relation, int index)
         {
-            _relation = relation;
+            Relation = relation;
             RowIndex = index;
         }
 
-        public object Get(int ordinal) => _relation.GetData(ordinal)[RowIndex];
-
-        public T Get<T>(int ordinal) => _relation.GetData<T>(ordinal)[RowIndex];
-
-        public T Get<T>(string columnName) => _relation.GetData<T>(columnName)[RowIndex];
-
-        public void Set<T>(int ordinal, T value) => _relation.GetDataInternal<T>(ordinal)[RowIndex] = value;
-
-        public void Set<T>(string columnName, T value) => _relation.GetDataInternal<T>(columnName)[RowIndex] = value;
+        public object Get(int column) => Relation.ColumnData(column)[RowIndex];
+        public T Get<T>(int column) => Relation.GetData<T>(RowIndex, column);
+        public void Set<T>(int column, T value) => Relation.SetData(RowIndex, column, value);
     }
 
+    public static partial class Extensions
+    {
+        public static IReadOnlyList<T> ColumnData<T>(this IRelation relation, string columnName)
+        {
+            int column = relation.Columns.IndexOf(new Column(columnName, null));
+            return column >= 0 ? relation.ColumnData<T>(column) : null;
+        }
+
+        public static IList ColumnData(this IRelation relation, string columnName)
+        {
+            int column = relation.Columns.IndexOf(new Column(columnName, null));
+            return column >= 0 ? relation.ColumnData(column) : null;
+        }
+
+        public static T Get<T>(this Row row, string columnName)
+        {
+            var column = row.Relation.Columns.IndexOf(new Column(columnName, null));
+            return row.Get<T>(column);
+        }
+
+        public static object Get(this Row row, string columnName)
+        {
+            var column = row.Relation.Columns.IndexOf(new Column(columnName, null));
+            return row.Get(column);
+        }
+
+        public static T Aggregate<T>(this IRelation relation, int column, Func<T, T, T> aggreation, T initial = default(T))
+        {
+            var result = initial;
+            foreach (T val in relation.ColumnData<T>(column))
+            {
+                result = aggreation(initial, val);
+            }
+            return result;
+        }
+
+        public static IEnumerable<Row> Where<T>(this IRelation relation, int column, Func<T, bool> predicate)
+        {
+            int i = 0;
+            foreach (T val in relation.ColumnData<T>(column))
+            {
+                if (predicate(val))
+                    yield return relation[i];
+                i++;
+            }
+        }
+    }
 }

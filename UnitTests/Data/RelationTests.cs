@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,25 +35,34 @@ namespace BusterWood.Data
             Assert.AreEqual("hello", r.Get<string>("name"));
         }
 
-        [TestCase(100)]
+        [TestCase(1000)]
         [TestCase(100000)]
+        [TestCase(1000000)]
         public void memory_used_list(int count)
         {
+            var sw = new Stopwatch();
             var before = GC.GetTotalMemory(true);
+            sw.Start();
             var list = new List<Order>();
             for (int i = 0; i < count; i++)
             {
                 list.Add(new Order(i));
             }
+            sw.Stop();
+            Console.WriteLine($"Generic list of {list.Count:N0} items took {sw.Elapsed.TotalMilliseconds:N1}MS to populate");
+            sw.Start();
             var after = GC.GetTotalMemory(true);
-            Console.WriteLine($"Genric list of {list.Count:N0} items used {after - before:N0} bytes");
+            Console.WriteLine($"Generic list of {list.Count:N0} items took {sw.Elapsed.TotalMilliseconds:N1}MS to populate & GC, used {after - before:N0} bytes");
         }
 
-        [TestCase(100)]
+        [TestCase(1000)]
         [TestCase(100000)]
+        [TestCase(1000000)]
         public void memory_used_relation(int count)
         {
+            var sw = new Stopwatch();
             var before = GC.GetTotalMemory(true);
+            sw.Start();
             var rel = new Relation();
             rel.AddColumn<int>("Id");
             rel.AddColumn<string>("Name");
@@ -61,15 +71,17 @@ namespace BusterWood.Data
 
             for (int i = 0; i < count; i++)
             {
-                var o = new Order(i);
-                var r = rel.AddRow();
-                r.Set(0, o.Id);
-                r.Set(1, o.Name);
-                r.Set(2, o.When);
-                r.Set(3, o.Reference);
+                rel.AddRow();
+                rel.SetData(i, 0, i);
+                rel.SetData(i, 1, "Name " + i);
+                rel.SetData(i, 2, DateTime.UtcNow);
+                rel.SetData(i, 3, Guid.NewGuid());
             }
+            sw.Stop();
+            Console.WriteLine($"Relation of {rel.RowCount:N0} items took {sw.Elapsed.TotalMilliseconds:N1}MS to populate");
+            sw.Start();
             var after = GC.GetTotalMemory(true);
-            Console.WriteLine($"Relation of {rel.RowCount:N0} items used {after - before:N0} bytes");
+            Console.WriteLine($"Relation of {rel.RowCount:N0} items took {sw.Elapsed.TotalMilliseconds:N1}MS to populate, used {after - before:N0} bytes");
         }
 
         class Order

@@ -1,18 +1,18 @@
-﻿using System.Collections;
+﻿using BusterWood.Collections;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace BusterWood.Data
 {
-    public interface IRelation
+    public interface IRelation : IEnumerable<Row>
     {
-        Row this[int index] { get; }
-
-        IReadOnlyList<Column> Columns { get; }
+        IReadOnlyUniqueList<Column> Columns { get; }
         int RowCount { get; }
-
-        IList GetData(int index);
-        IReadOnlyList<T> GetData<T>(int index);
-        IReadOnlyList<T> GetData<T>(string columnName);
+        Row this[int column] { get; }
+        IList ColumnData(int column);
+        IReadOnlyList<T> ColumnData<T>(int column);
+        T GetData<T>(int row, int column);
+        void SetData<T>(int row, int column, T value);
     }
 
 }
