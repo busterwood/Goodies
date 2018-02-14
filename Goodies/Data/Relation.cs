@@ -8,7 +8,8 @@ namespace BusterWood.Data
     public class Relation : IRelation, IEnumerable<Row>
     {
         readonly UniqueList<Column> _columns = new UniqueList<Column>(new Column.NameEquality());
-        readonly List<IExpandable> _data = new List<IExpandable>();
+        readonly List<Array> _data = new List<Array>();
+        int capacity;
         int rowCount;
 
         public int RowCount => rowCount;
@@ -20,34 +21,32 @@ namespace BusterWood.Data
             var col = new Column(name, typeof(T));
             if (_columns.Add(col))
             {
-                _data.Add(new ExpandableList<T>(rowCount));
+                _data.Add(new T[rowCount]);
             }
             return _columns.IndexOf(col);
         }
 
-        public Row this[int index] => new Row(this, index);
+        public Row this[int row] => new Row(this, row);
 
         public Row AddRow()
         {
-            for (int i = 0; i < _data.Count; i++)
+            if (rowCount == capacity)
             {
-                _data[i].Expand();
+                // expand
+                capacity = capacity == 0 ? 4 : capacity + capacity;
+                for (int i = 0; i < _data.Count; i++)
+                {
+                    var temp = Array.CreateInstance(_columns[i].Type, capacity);
+                    Array.Copy(_data[i], temp, rowCount);
+                    _data[i] = temp;
+                }
             }
             return new Row(this, rowCount++);
         }
 
-        public Row AddRow(params object[] values)
-        {
-            for (int i = 0; i < _data.Count; i++)
-            {
-                _data[i].Add(values[i]);
-            }
-            return new Row(this, rowCount++);
-        }
+        public ColumnData<T> ColumnData<T>(int column) => new ColumnData<T>((T[])_data[column], rowCount);
 
-        public IReadOnlyList<T> ColumnData<T>(int index) => (IReadOnlyList<T>)_data[index];
-
-        public IList ColumnData(int index) => _data[index]; // TODO: a readonly wrapper?
+        public IList ColumnData(int column) => _data[column]; // TODO: a readonly wrapper?
 
         public IEnumerator<Row> GetEnumerator()
         {
@@ -59,38 +58,31 @@ namespace BusterWood.Data
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public T GetData<T>(int row, int column) => ((List<T>)_data[column])[row];
+        public T GetData<T>(int row, int column)
+        {
+            var arr = (T[])_data[column];
+            return arr[row];
+        }
 
-        public void SetData<T>(int row, int column, T value) => ((List<T>)_data[column])[row] = value;
+        public void SetData<T>(int row, int column, T value)
+        {
+            var arr = (T[])_data[column];
+            arr[row] = value;
+        }
+
+        public void SetData(int row, int column, object value)
+        {
+            var arr = _data[column];
+            arr.SetValue(value, row);
+        }
 
         interface IExpandable : IList
         {
             void Expand();
         }
-
-        class ExpandableList<T> : List<T>, IExpandable
-        {
-            public ExpandableList()
-            {
-            }
-
-            public ExpandableList(int capacity) : base(capacity)
-            {
-                var @default = default(T);
-                for (int i = 0; i < capacity; i++)
-                {
-                    Add(@default); //TODO: this looks odd, really we just need to set the Count
-                }
-            }
-
-            public void Expand()
-            {
-                Add(default(T));
-            }
-        }
     }
 
-    public struct Column
+    public struct Column 
     {
         public string Name { get; }
         public Type Type { get; }
@@ -107,6 +99,43 @@ namespace BusterWood.Data
 
             public int GetHashCode(Column c) => c.Name?.GetHashCode() ?? 0;
         }
+    }
+
+    public struct ColumnData<T> : IReadOnlyList<T>
+    {
+        readonly T[] _data;
+
+        public int Count { get; }
+
+        public ColumnData(T[] data, int count) : this()
+        {
+            _data = data;
+            Count = count;
+        }
+
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException();
+                return _data[index];
+            }
+            set
+            {
+                if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException();
+                _data[index] = value;
+            }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                yield return _data[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public struct Row // DynamicObject? this would involve boxing?
@@ -128,10 +157,10 @@ namespace BusterWood.Data
 
     public static partial class Extensions
     {
-        public static IReadOnlyList<T> ColumnData<T>(this IRelation relation, string columnName)
+        public static ColumnData<T> ColumnData<T>(this IRelation relation, string columnName)
         {
             int column = relation.Columns.IndexOf(new Column(columnName, null));
-            return column >= 0 ? relation.ColumnData<T>(column) : null;
+            return column >= 0 ? relation.ColumnData<T>(column) : new ColumnData<T>();
         }
 
         public static IList ColumnData(this IRelation relation, string columnName)
@@ -152,14 +181,17 @@ namespace BusterWood.Data
             return row.Get(column);
         }
 
-        public static T Aggregate<T>(this IRelation relation, int column, Func<T, T, T> aggreation, T initial = default(T))
+        public static Row AddRow(this IRelation relation, params object[] values)
         {
-            var result = initial;
-            foreach (T val in relation.ColumnData<T>(column))
+            var row = relation.AddRow();
+            int colCount = relation.Columns.Count;
+            for (int i = 0; i < values.Length; i++)
             {
-                result = aggreation(initial, val);
+                if (i >= colCount)
+                    break;
+                relation.SetData(row.RowIndex, i, values[i]);
             }
-            return result;
+            return row;
         }
 
         public static IEnumerable<Row> Where<T>(this IRelation relation, int column, Func<T, bool> predicate)
