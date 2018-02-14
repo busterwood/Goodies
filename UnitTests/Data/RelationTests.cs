@@ -18,8 +18,8 @@ namespace BusterWood.Data
             rel.AddColumn<int>("id");
             rel.AddColumn<string>("name");
             var r = rel.AddRow();
-            Assert.AreEqual(0, r.Get<int>("id"));
-            Assert.AreEqual(null, r.Get<string>("name"));
+            Assert.AreEqual(0, r.Get<int>(0));
+            Assert.AreEqual(null, r.Get<string>(1));
         }
 
         [Test]
@@ -31,8 +31,8 @@ namespace BusterWood.Data
             var r = rel.AddRow();
             r.Set(0, 1);
             r.Set(1, "hello");
-            Assert.AreEqual(1, r.Get<int>("id"));
-            Assert.AreEqual("hello", r.Get<string>("name"));
+            Assert.AreEqual(1, r.Get<int>(0));
+            Assert.AreEqual("hello", r.Get<string>(1));
         }
 
         [TestCase(1000)]
