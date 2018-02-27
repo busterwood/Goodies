@@ -9,6 +9,7 @@ namespace BusterWood.Testing
 {
     public static class Tests
     {
+        /// <summary>Runs all the tests in the <paramref name="assembly"/>, returning the number of failed tests</summary>
         public static int Run(Assembly assembly)
         {
             int failCount = 0;
@@ -19,6 +20,7 @@ namespace BusterWood.Testing
             return failCount;
         }
 
+        /// <summary>Runs all the tests in the <paramref name="type"/>, returning the number of failed tests</summary>
         public static int Run(Type type)
         {
             var tests = DiscoverTests(type).ToList();
@@ -42,6 +44,7 @@ namespace BusterWood.Testing
             return failCount;
         }
 
+        /// <summary>Finds all the tests in the <paramref name="type"/></summary>
         public static IEnumerable<Test> DiscoverTests(Type type)
         {
             object instance = null;
@@ -57,6 +60,7 @@ namespace BusterWood.Testing
             }
         }
 
+        /// <summary>Runs all the <paramref name="tests"/>, returning a flag indicating that the test passed</summary>
         public static bool Run(IEnumerable<Test> tests)
         {
             int failed = 0;
@@ -109,6 +113,11 @@ namespace BusterWood.Testing
 
         static void WriteLine(ConsoleColor color, string message)
         {
+            if (Console.IsOutputRedirected)
+            {
+                Console.WriteLine(message);
+                return;
+            }
             var before = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.WriteLine(message);

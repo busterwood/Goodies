@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace BusterWood.Testing
 {
+    /// <summary>Thrown when a <see cref="Test"/> is <see cref="Test.Skipped"/></summary>
     [Serializable]
     internal class SkipException : Exception
     {

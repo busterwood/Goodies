@@ -3,6 +3,9 @@ using System.Linq.Expressions;
 
 namespace BusterWood.Testing
 {
+    /// <summary>
+    /// These extension methods are easy to use, but much slower than checking a condition with an if statement then calling <see cref="Test.Error(string)"/>
+    /// </summary>
     public static class Extensions
     {
         /// <summary>Checks the <paramref name="expression"/> returns true, or reports the <paramref name="expression"/> as an error</summary>

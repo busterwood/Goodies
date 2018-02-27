@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace BusterWood.Testing
 {
+    /// <summary>Thrown when a <see cref="Test"/> has <see cref="Test.Failed"/></summary>
     [Serializable]
     internal class FailException : Exception
     {
