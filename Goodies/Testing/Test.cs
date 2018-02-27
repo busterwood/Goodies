@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -100,7 +101,26 @@ namespace BusterWood.Testing
         public static bool Verbose { get; set; }
     }
 
-    public static class Runner
+    public static class Extensions
+    {
+        /// <summary>Checks the expression returns true, or reports the expression an an error</summary>
+        public static void Assert(this Test t, Expression<Func<bool>> expression)
+        {
+            var func = expression.Compile();
+            if (!func())
+                t.Error(expression.ToString());
+        }
+
+        /// <summary>Checks the expression returns true, or reports the expression an an error</summary>
+        public static void AssertFalse(this Test t, Expression<Func<bool>> expression)
+        {
+            var func = expression.Compile();
+            if (func())
+                t.Error(expression.ToString());
+        }
+    }
+
+    public static class Tests
     {
         public static void Run(Assembly assembly)
         {

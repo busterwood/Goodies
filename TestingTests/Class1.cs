@@ -9,7 +9,7 @@ namespace TestingTests
         public static int Main()
         {
             //Test.Verbose = true;
-            return Runner.Run(typeof(MoneyTests));
+            return Tests.Run(typeof(MoneyTests));
         }
     }
 
@@ -109,62 +109,52 @@ namespace TestingTests
                 t.Error("currencies differ");
         }
 
-        //[Test]
-        //public void not_equal_with_operator_with_differnet_amount_and_same_currency()
-        //{
-        //    Assert.IsFalse(new Money(1.00m, "GBP") == new Money(1.01m, "GBP"));
-        //}
+        public void test_not_equal_with_operator_with_differnet_amount_and_same_currency(Test t)
+        {
+            t.Assert(() => new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
+        }
 
-        //[Test]
-        //public void can_be_not_equal_with_operator2_with_same_amount_and_currency()
-        //{
-        //    Assert.IsFalse(new Money(2, "GBP") != new Money(2, "GBP"));
-        //}
+        public void test_can_be_not_equal_with_operator2_with_same_amount_and_currency(Test t)
+        {
+            t.Assert(() => new Money(2, "GBP") == new Money(2, "GBP"));
+        }
 
-        //[Test]
-        //public void not_equal_with_operator2_with_same_amount_and_differnet_currency()
-        //{
-        //    Assert.IsTrue(new Money(2, "GBP") != new Money(1, "USD"));
-        //}
+        public void test_not_equal_with_operator2_with_same_amount_and_differnet_currency(Test t)
+        {
+            t.Assert(() => new Money(2, "GBP") != new Money(1, "USD"));
+        }
 
-        //[Test]
-        //public void not_equal_with_operator2_with_differnet_amount_and_same_currency()
-        //{
-        //    Assert.IsTrue(new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
-        //}
+        public void test_not_equal_with_operator2_with_differnet_amount_and_same_currency(Test t)
+        {
+            t.Assert(() => new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
+        }
 
-        //[Test]
-        //public void compare_returns_zero_when_money_is_equal()
-        //{
-        //    Assert.AreEqual(0, 10m.GBP().CompareTo(10m.GBP()));
-        //}
+        public void test_compare_returns_zero_when_money_is_equal(Test t)
+        {
+            t.Assert(() => 10m.GBP().CompareTo(10m.GBP()) == 0);
+        }
 
-        //[Test]
-        //public void compare_returns_minus_one_when_left_value_is_less_than_right_value()
-        //{
-        //    Assert.AreEqual(-1, 9m.GBP().CompareTo(10m.GBP()));
-        //}
+        public void test_compare_returns_minus_one_when_left_value_is_less_than_right_value(Test t)
+        {
+            t.Assert(() => 9m.GBP().CompareTo(10m.GBP()) < 0);
+        }
 
-        //[Test]
-        //public void compare_returns_plus_one_when_left_value_is_more_than_right_value()
-        //{
-        //    Assert.AreEqual(1, 11m.GBP().CompareTo(10m.GBP()));
-        //}
+        public void test_compare_returns_plus_one_when_left_value_is_more_than_right_value(Test t)
+        {
+            t.Assert(() => 11m.GBP().CompareTo(10m.GBP()) > 0);
+        }
 
-        //[Test]
-        //public void can_negate_positive_money()
-        //{
-        //    var m = 1m.GBP();
-        //    Assert.AreEqual(-1m, -m.Amount);
-        //}
+        public void test_can_negate_positive_money(Test t)
+        {
+            var m = 1m.GBP();
+            t.Assert(() => -1m == -m.Amount);
+        }
 
-        //[Test]
-        //public void can_negate_negative_money()
-        //{
-        //    var m = -1m.GBP();
-        //    Assert.AreEqual(1m, -m.Amount);
-        //}
-
+        public void test_can_negate_negative_money(Test t)
+        {
+            var m = -1m.GBP();
+            t.Assert(() => 1m == -m.Amount);
+        }
 
         //[Test]
         //public void less_than_on_different_currencys_throws_exception()
@@ -190,29 +180,25 @@ namespace TestingTests
         //    Assert.Throws<InvalidOperationException>(() => { var r = 10m.GBP() >= 11m.USD(); });
         //}
 
-        //[Test]
-        //public void less_than()
-        //{
-        //    Assert.IsTrue(10m.GBP() < 11m.GBP());
-        //}
+        public void test_less_than(Test t)
+        {
+            t.Assert(() => 10m.GBP() < 11m.GBP());
+        }
 
-        //[Test]
-        //public void not_less_than_when_equal()
-        //{
-        //    Assert.IsFalse(10m.GBP() < 10m.GBP());
-        //}
+        public void test_not_less_than_when_equal(Test t)
+        {
+            t.AssertFalse(() => 10m.GBP() < 10m.GBP());
+        }
 
-        //[Test]
-        //public void not_less_than_when_more_than()
-        //{
-        //    Assert.IsFalse(11m.GBP() < 10m.GBP());
-        //}
+        public void test_not_less_than_when_more_than(Test t)
+        {
+            t.AssertFalse(() => 11m.GBP() < 10m.GBP());
+        }
 
-        //[Test]
-        //public void more_than()
-        //{
-        //    Assert.IsTrue(12m.GBP() > 11m.GBP());
-        //}
+        public void test_more_than(Test t)
+        {
+            t.Assert(() => 12m.GBP() > 11m.GBP());
+        }
 
         //[Test]
         //public void not_more_than_when_equal()
