@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BusterWood.Collections
 {
-    public static class DictionaryExtensions
+    public static partial class Extensions
     {
         /// <summary>
         /// Tries to get a value from <paramref name="dictionary"/>.  Returns TRUE if the value was already in the <paramref name="dictionary"/>,
@@ -60,5 +60,6 @@ namespace BusterWood.Collections
             }
         }
 
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> items, IEqualityComparer<T> comparer = null) => new HashSet<T>(items, comparer);
     }
 }

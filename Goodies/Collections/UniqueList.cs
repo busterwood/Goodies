@@ -329,21 +329,21 @@ namespace BusterWood.Collections
         // NOT in either this or other
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
-            var inBoth = other.ToList(x => Contains(x));
+            var inBoth = other.ToList(Contains);
             ExceptWith(inBoth);
         }
 
-        public bool IsSubsetOf(IEnumerable<T> other) => SetExtensions.IsSubsetOf(this, other);
+        public bool IsSubsetOf(IEnumerable<T> other) => Extensions.IsSubsetOf(this, other);
 
-        public bool IsSupersetOf(IEnumerable<T> other) => SetExtensions.IsSupersetOf(this, other);
+        public bool IsSupersetOf(IEnumerable<T> other) => Extensions.IsSupersetOf(this, other);
 
-        public bool IsProperSupersetOf(IEnumerable<T> other) => SetExtensions.IsProperSupersetOf(this, other);
+        public bool IsProperSupersetOf(IEnumerable<T> other) => Extensions.IsProperSupersetOf(this, other);
 
-        public bool IsProperSubsetOf(IEnumerable<T> other) => SetExtensions.IsProperSubsetOf(this, other);
+        public bool IsProperSubsetOf(IEnumerable<T> other) => Extensions.IsProperSubsetOf(this, other);
 
-        public bool Overlaps(IEnumerable<T> other) => SetExtensions.Overlaps(this, other);
+        public bool Overlaps(IEnumerable<T> other) => Extensions.Overlaps(this, other);
 
-        public bool SetEquals(IEnumerable<T> other) => SetExtensions.SetEquals(this, other);
+        public bool SetEquals(IEnumerable<T> other) => Extensions.SetEquals(this, other);
 
         /// <summary>Removes all items from the list</summary>
         public void Clear()

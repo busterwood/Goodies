@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BusterWood.Collections
 {
-    public static class SetExtensions
+    public static partial class Extensions
     {
         public static bool IsProperSubsetOf<S, T>(this S set, IEnumerable<T> other) where S : IReadOnlySet<T> => set.IsSubsetOf(other) && other.Any(x => !set.Contains(x));
 
