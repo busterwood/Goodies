@@ -152,6 +152,10 @@ namespace BusterWood.Channels
 
         public static void closing_the_channel_with_a_waiting_sender_does_not_cancel_the_senders_task(Test t)
         {
+            if (Test.Short)
+                t.SkipNow();
+
+
             var ch = new Channel<int>();
             var st = ch.SendAsync(2);
             if (st == null)
@@ -186,6 +190,9 @@ namespace BusterWood.Channels
 
         public static void memory(Test t)
         {
+            if (Test.Short)
+                t.SkipNow();
+
             var before = GC.GetTotalMemory(true);
             var chans = new Channel<int>[10000];
             for (int i = 0; i < chans.Length; i++)
@@ -196,7 +203,7 @@ namespace BusterWood.Channels
             GC.KeepAlive(chans);
             var diff = after - before - (chans.Length * 4);
             var kb = diff / 1024;
-            Console.WriteLine("10,000 changes takes " + kb + "KB");
+            t.Log("10,000 changes takes " + kb + "KB");
         }
     }
 }
