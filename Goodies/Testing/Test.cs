@@ -1,23 +1,21 @@
 ﻿using BusterWood.Collections;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace BusterWood.Testing
 {
     public class Test
     {
-        internal Action<Test> method;
-
+        internal Type type;
+        internal MethodInfo method;
         internal readonly List<string> Messsages = new List<string>();
-
         internal readonly Action<string> LogMessage = Console.WriteLine;
-
-        internal void Run() => method(this);
-
-        public string TypeName { get; internal set; }
+        
+        public string TypeName => type.Name;
 
         /// <summary>returns the name of the running test</summary>
-        public string Name { get; internal set; }
+        public string Name => method.Name;
 
         /// <summary>reports whether the test has failed</summary>
         public bool Failed { get; private set; }
@@ -86,6 +84,16 @@ namespace BusterWood.Testing
         public override string ToString()
         {
             return Name;
+        }
+
+        internal void Run()
+        {
+            var instance = Activator.CreateInstance(type);
+            var action = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
+            using (instance as IDisposable)
+            {
+                action(this);
+            }
         }
 
         /// <summary>Skip long tests?</summary>

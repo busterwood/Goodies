@@ -44,23 +44,17 @@ namespace BusterWood.Testing
             return failCount;
         }
 
-        //TODO: don't create the instance here, do it at test time so the constructor can be used to set up the test(s)
-        //TODO: dispose of the instance afterwards, if required
         //TODO: async test methods with a CancellationToken
+        //TODO: timeout of test
 
         /// <summary>Finds all the tests in the <paramref name="type"/></summary>
         public static IEnumerable<Test> DiscoverTests(Type type)
         {
-            object instance = null;
             foreach (var m in type.GetMethods().Where(m => m.ReturnType == typeof(void)))
             {
                 var p = m.GetParameters();
-                if (p.Length != 1 || p[0].ParameterType != typeof(Test))
-                    continue;
-                if (instance == null)
-                    instance = Activator.CreateInstance(type);
-                var test = (Action<Test>)m.CreateDelegate(typeof(Action<Test>), instance);
-                yield return new Test { method = test, TypeName = type.Name, Name = m.Name };
+                if (p.Length == 1 && p[0].ParameterType == typeof(Test))
+                    yield return new Test { type = type, method = m };
             }
         }
 
