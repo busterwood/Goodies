@@ -9,7 +9,10 @@ namespace BusterWood.Testing
 {
     public static class Tests
     {
-        /// <summary>Runs all the tests in the <paramref name="assembly"/>, returning the number of failed tests</summary>
+        /// <summary>
+        /// Runs all the tests in the <paramref name="assembly"/>, returning the number of failed tests.
+        /// If <paramref name="assembly"/> is null, or not provided, then all tests in the entry assembly (exe) are run.
+        /// </summary>
         public static int Run(Assembly assembly = null)
         {
             int failCount = 0;
@@ -46,6 +49,7 @@ namespace BusterWood.Testing
 
         //TODO: async test methods with a CancellationToken
         //TODO: timeout of test
+        //TODO: way of skipping all tests via the constructor, e.g. take a Test parameter into the ctor
 
         /// <summary>Finds all the tests in the <paramref name="type"/></summary>
         public static IEnumerable<Test> DiscoverTests(Type type)

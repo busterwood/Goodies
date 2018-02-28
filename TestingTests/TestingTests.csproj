@@ -49,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Caching\AsyncReadThroughCacheTests.cs" />
+    <Compile Include="Caching\CacheTests.cs" />
+    <Compile Include="Caching\ConcurrentCacheTests.cs" />
+    <Compile Include="Caching\ReadThroughCacheTests.cs" />
+    <Compile Include="Caching\ThunderingHerdProtectionTests.cs" />
+    <Compile Include="Caching\ValueIsKey.cs" />
     <Compile Include="Channels\BufferedChannelTests.cs" />
     <Compile Include="Channels\ChannelTests.cs" />
     <Compile Include="Channels\LinkedQueueTests.cs" />
