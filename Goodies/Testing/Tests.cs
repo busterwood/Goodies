@@ -10,10 +10,10 @@ namespace BusterWood.Testing
     public static class Tests
     {
         /// <summary>Runs all the tests in the <paramref name="assembly"/>, returning the number of failed tests</summary>
-        public static int Run(Assembly assembly)
+        public static int Run(Assembly assembly = null)
         {
             int failCount = 0;
-            foreach (var t in assembly.GetExportedTypes())
+            foreach (var t in (assembly ?? Assembly.GetEntryAssembly()).GetExportedTypes())
             {
                 failCount += Run(t);
             }
@@ -52,7 +52,7 @@ namespace BusterWood.Testing
         public static IEnumerable<Test> DiscoverTests(Type type)
         {
             object instance = null;
-            foreach (var m in type.GetMethods().Where(m => m.ReturnType == null)) // void methods only
+            foreach (var m in type.GetMethods().Where(m => m.ReturnType == typeof(void)))
             {
                 var p = m.GetParameters();
                 if (p.Length != 1 || p[0].ParameterType != typeof(Test))

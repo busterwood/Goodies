@@ -4,11 +4,11 @@ using System;
 
 namespace TestingTests
 {
-    public class Program   
+    public class Program
     {
         public static int Main()
         {
-            return Tests.Run(typeof(MoneyTests));
+            return Tests.Run();
         }
     }
 }
