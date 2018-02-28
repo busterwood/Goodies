@@ -23,13 +23,14 @@ namespace BusterWood.Testing
         /// <summary>reports whether the test was skipped</summary>
         public bool Skipped { get; private set; }
 
+        /// <summary>Equivalent to <see cref="Log"/> followed by <see cref="Fail"/></summary>
         public void Error(string message)
         {
             Log(message);
             Fail();
         }
 
-        /// <summary>Fail marks the function as having <see cref="Failed"/> but continues execution</summary>
+        /// <summary>Marks the function as having <see cref="Failed"/> but continues execution</summary>
         public void Fail()
         {
             Failed = true;
@@ -45,7 +46,7 @@ namespace BusterWood.Testing
             }
         }
 
-        /// <summary>FailNow marks the function as having <see cref="Failed"/> and stops its execution</summary>
+        /// <summary>Marks the function as having <see cref="Failed"/> and stops its execution</summary>
         public void FailNow()
         {
             Fail();
