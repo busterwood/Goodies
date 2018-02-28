@@ -88,9 +88,23 @@ namespace BusterWood.Testing
 
         internal void Run()
         {
-            var instance = Activator.CreateInstance(type);
+            if (method.IsStatic)
+                RunStatic();
+            else
+                RunInstance();
+        }
+
+        private void RunStatic()
+        {
+            var action = (Action<Test>)method.CreateDelegate(typeof(Action<Test>));
+            action(this);
+        }
+
+        private void RunInstance()
+        {
+            var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
             var action = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
-            using (instance as IDisposable)
+            using (instance as IDisposable) // tear down the test, if required
             {
                 action(this);
             }
