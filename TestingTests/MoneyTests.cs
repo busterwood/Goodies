@@ -6,7 +6,7 @@ namespace TestingTests
 {
     public class MoneyTests
     {
-        public void cannot_create_money_with_invalid_isocode(Test t)
+        public static void cannot_create_money_with_invalid_isocode(Test t)
         {
             foreach (var ccy in new string[] {"", " ", "   ", "A", "AB", "ABCC" })
             {
@@ -14,7 +14,7 @@ namespace TestingTests
             }
         }
 
-        public void can_add_money_with_same_currency(Test t)
+        public static void can_add_money_with_same_currency(Test t)
         {
             var result = new Money(1, "GBP") + new Money(1, "GBP");
             if (result.Amount != 2m)
@@ -23,195 +23,195 @@ namespace TestingTests
                 t.Error($"result.Currency returned '{result.Currency}'");
         }
 
-        public void cannot_add_money_with_different_currency(Test t)
+        public static void cannot_add_money_with_different_currency(Test t)
         {
             t.AssertThrows<InvalidOperationException>(() => new Money(1, "GBP") + new Money(1, "EUR"));
         }
 
-        public void can_subtract_money_with_same_currency(Test t)
+        public static void can_subtract_money_with_same_currency(Test t)
         {
             var result = new Money(2, "GBP") - new Money(1, "GBP");
             t.Assert(() => 1m.Equals(result.Amount));
             t.Assert(() => "GBP".Equals(result.Currency));
         }
 
-        public void cannot_subtract_money_with_different_currency(Test t)
+        public static void cannot_subtract_money_with_different_currency(Test t)
         {
             t.AssertThrows<InvalidOperationException>(() => new Money(1, "GBP") - new Money(1, "EUR"));
         }
 
-        public void can_multiply_by_a_number(Test t)
+        public static void can_multiply_by_a_number(Test t)
         {
             var result = new Money(2, "GBP") * 2;
             t.Assert(() => 4m.Equals(result.Amount));
             t.Assert(() => "GBP".Equals(result.Currency));
         }
 
-        public void can_divide_by_a_number(Test t)
+        public static void can_divide_by_a_number(Test t)
         {
             var result = new Money(4, "GBP") / 2;
             t.Assert(() => 2m.Equals(result.Amount));
             t.Assert(() => "GBP".Equals(result.Currency));
         }
 
-        public void can_be_equal_with_same_amount_and_currency(Test t)
+        public static void can_be_equal_with_same_amount_and_currency(Test t)
         {
             if (!new Money(2, "GBP").Equals(new Money(2, "GBP")))
                 t.Error("not equals");
         }
 
-        public void not_equal_with_same_amount_and_differnet_currency(Test t)
+        public static void not_equal_with_same_amount_and_differnet_currency(Test t)
         {
             if (new Money(2, "GBP").Equals(new Money(2, "USD")))
                 t.Error("currencies differ");
         }
 
-        public void not_equal_with_differnet_amount_and_same_currency(Test t)
+        public static void not_equal_with_differnet_amount_and_same_currency(Test t)
         {
             if (new Money(1.00m, "GBP").Equals(new Money(1.01m, "GBP")))
                 t.Error("amounts differ");
         }
 
-        public void can_be_equal_with_operator_with_same_amount_and_currency(Test t)
+        public static void can_be_equal_with_operator_with_same_amount_and_currency(Test t)
         {
             if (new Money(2, "GBP") != new Money(2, "GBP"))
                 t.Error("same");
         }
 
-        public void not_equal_with_operator_with_same_amount_and_differnet_currency(Test t)
+        public static void not_equal_with_operator_with_same_amount_and_differnet_currency(Test t)
         {
             if (new Money(2, "GBP") == new Money(1, "USD"))
                 t.Error("currencies differ");
         }
 
-        public void not_equal_with_operator_with_differnet_amount_and_same_currency(Test t)
+        public static void not_equal_with_operator_with_differnet_amount_and_same_currency(Test t)
         {
             t.Assert(() => new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
         }
 
-        public void can_be_not_equal_with_operator2_with_same_amount_and_currency(Test t)
+        public static void can_be_not_equal_with_operator2_with_same_amount_and_currency(Test t)
         {
             t.Assert(() => new Money(2, "GBP") == new Money(2, "GBP"));
         }
 
-        public void not_equal_with_operator2_with_same_amount_and_differnet_currency(Test t)
+        public static void not_equal_with_operator2_with_same_amount_and_differnet_currency(Test t)
         {
             t.Assert(() => new Money(2, "GBP") != new Money(1, "USD"));
         }
 
-        public void not_equal_with_operator2_with_differnet_amount_and_same_currency(Test t)
+        public static void not_equal_with_operator2_with_differnet_amount_and_same_currency(Test t)
         {
             t.Assert(() => new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
         }
 
-        public void compare_returns_zero_when_money_is_equal(Test t)
+        public static void compare_returns_zero_when_money_is_equal(Test t)
         {
             t.Assert(() => 10m.GBP().CompareTo(10m.GBP()) == 0);
         }
 
-        public void compare_returns_minus_one_when_left_value_is_less_than_right_value(Test t)
+        public static void compare_returns_minus_one_when_left_value_is_less_than_right_value(Test t)
         {
             t.Assert(() => 9m.GBP().CompareTo(10m.GBP()) < 0);
         }
 
-        public void compare_returns_plus_one_when_left_value_is_more_than_right_value(Test t)
+        public static void compare_returns_plus_one_when_left_value_is_more_than_right_value(Test t)
         {
             t.Assert(() => 11m.GBP().CompareTo(10m.GBP()) > 0);
         }
 
-        public void can_negate_positive_money(Test t)
+        public static void can_negate_positive_money(Test t)
         {
             var m = 1m.GBP();
             t.Assert(() => -1m == -m.Amount);
         }
 
-        public void can_negate_negative_money(Test t)
+        public static void can_negate_negative_money(Test t)
         {
             var m = -1m.GBP();
             t.Assert(() => 1m == -m.Amount);
         }
 
-        public void less_than_on_different_currencys_throws_exception(Test t)
+        public static void less_than_on_different_currencys_throws_exception(Test t)
         {
             t.AssertThrows<InvalidOperationException>(() => 10m.GBP() < 11m.USD());
         }
 
-        public void less_than_or_equal_on_different_currencys_throws_exception(Test t)
+        public static void less_than_or_equal_on_different_currencys_throws_exception(Test t)
         {
             t.AssertThrows<InvalidOperationException>(() => 10m.GBP() <= 11m.USD());
         }
 
-        public void greater_than_on_different_currencys_throws_exception(Test t)
+        public static void greater_than_on_different_currencys_throws_exception(Test t)
         {
             t.AssertThrows<InvalidOperationException>(() => 10m.GBP() > 11m.USD());
         }
 
-        public void greater_than_or_equal_on_different_currencys_throws_exception(Test t)
+        public static void greater_than_or_equal_on_different_currencys_throws_exception(Test t)
         {
             t.AssertThrows<InvalidOperationException>(() => 10m.GBP() >= 11m.USD());
         }
 
-        public void less_than(Test t)
+        public static void less_than(Test t)
         {
             t.Assert(() => 10m.GBP() < 11m.GBP());
         }
 
-        public void not_less_than_when_equal(Test t)
+        public static void not_less_than_when_equal(Test t)
         {
             t.AssertNot(() => 10m.GBP() < 10m.GBP());
         }
 
-        public void not_less_than_when_more_than(Test t)
+        public static void not_less_than_when_more_than(Test t)
         {
             t.AssertNot(() => 11m.GBP() < 10m.GBP());
         }
 
-        public void more_than(Test t)
+        public static void more_than(Test t)
         {
             t.Assert(() => 12m.GBP() > 11m.GBP());
         }
 
-        public void not_more_than_when_equal(Test t)
+        public static void not_more_than_when_equal(Test t)
         {
             t.AssertNot(() => 10m.GBP() > 10m.GBP());
         }
 
-        public void not_more_than_when_less_than(Test t)
+        public static void not_more_than_when_less_than(Test t)
         {
             t.AssertNot(() => 9m.GBP() > 10m.GBP());
         }
 
-        public void less_than_or_equal(Test t)
+        public static void less_than_or_equal(Test t)
         {
             t.Assert(() => 10m.GBP() <= 11m.GBP());
         }
 
-        public void less_than_or_equal_when_equal(Test t)
+        public static void less_than_or_equal_when_equal(Test t)
         {
             t.Assert(() => 10m.GBP() <= 10m.GBP());
         }
 
-        public void not_less_than_or_equal_when_more_than(Test t)
+        public static void not_less_than_or_equal_when_more_than(Test t)
         {
             t.AssertNot(() => 11m.GBP() <= 10m.GBP());
         }
 
-        public void more_than_or_equal(Test t)
+        public static void more_than_or_equal(Test t)
         {
             t.Assert(() => 12m.GBP() >= 11m.GBP());
         }
 
-        public void more_than_or_equal_when_equal(Test t)
+        public static void more_than_or_equal_when_equal(Test t)
         {
             t.Assert(() => 10m.GBP() >= 10m.GBP());
         }
 
-        public void not_more_than_or_equal_when_less_than(Test t)
+        public static void not_more_than_or_equal_when_less_than(Test t)
         {
             t.AssertNot(() => 9m.GBP() >= 10m.GBP());
         }
 
-        public void tostring_uses_default_decimal_places_for_currency(Test t)
+        public static void tostring_uses_default_decimal_places_for_currency(Test t)
         {
             var cases = new[]
             {
