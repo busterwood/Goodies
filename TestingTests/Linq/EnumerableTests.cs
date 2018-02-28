@@ -7,7 +7,7 @@ namespace BusterWood.Linq
 {
     public class EnumerableTests
     {
-        public void can_setrelationship_with_one_lookup(Test t)
+        public static void can_setrelationship_with_one_lookup(Test t)
         {
             var orders = new Order[] { new Order { OrderId = 1 }, new Order { OrderId = 2 } };
             var items = new OrderItem[] { new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 1 }, new OrderItem { OrderId = 2 } };

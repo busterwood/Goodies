@@ -32,6 +32,12 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Goodies.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,9 +49,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channels\BufferedChannelTests.cs" />
+    <Compile Include="Channels\ChannelTests.cs" />
+    <Compile Include="Channels\LinkedQueueTests.cs" />
+    <Compile Include="Channels\SelectTests.cs" />
+    <Compile Include="Channels\TimeoutTests.cs" />
+    <Compile Include="Collections\CircularQueueTests.cs" />
     <Compile Include="Collections\UniqueListTests.cs" />
+    <Compile Include="Equality\ClassEqualityTests.cs" />
+    <Compile Include="Equality\StructEqualityTests.cs" />
     <Compile Include="Linq\ChooseTests.cs" />
     <Compile Include="Linq\EnumerableTests.cs" />
+    <Compile Include="Goodies\InTests.cs" />
+    <Compile Include="Linq\ForTests.cs" />
     <Compile Include="Monies\MoneyBagTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Monies\MoneyTests.cs" />
@@ -57,6 +73,8 @@
       <Name>Goodies</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Goodies.snk" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
