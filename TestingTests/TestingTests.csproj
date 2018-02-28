@@ -43,8 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\UniqueListTests.cs" />
+    <Compile Include="Linq\ChooseTests.cs" />
+    <Compile Include="Linq\EnumerableTests.cs" />
+    <Compile Include="Monies\MoneyBagTests.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="MoneyTests.cs" />
+    <Compile Include="Monies\MoneyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -53,5 +57,6 @@
       <Name>Goodies</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

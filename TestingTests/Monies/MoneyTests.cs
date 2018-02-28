@@ -1,8 +1,7 @@
-﻿using BusterWood.Monies;
-using BusterWood.Testing;
+﻿using BusterWood.Testing;
 using System;
 
-namespace TestingTests
+namespace BusterWood.Monies
 {
     public class MoneyTests
     {

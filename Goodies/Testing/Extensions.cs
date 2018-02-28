@@ -42,5 +42,23 @@ namespace BusterWood.Testing
                 t.Error(e.ToString());
             }
         }
+
+        /// <summary>Check the <paramref name="expression"/> throw an exception of type <typeparamref name="T"/></summary>
+        public static void AssertThrows<T>(this Test t, Action act, string message) where T : Exception
+        {
+            try
+            {
+                act();
+                t.Error($"Expected {typeof(T).Name} to be thrown: {message}");
+            }
+            catch (T)
+            {
+            }
+            catch (Exception e)
+            {
+                t.Error($"Expected {typeof(T).Name} but {e.GetType()} was thrown: {message}");
+                t.Error(e.ToString());
+            }
+        }
     }
 }
