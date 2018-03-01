@@ -11,10 +11,10 @@ Small and simple library for testing, based on Go's `Testing` package.  No need 
 | `[TestCase]` attribute on tests methods | Test methods include loops for many values |
 | `[Setup]` attribute | Class constructor |
 | `[TearDown]` attribute | Implement `IDisposable` |
-| `[TestFixtureSetUp]` attribute | static constructor |
+| `[TestFixtureSetUp]` attribute | Static constructor |
 | `[SetUpFixture]` attribute | `Program.Main()` method |
 | `[Ignore]` attribute | Set the call `Test.Skip(string message)` or `Test.SkipNow()` methods |
-| `nunit-console.exe` with configuration for dotnet framework version | create your own console application that contains your tests |
+| `nunit-console.exe` with configuration for dotnet framework version | Your own console application that contains your tests |
 | Async tests that return `Task` | Async tests that return `Task` |
 | Lots of other attributes and complexity | Just write code in your test method |
 | More lines of code, more features, more complexity | Less code lines of code, less features, less complexity |
@@ -74,7 +74,7 @@ Note that `Tests.Run()` returns the number of tests that failed, so can be used 
 
 The `Tests.Run()` method recognises the following parameter:
 * `--verbose` which sets the `Test.Verbose` property to TRUE and causes all messages and test names to be shown in the output.  Normally only failed test names and messages are shown.
-* `--short` which sets the `Test.Short` property to TRUE, and can be used by your test code to slow tests.
+* `--short` which sets the `Test.Short` property to TRUE, and can be used by your test code to `SkipNow()` slow tests.
 
 # Test Class
 
