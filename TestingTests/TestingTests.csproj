@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Caching\AsyncBatchReadThroughCacheTests.cs" />
     <Compile Include="Caching\AsyncReadThroughCacheTests.cs" />
     <Compile Include="Caching\CacheTests.cs" />
     <Compile Include="Caching\ConcurrentCacheTests.cs" />
