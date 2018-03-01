@@ -6,7 +6,7 @@ namespace BusterWood.Caching
 {
     public class AsyncBatchReadThroughCacheTests
     {
-        public async Task batch_load_reads_from_underlying_datasource_when_key_not_in_cache(Test t)
+        public static async Task batch_load_reads_from_underlying_datasource_when_key_not_in_cache(Test t)
         {
             var cache = new BatchReadThroughCache<int, int>(new BatchValueIsKey<int, int>(), 10, null);
             var results = await cache.GetBatchAsync(new int[] { 2 });
@@ -15,7 +15,7 @@ namespace BusterWood.Caching
             t.Assert(() => 2 == results[0]);
         }
 
-        public async Task batch_load_reads_from_cache(Test t)
+        public static async Task batch_load_reads_from_cache(Test t)
         {
             var cache = new BatchReadThroughCache<int, int>(new BatchValueIsKey<int, int>(), 10, null);
             t.Assert(() => 2 == cache[2]);
@@ -27,7 +27,7 @@ namespace BusterWood.Caching
             t.Assert(() => 2 == results[0]);
         }
 
-        public async Task batch_load_reads_from_cache_and_underlying_datasource(Test t)
+        public static async Task batch_load_reads_from_cache_and_underlying_datasource(Test t)
         {
             var cache = new BatchReadThroughCache<int, int>(new BatchValueIsKey<int, int>(), 10, null);
             t.Assert(() => 2 == cache[2]);
