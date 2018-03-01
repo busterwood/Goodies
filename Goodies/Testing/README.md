@@ -1,13 +1,13 @@
 ﻿# BusterWood.Testing
 
-Small simple library for testing, based on Go's `Testing` package.  No need for test external test runners, just create a console application and put your tests in that.
+Small and simple library for testing, based on Go's `Testing` package.  No need for test external test runners, just create a console application and put your tests in that.
 
 ## Comparison to NUnit
 
 | NUnit         | BusterWood.Testing |
 | ------------- | ------------------ |
 | `[TestFixture]` attribute | No attribute or special naming required |
-| `[Test]` attribute on tests methods | Test methods (static or instance) take a single `Test t` parameter |
+| `[Test]` attribute on tests methods | Test methods (static or instance) must be public and take a single `Test t` parameter |
 | `[TestCase]` attribute on tests methods | Test methods include loops for many values |
 | `[Setup]` attribute | Class constructor |
 | `[TearDown]` attribute | Implement `IDisposable` |
@@ -16,6 +16,7 @@ Small simple library for testing, based on Go's `Testing` package.  No need for 
 | `[Ignore]` attribute | Set the call `Test.Skip(string message)` or `Test.SkipNow()` methods |
 | `nunit-console.exe` with configuration for dotnet framework version | create your own console application that contains your tests |
 | Lots of other attributes and complexity | Just write code in your test method |
+| More lines of code, more features, more complexity | Less code lines of code, less features, less complexity |
 
 ## How to write tests
 
@@ -35,7 +36,7 @@ public static one_does_not_equal_two_using_assert(Test t)
 
 Static test methods are run in isolation.
 
-Instance methods are run on a new object instance per test.
+Instance methods are run on a new object instance per test.  If the object implements `IDisposable` then the `Dispose` method will be called after the test.
 
 ### How to set-up a test?
 
@@ -54,15 +55,13 @@ One-off setup code can be placed in a static constructor, or in the `Main()` met
 Create a console application and add the following class, which will run all the tests found in the console application assembly:
 
 ```
-using BusterWood.Testing;
-
 namespace Sample
 {
     public class Program
     {
         public static int Main()
         {
-            return Tests.Run();
+            return BusterWood.Testing.Tests.Run();
         }
     }
 }
@@ -73,8 +72,8 @@ Note that `Tests.Run()` returns the number of tests that failed, so can be used 
 ### Command Line Options
 
 The `Tests.Run()` method recognises the following parameter:
-* `--verbose` to list all the test names and all test messages.  Normally only failed test names and messages are shown.
-* `--short` which sets the `Test.Short` to TRUE, and can be used by your test code to slow tests.
+* `--verbose` which sets the `Test.Verbose` property to TRUE and causes all messages and test names to be shown in the output.  Normally only failed test names and messages are shown.
+* `--short` which sets the `Test.Short` property to TRUE, and can be used by your test code to slow tests.
 
 # Test Class
 
@@ -85,9 +84,9 @@ The `Test` class have the following methods:
 * `void SkipNow()` marks the test as having been skipped (ignored) and stops execution of the test.
 
 The following extension methods to the `Test` class make it easier to use:
-* `void Error(string message)` is used to log a message then fail the test (although execution of the test continues)
-* `void Fatal(string message)` calls `Log()` then `FailNow()`
-* `void Skip(string message)` calls `Log()` then `SkipNow()`
+* `void Error(string message)` calls `Log(message)` then `Fail()`
+* `void Fatal(string message)` calls `Log(message)` then `FailNow()`
+* `void Skip(string message)` calls `Log(message)` then `SkipNow()`
 * `void Assert(Expression<Func<bool>> expression)` Checks that the expression returns true, or reports the expression as an `Error()`
 * `void AssertNot(Expression<Func<bool>> expression)` Checks that the expression returns false, or reports the expression as an `Error()`
 * `void AssertThrows<TException>(Expression<Func<object>> expression)` Checks that the expression throws an exception of type `TException` or reports an `Error()`
