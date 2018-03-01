@@ -36,11 +36,11 @@ namespace BusterWood.Testing
                 sw.Stop();
                 if (ok)
                 {
-                    WriteLine(ConsoleColor.Green, $"ok\t{type.Name}\t{sw.ElapsedMilliseconds:N0}MS");
+                    WriteLine(ConsoleColor.Green, $"ok\t{sw.ElapsedMilliseconds:N0}MS\t{type.Name}");
                 }
                 else
                 {
-                    WriteLine(ConsoleColor.Red, $"FAILED \t{type.Name}\t{sw.ElapsedMilliseconds:N0}MS");
+                    WriteLine(ConsoleColor.Red, $"FAILED\t{sw.ElapsedMilliseconds:N0}MS\t{type.Name}");
                     failCount++;
                 }
             }
