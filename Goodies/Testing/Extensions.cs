@@ -9,6 +9,27 @@ namespace BusterWood.Testing
     /// </summary>
     public static class Extensions
     {
+        /// <summary>Equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Fail"/></summary>
+        public static void Error(this Test t, string message)
+        {
+            t.Log(message);
+            t.Fail();
+        }
+
+        /// <summary>Fatal is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.FailNow"/></summary>
+        public static void Fatal(this Test t, string message)
+        {
+            t.Log(message);
+            t.FailNow();
+        }
+
+        /// <summary>Skip is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.SkipNow"/></summary>
+        public static void Skip(this Test t, string message)
+        {
+            t.Log(message);
+            t.SkipNow();
+        }
+
         /// <summary>Checks the <paramref name="expression"/> returns true, or reports the <paramref name="expression"/> as an error</summary>
         public static void Assert(this Test t, Expression<Func<bool>> expression)
         {

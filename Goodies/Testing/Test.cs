@@ -23,11 +23,11 @@ namespace BusterWood.Testing
         /// <summary>reports whether the test was skipped</summary>
         public bool Skipped { get; private set; }
 
-        /// <summary>Equivalent to <see cref="Log"/> followed by <see cref="Fail"/></summary>
-        public void Error(string message)
+        /// <summary>Marks the function as having <see cref="Failed"/> and stops its execution</summary>
+        public void FailNow()
         {
-            Log(message);
             Fail();
+            throw new FailException();
         }
 
         /// <summary>Marks the function as having <see cref="Failed"/> but continues execution</summary>
@@ -46,33 +46,12 @@ namespace BusterWood.Testing
             }
         }
 
-        /// <summary>Marks the function as having <see cref="Failed"/> and stops its execution</summary>
-        public void FailNow()
-        {
-            Fail();
-            throw new FailException();
-        }
-
-        /// <summary>Fatal is equivalent to <see cref="Log"/> followed by <see cref="FailNow"/></summary>
-        public void Fatal(string message)
-        {
-            Log(message);
-            FailNow();
-        }
-
         /// <summary>Records the text in the error log. For tests, the text will be printed only if the test fails or the verbose logging flag is set.</summary>
         public void Log(string message)
         {
             if (Verbose)
                 LogMessage(message);
             Messsages.Add(message);
-        }
-
-        /// <summary>Skip is equivalent to <see cref="Log"/> followed by <see cref="SkipNow"/></summary>
-        public void Skip(string message)
-        {
-            Log(message);
-            SkipNow();
         }
 
         /// <summary>Marks the test as having been <see cref="Skipped"/> and stops its execution</summary>
@@ -82,10 +61,7 @@ namespace BusterWood.Testing
             throw new SkipException();
         }
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         internal void Run()
         {
