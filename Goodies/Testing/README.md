@@ -30,7 +30,7 @@ public static one_does_not_equal_two(Test t)
 
 public static one_does_not_equal_two_using_assert(Test t)
 {
-	t.Assert(() => 1 != 2); // slower more more compact
+	t.Assert(() => 1 != 2); // slower but more compact
 }
 ```
 
