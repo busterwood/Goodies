@@ -54,11 +54,15 @@ namespace BusterWood.Testing
         /// <summary>Finds all the tests in the <paramref name="type"/></summary>
         public static IEnumerable<Test> DiscoverTests(Type type)
         {
-            foreach (var m in type.GetMethods().Where(m => m.ReturnType == typeof(void)))
+            foreach (var m in type.GetMethods())
             {
                 var p = m.GetParameters();
                 if (p.Length == 1 && p[0].ParameterType == typeof(Test))
-                    yield return new Test { type = type, method = m };
+                {
+                    var t = Test.Create(m, type);
+                    if (t != null)
+                        yield return t;
+                }
             }
         }
 
@@ -70,30 +74,14 @@ namespace BusterWood.Testing
             {
                 foreach (var t in tests)
                 {
-                    ThreadPool.QueueUserWorkItem(_ =>
+                    if (t is SyncTest st)
                     {
-                        try
-                        {
-                            t.Run();
-                        }
-                        catch (SkipException)
-                        {
-                        }
-                        catch (FailException)
-                        {
-                        }
-                        catch (Exception ex)
-                        {
-                            t.Log(ex.ToString());
-                            t.Fail();
-                        }
-                        finally
-                        {
-                            finished.Set();
-                        }
-                    });
-
-                    finished.WaitOne();
+                        RunViaThreadPool(finished, st);
+                    }
+                    else if (t is AsyncTest at)
+                    {
+                        RunViaTask(at);
+                    }
 
                     if (t.Failed)
                     {
@@ -111,6 +99,46 @@ namespace BusterWood.Testing
                 }
             }
             return failed == 0;
+        }
+
+        private static void RunViaThreadPool(AutoResetEvent finished, SyncTest t)
+        {
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                try
+                {
+                    t.Run();
+                }
+                catch (SkipException)
+                {
+                }
+                catch (FailException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    t.Log(ex.ToString());
+                    t.Fail();
+                }
+                finally
+                {
+                    finished.Set();
+                }
+            });
+
+            finished.WaitOne();
+        }
+
+        private static void RunViaTask(AsyncTest at)
+        {
+            try
+            {
+                at.RunAsync().Wait();
+            }
+            catch (AggregateException e) when (e.InnerException != null)
+            {
+                throw e.InnerException;
+            }
         }
 
         static void WriteLine(ConsoleColor color, string message)

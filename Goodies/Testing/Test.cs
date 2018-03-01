@@ -2,16 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace BusterWood.Testing
 {
-    public class Test
+    public abstract class Test
     {
         internal Type type;
         internal MethodInfo method;
         internal readonly List<string> Messsages = new List<string>();
         internal readonly Action<string> LogMessage = Console.WriteLine;
-        
+
         public string TypeName => type.Name;
 
         /// <summary>returns the name of the running test</summary>
@@ -63,6 +64,31 @@ namespace BusterWood.Testing
 
         public override string ToString() => Name;
 
+        /// <summary>Skip long tests?</summary>
+        public static bool Short { get; set; }
+
+        /// <summary>If set then all messages are logged, if not set then messages are only logged for failed tests</summary>
+        public static bool Verbose { get; set; }
+
+        static Test()
+        {
+            var args = Environment.GetCommandLineArgs().ToHashSet(StringComparer.OrdinalIgnoreCase);
+            Verbose = args.Contains("--verbose");
+            Short = args.Contains("--short");
+        }
+
+        internal static Test Create(MethodInfo method, Type type)
+        {
+            if (method.ReturnType == typeof(void))
+                return new SyncTest { method = method, type = type };
+            if (method.ReturnType == typeof(Task))
+                return new AsyncTest { method = method, type = type };
+            return null; // not a supported test
+        }
+    }
+
+    internal class SyncTest : Test
+    {
         internal void Run()
         {
             if (method.IsStatic)
@@ -86,18 +112,29 @@ namespace BusterWood.Testing
                 action(this);
             }
         }
+    }
 
-        /// <summary>Skip long tests?</summary>
-        public static bool Short { get; set; }
-
-        /// <summary>If set then all messages are logged, if not set then messages are only logged for failed tests</summary>
-        public static bool Verbose { get; set; }
-
-        static Test()
+    internal class AsyncTest : Test
+    {
+        internal Task RunAsync()
         {
-            var args = Environment.GetCommandLineArgs().ToHashSet(StringComparer.OrdinalIgnoreCase);
-            Verbose = args.Contains("--verbose");
-            Short = args.Contains("--short");
+            return method.IsStatic ? RunStaticAsync() : RunInstanceAsync();
+        }
+
+        private Task RunStaticAsync()
+        {
+            var func = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>));
+            return func(this);
+        }
+
+        private Task RunInstanceAsync()
+        {
+            var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
+            var func = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>), instance);
+            using (instance as IDisposable) // tear down the test, if required
+            {
+                return func(this);
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ Small and simple library for testing, based on Go's `Testing` package.  No need 
 | `[SetUpFixture]` attribute | `Program.Main()` method |
 | `[Ignore]` attribute | Set the call `Test.Skip(string message)` or `Test.SkipNow()` methods |
 | `nunit-console.exe` with configuration for dotnet framework version | create your own console application that contains your tests |
+| Async tests that return `Task` | Async tests that return `Task` |
 | Lots of other attributes and complexity | Just write code in your test method |
 | More lines of code, more features, more complexity | Less code lines of code, less features, less complexity |
 
@@ -30,7 +31,7 @@ public static one_does_not_equal_two(Test t)
 
 public static one_does_not_equal_two_using_assert(Test t)
 {
-	t.Assert(() => 1 != 2); // slower but more compact
+	t.Assert(() => 1 != 2); // slower but less code to write
 }
 ```
 

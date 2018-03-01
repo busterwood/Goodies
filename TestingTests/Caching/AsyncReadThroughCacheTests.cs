@@ -11,7 +11,7 @@ namespace BusterWood.Caching
             {
                 var cache = new ReadThroughCache<int, int>(new ValueIsKey<int, int>(), 3, null);
                 var actual = await cache.GetAsync(key);
-                if (actual == key)
+                if (actual != key)
                     t.Error($"Expected {key} but got {actual}");
             }
         }
@@ -22,7 +22,7 @@ namespace BusterWood.Caching
             for (int i = 1; i <= 4; i++)
             {
                 var actual = await cache.GetAsync(i);
-                if (actual == i)
+                if (actual != i)
                     t.Error($"Expected {i} but got {actual}");
             }
             t.Assert(() => 3 == cache._gen1.Count);
@@ -35,7 +35,7 @@ namespace BusterWood.Caching
             for (int i = 1; i <= 7; i++)
             {
                 var actual = await cache.GetAsync(i);
-                if (actual == i)
+                if (actual != i)
                     t.Error($"Expected {i} but got {actual}");
             }
             t.Assert(() => 3 == cache._gen1.Count);
