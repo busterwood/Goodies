@@ -30,8 +30,10 @@ namespace BusterWood.Monies
         public static void can_subtract_money_with_same_currency(Test t)
         {
             var result = new Money(2, "GBP") - new Money(1, "GBP");
-            t.Assert(() => 1m.Equals(result.Amount));
-            t.Assert(() => "GBP".Equals(result.Currency));
+            if (!(1m.Equals(result.Amount)))
+                t.Error("1m.Equals(result.Amount))");
+            if (!("GBP".Equals(result.Currency)))
+                t.Error("GBP.Equals(result.Currency))");
         }
 
         public static void cannot_subtract_money_with_different_currency(Test t)
@@ -42,15 +44,19 @@ namespace BusterWood.Monies
         public static void can_multiply_by_a_number(Test t)
         {
             var result = new Money(2, "GBP") * 2;
-            t.Assert(() => 4m.Equals(result.Amount));
-            t.Assert(() => "GBP".Equals(result.Currency));
+            if (!(4m.Equals(result.Amount)))
+                t.Error("4m.Equals(result.Amount))");
+            if (!("GBP".Equals(result.Currency)))
+                t.Error("GBP.Equals(result.Currency))");
         }
 
         public static void can_divide_by_a_number(Test t)
         {
             var result = new Money(4, "GBP") / 2;
-            t.Assert(() => 2m.Equals(result.Amount));
-            t.Assert(() => "GBP".Equals(result.Currency));
+            if (!(2m.Equals(result.Amount)))
+                t.Error("2m.Equals(result.Amount))");
+            if (!("GBP".Equals(result.Currency)))
+                t.Error("GBP.Equals(result.Currency))");
         }
 
         public static void can_be_equal_with_same_amount_and_currency(Test t)
@@ -85,49 +91,58 @@ namespace BusterWood.Monies
 
         public static void not_equal_with_operator_with_differnet_amount_and_same_currency(Test t)
         {
-            t.Assert(() => new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
+            if (!(new Money(1.00m, "GBP") != new Money(1.01m, "GBP")))
+                t.Error("new Money(1.00m, GBP) != new Money(1.01m, GBP))");
         }
 
         public static void can_be_not_equal_with_operator2_with_same_amount_and_currency(Test t)
         {
-            t.Assert(() => new Money(2, "GBP") == new Money(2, "GBP"));
+            if (!(new Money(2, "GBP") == new Money(2, "GBP")))
+                t.Error("new Money(2, GBP) == new Money(2, GBP))");
         }
 
         public static void not_equal_with_operator2_with_same_amount_and_differnet_currency(Test t)
         {
-            t.Assert(() => new Money(2, "GBP") != new Money(1, "USD"));
+            if (!(new Money(2, "GBP") != new Money(1, "USD")))
+                t.Error("new Money(2, GBP) != new Money(1, USD))");
         }
 
         public static void not_equal_with_operator2_with_differnet_amount_and_same_currency(Test t)
         {
-            t.Assert(() => new Money(1.00m, "GBP") != new Money(1.01m, "GBP"));
+            if (!(new Money(1.00m, "GBP") != new Money(1.01m, "GBP")))
+                t.Error("new Money(1.00m, GBP) != new Money(1.01m, GBP))");
         }
 
         public static void compare_returns_zero_when_money_is_equal(Test t)
         {
-            t.Assert(() => 10m.GBP().CompareTo(10m.GBP()) == 0);
+            if (!(10m.GBP().CompareTo(10m.GBP()) == 0))
+                t.Error("10m.GBP().CompareTo(10m.GBP()) == 0)");
         }
 
         public static void compare_returns_minus_one_when_left_value_is_less_than_right_value(Test t)
         {
-            t.Assert(() => 9m.GBP().CompareTo(10m.GBP()) < 0);
+            if (!(9m.GBP().CompareTo(10m.GBP()) < 0))
+                t.Error("9m.GBP().CompareTo(10m.GBP()) < 0)");
         }
 
         public static void compare_returns_plus_one_when_left_value_is_more_than_right_value(Test t)
         {
-            t.Assert(() => 11m.GBP().CompareTo(10m.GBP()) > 0);
+            if (!(11m.GBP().CompareTo(10m.GBP()) > 0))
+                t.Error("11m.GBP().CompareTo(10m.GBP()) > 0)");
         }
 
         public static void can_negate_positive_money(Test t)
         {
             var m = 1m.GBP();
-            t.Assert(() => -1m == -m.Amount);
+            if (!(-1m == -m.Amount))
+                t.Error("-1m == -m.Amount)");
         }
 
         public static void can_negate_negative_money(Test t)
         {
             var m = -1m.GBP();
-            t.Assert(() => 1m == -m.Amount);
+            if (!(1m == -m.Amount))
+                t.Error("1m == -m.Amount)");
         }
 
         public static void less_than_on_different_currencys_throws_exception(Test t)
@@ -152,7 +167,8 @@ namespace BusterWood.Monies
 
         public static void less_than(Test t)
         {
-            t.Assert(() => 10m.GBP() < 11m.GBP());
+            if (!(10m.GBP() < 11m.GBP()))
+                t.Error("10m.GBP() < 11m.GBP())");
         }
 
         public static void not_less_than_when_equal(Test t)
@@ -167,7 +183,8 @@ namespace BusterWood.Monies
 
         public static void more_than(Test t)
         {
-            t.Assert(() => 12m.GBP() > 11m.GBP());
+            if (!(12m.GBP() > 11m.GBP()))
+                t.Error("12m.GBP() > 11m.GBP())");
         }
 
         public static void not_more_than_when_equal(Test t)
@@ -182,12 +199,14 @@ namespace BusterWood.Monies
 
         public static void less_than_or_equal(Test t)
         {
-            t.Assert(() => 10m.GBP() <= 11m.GBP());
+            if (!(10m.GBP() <= 11m.GBP()))
+                t.Error("10m.GBP() <= 11m.GBP())");
         }
 
         public static void less_than_or_equal_when_equal(Test t)
         {
-            t.Assert(() => 10m.GBP() <= 10m.GBP());
+            if (!(10m.GBP() <= 10m.GBP()))
+                t.Error("10m.GBP() <= 10m.GBP())");
         }
 
         public static void not_less_than_or_equal_when_more_than(Test t)
@@ -197,12 +216,14 @@ namespace BusterWood.Monies
 
         public static void more_than_or_equal(Test t)
         {
-            t.Assert(() => 12m.GBP() >= 11m.GBP());
+            if (!(12m.GBP() >= 11m.GBP()))
+                t.Error("12m.GBP() >= 11m.GBP())");
         }
 
         public static void more_than_or_equal_when_equal(Test t)
         {
-            t.Assert(() => 10m.GBP() >= 10m.GBP());
+            if (!(10m.GBP() >= 10m.GBP()))
+                t.Error("10m.GBP() >= 10m.GBP())");
         }
 
         public static void not_more_than_or_equal_when_less_than(Test t)
@@ -225,7 +246,8 @@ namespace BusterWood.Monies
             foreach (var c in cases)
             {
                 var m = new Money(10m, c.Ccy);
-                t.Assert(() => c.Expected == m.ToString());
+                if (!(c.Expected == m.ToString()))
+                    t.Error("c.Expected == m.ToString())");
             }
         }
     }
