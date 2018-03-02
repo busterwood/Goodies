@@ -5,6 +5,10 @@ using System.Collections.Generic;
 
 namespace BusterWood.Data
 {
+    /// <summary>
+    /// A table-like data structure that holds columns of values.
+    /// Uses less memory than the equivalent <see cref="List{T}"/>, and is faster at population
+    /// </summary>
     public class Relation : IRelation, IEnumerable<Row>
     {
         readonly UniqueList<Column> _columns = new UniqueList<Column>(new Column.NameEquality());

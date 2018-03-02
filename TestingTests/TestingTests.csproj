@@ -65,6 +65,7 @@
     <Compile Include="Channels\TimeoutTests.cs" />
     <Compile Include="Collections\CircularQueueTests.cs" />
     <Compile Include="Collections\UniqueListTests.cs" />
+    <Compile Include="Data\RelationshipTests.cs" />
     <Compile Include="Data\RelationTests.cs" />
     <Compile Include="Equality\ClassEqualityTests.cs" />
     <Compile Include="Equality\StructEqualityTests.cs" />
