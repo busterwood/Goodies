@@ -47,7 +47,7 @@ namespace BusterWood.Testing
         }
 
         /// <summary>Check the <paramref name="expression"/> throw an exception of type <typeparamref name="T"/></summary>
-        public static void AssertThrows<T>(this Test t, Expression<Func<object>> expression) where T : Exception
+        public static T AssertThrows<T>(this Test t, Expression<Func<object>> expression) where T : Exception
         {
             var act = expression.Compile();
             try
@@ -55,32 +55,36 @@ namespace BusterWood.Testing
                 act();
                 t.Error($"Expected {typeof(T).Name} to be thrown: {expression}");
             }
-            catch (T)
+            catch (T e)
             {
+                return e;
             }
             catch (Exception e)
             {
                 t.Error($"Expected {typeof(T).Name} but {e.GetType()} was thrown: {expression}");
                 t.Error(e.ToString());
             }
+            throw new NotImplementedException();
         }
 
         /// <summary>Check the <paramref name="expression"/> throw an exception of type <typeparamref name="T"/></summary>
-        public static void AssertThrows<T>(this Test t, Action act, string message) where T : Exception
+        public static T AssertThrows<T>(this Test t, Action act, string message) where T : Exception
         {
             try
             {
                 act();
                 t.Error($"Expected {typeof(T).Name} to be thrown: {message}");
             }
-            catch (T)
+            catch (T e)
             {
+                return e;
             }
             catch (Exception e)
             {
                 t.Error($"Expected {typeof(T).Name} but {e.GetType()} was thrown: {message}");
                 t.Error(e.ToString());
             }
+            throw new NotImplementedException();
         }
     }
 }

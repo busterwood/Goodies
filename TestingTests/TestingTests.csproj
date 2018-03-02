@@ -49,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Batching\MultiResultAsyncBatcherTests.cs" />
+    <Compile Include="Batching\SingleResultAsyncBatcherTests.cs" />
     <Compile Include="Caching\AsyncBatchReadThroughCacheTests.cs" />
     <Compile Include="Caching\AsyncReadThroughCacheTests.cs" />
     <Compile Include="Caching\CacheTests.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Channels\TimeoutTests.cs" />
     <Compile Include="Collections\CircularQueueTests.cs" />
     <Compile Include="Collections\UniqueListTests.cs" />
+    <Compile Include="Data\RelationTests.cs" />
     <Compile Include="Equality\ClassEqualityTests.cs" />
     <Compile Include="Equality\StructEqualityTests.cs" />
     <Compile Include="Linq\ChooseTests.cs" />
