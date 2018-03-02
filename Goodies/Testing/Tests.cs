@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace BusterWood.Testing
 {
@@ -59,9 +60,8 @@ namespace BusterWood.Testing
                 var p = m.GetParameters();
                 if (p.Length == 1 && p[0].ParameterType == typeof(Test))
                 {
-                    var t = Test.Create(m, type);
-                    if (t != null)
-                        yield return t;
+                    if (m.ReturnType == typeof(void) || m.ReturnType == typeof(Task))
+                        yield return new Test { method = m, type = type };
                 }
             }
         }
@@ -74,13 +74,13 @@ namespace BusterWood.Testing
             {
                 foreach (var t in tests)
                 {
-                    if (t is SyncTest st)
+                    if (t.IsAsync)
                     {
-                        RunViaThreadPool(finished, st);
+                        RunViaTask(t);
                     }
-                    else if (t is AsyncTest at)
+                    else
                     {
-                        RunViaTask(at);
+                        RunViaThreadPool(finished, t);
                     }
 
                     if (t.Failed)
@@ -101,7 +101,7 @@ namespace BusterWood.Testing
             return failed == 0;
         }
 
-        private static void RunViaThreadPool(AutoResetEvent finished, SyncTest t)
+        private static void RunViaThreadPool(AutoResetEvent finished, Test t)
         {
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -129,7 +129,7 @@ namespace BusterWood.Testing
             finished.WaitOne();
         }
 
-        private static void RunViaTask(AsyncTest at)
+        private static void RunViaTask(Test at)
         {
             try
             {

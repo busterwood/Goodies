@@ -6,12 +6,25 @@ using System.Threading.Tasks;
 
 namespace BusterWood.Testing
 {
-    public abstract class Test
+    public class Test
     {
         internal Type type;
         internal MethodInfo method;
         internal readonly List<string> Messsages = new List<string>();
         internal readonly Action<string> LogMessage = Console.WriteLine;
+
+        /// <summary>Skip long tests?</summary>
+        public static bool Short { get; set; }
+
+        /// <summary>If set then all messages are logged, if not set then messages are only logged for failed tests</summary>
+        public static bool Verbose { get; set; }
+
+        static Test()
+        {
+            var args = Environment.GetCommandLineArgs().ToHashSet(StringComparer.OrdinalIgnoreCase);
+            Verbose = args.Contains("--verbose");
+            Short = args.Contains("--short");
+        }
 
         public string TypeName => type.Name;
 
@@ -64,31 +77,6 @@ namespace BusterWood.Testing
 
         public override string ToString() => Name;
 
-        /// <summary>Skip long tests?</summary>
-        public static bool Short { get; set; }
-
-        /// <summary>If set then all messages are logged, if not set then messages are only logged for failed tests</summary>
-        public static bool Verbose { get; set; }
-
-        static Test()
-        {
-            var args = Environment.GetCommandLineArgs().ToHashSet(StringComparer.OrdinalIgnoreCase);
-            Verbose = args.Contains("--verbose");
-            Short = args.Contains("--short");
-        }
-
-        internal static Test Create(MethodInfo method, Type type)
-        {
-            if (method.ReturnType == typeof(void))
-                return new SyncTest { method = method, type = type };
-            if (method.ReturnType == typeof(Task))
-                return new AsyncTest { method = method, type = type };
-            return null; // not a supported test
-        }
-    }
-
-    internal class SyncTest : Test
-    {
         internal void Run()
         {
             if (method.IsStatic)
@@ -97,25 +85,24 @@ namespace BusterWood.Testing
                 RunInstance();
         }
 
+        internal bool IsAsync => method.ReturnType == typeof(Task);
+
         private void RunStatic()
         {
-            var action = (Action<Test>)method.CreateDelegate(typeof(Action<Test>));
-            action(this);
+            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>));
+            test(this);
         }
 
         private void RunInstance()
         {
             var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
-            var action = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
+            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
             using (instance as IDisposable) // tear down the test, if required
             {
-                action(this);
+                test(this);
             }
         }
-    }
 
-    internal class AsyncTest : Test
-    {
         internal Task RunAsync()
         {
             return method.IsStatic ? RunStaticAsync() : RunInstanceAsync();
@@ -123,17 +110,17 @@ namespace BusterWood.Testing
 
         private Task RunStaticAsync()
         {
-            var func = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>));
-            return func(this);
+            var testAsync = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>));
+            return testAsync(this);
         }
 
-        private Task RunInstanceAsync()
+        private async Task RunInstanceAsync()
         {
             var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
-            var func = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>), instance);
+            var testAsync = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>), instance);
             using (instance as IDisposable) // tear down the test, if required
             {
-                return func(this);
+                await testAsync(this);
             }
         }
     }
