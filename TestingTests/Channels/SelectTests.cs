@@ -33,10 +33,10 @@ namespace BusterWood.Channels
                 t.Fatal("Expected ch2 to get 2 but got " + got2.Task.Result);
 
             if (!selTask.IsCompleted)
-                t.Fatal("Expected select to be compelte");
+                t.Fatal("Expected select to be complete");
 
             if (!sendTask.IsCompleted)
-                t.Fatal("Expected select to be compelte");
+                t.Fatal("Expected select to be complete");
 
             if (got1.Task.Wait(50))
                 t.Fatal("did not expect value in ch1");
@@ -106,10 +106,10 @@ namespace BusterWood.Channels
                 t.Fatal("Expected ch1 to get 1 but got " + got1.Task.Result);
 
             if (!selTask.IsCompleted)
-                t.Fatal("Expected select to be compelte");
+                t.Fatal("Expected select to be complete");
 
             if (!sendTask1.IsCompleted)
-                t.Fatal("Expected select to be compelte");
+                t.Fatal("Expected select to be complete");
 
             if (got2.Task.Wait(50))
                 t.Fatal("did not expect value in ch2");

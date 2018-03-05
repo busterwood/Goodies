@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace BusterWood.Testing
 {
-    /// <summary>
-    /// These extension methods are easy to use, but much slower than checking a condition with an if statement then calling <see cref="Test.Error(string)"/>
-    /// </summary>
     public static class Extensions
     {
         /// <summary>Equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Fail"/></summary>
@@ -31,6 +27,7 @@ namespace BusterWood.Testing
         }
 
         /// <summary>Checks the <paramref name="expression"/> returns true, or reports the <paramref name="expression"/> as an error</summary>
+        /// <remarks>This method is easy to use, but much slower than checking a condition with an if statement then calling <see cref="Error(Test, string)"/>/// </remarks>
         public static void Assert(this Test t, Expression<Func<bool>> expression)
         {
             var func = expression.Compile();
@@ -39,6 +36,7 @@ namespace BusterWood.Testing
         }
 
         /// <summary>Checks the <paramref name="expression"/> returns false, or reports the <paramref name="expression"/> as an error</summary>
+        /// <remarks>This method is easy to use, but much slower than checking a condition with an if statement then calling <see cref="Error(Test, string)"/>/// </remarks>
         public static void AssertNot(this Test t, Expression<Func<bool>> expression)
         {
             var func = expression.Compile();
