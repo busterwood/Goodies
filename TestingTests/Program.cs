@@ -9,14 +9,18 @@ namespace TestingTests
     {
         public static int Main()
         {
-            // enable multi-core JIT for faster testing
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             sw.Start();
-            ProfileOptimization.SetProfileRoot(Environment.ExpandEnvironmentVariables("%APPDATA%"));
-            ProfileOptimization.StartProfile(Process.GetCurrentProcess().ProcessName + ".profile");
+            EnableMultiCoreJit();
             int result = Tests.Run();
             Console.Error.WriteLine($"TOTAL time {sw.Elapsed.TotalSeconds:N2} secs");
             return result;
+        }
+
+        private static void EnableMultiCoreJit()
+        {
+            ProfileOptimization.SetProfileRoot(Environment.ExpandEnvironmentVariables("%APPDATA%"));
+            ProfileOptimization.StartProfile(Process.GetCurrentProcess().ProcessName + ".profile");
         }
     }
 }

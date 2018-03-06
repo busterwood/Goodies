@@ -14,20 +14,25 @@ namespace BusterWood.Testing
         /// Runs all the tests in the <paramref name="assembly"/>, returning the number of failed tests.
         /// If <paramref name="assembly"/> is null, or not provided, then all tests in the entry assembly (exe) are run.
         /// </summary>
-        public static int Run(Assembly assembly = null)
+        public static int Run(Assembly assembly = null, Func<Test, bool> predicate = null)
         {
             int failCount = 0;
-            foreach (var t in (assembly ?? Assembly.GetEntryAssembly()).GetExportedTypes())
+            Assembly assm = (assembly ?? Assembly.GetEntryAssembly());
+            foreach (var t in assm.GetExportedTypes())
             {
-                failCount += Run(t);
+                failCount += Run(t, predicate);
             }
             return failCount;
         }
 
         /// <summary>Runs all the tests in the <paramref name="type"/>, returning the number of failed tests</summary>
-        public static int Run(Type type)
+        public static int Run(Type type, Func<Test, bool> predicate = null)
         {
-            var tests = DiscoverTests(type).ToList();
+            if (predicate == null)
+                predicate = _ => true;
+
+            var tests = DiscoverTests(type).Where(predicate).ToList();
+
             int failCount = 0;
             if (tests.Any())
             {

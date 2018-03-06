@@ -26,7 +26,7 @@ namespace BusterWood.Testing
             Short = args.Contains("--short");
         }
 
-        public string TypeName => type.Name;
+        public Type Type => type;
 
         /// <summary>returns the name of the running test</summary>
         public string Name => method.Name;
