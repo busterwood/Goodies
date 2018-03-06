@@ -152,7 +152,7 @@ namespace BusterWood.Channels
 
         public static void closing_the_channel_with_a_waiting_sender_does_not_cancel_the_senders_task(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 t.SkipNow();
 
 
@@ -190,7 +190,7 @@ namespace BusterWood.Channels
 
         public static void memory(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 t.SkipNow();
 
             var before = GC.GetTotalMemory(true);

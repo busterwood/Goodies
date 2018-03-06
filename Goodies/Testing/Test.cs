@@ -1,5 +1,4 @@
 ﻿using BusterWood.Channels;
-using BusterWood.Collections;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -14,19 +13,6 @@ namespace BusterWood.Testing
         internal readonly List<string> Messsages = new List<string>();
         internal readonly Action<string> LogMessage = Console.WriteLine;
         internal readonly Channel<bool> Finished = new Channel<bool>();
-
-        /// <summary>Skip long tests?</summary>
-        public static bool Short { get; set; }
-
-        /// <summary>If set then all messages are logged, if not set then messages are only logged for failed tests</summary>
-        public static bool Verbose { get; set; }
-
-        static Test()
-        {
-            var args = Environment.GetCommandLineArgs().ToHashSet(StringComparer.OrdinalIgnoreCase);
-            Verbose = args.Contains("--verbose");
-            Short = args.Contains("--short");
-        }
 
         public Type Type => type;
 
@@ -50,7 +36,7 @@ namespace BusterWood.Testing
         public void Fail()
         {
             Failed = true;
-            if (!Verbose) // already logged when in verbose mode
+            if (!Tests.Verbose) // already logged when in verbose mode
                 ReportAllMessages();
         }
 
@@ -65,7 +51,7 @@ namespace BusterWood.Testing
         /// <summary>Records the text in the error log. For tests, the text will be printed only if the test fails or the verbose logging flag is set.</summary>
         public void Log(string message)
         {
-            if (Verbose)
+            if (Tests.Verbose)
                 LogMessage(message);
             Messsages.Add(message);
         }

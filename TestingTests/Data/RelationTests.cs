@@ -32,7 +32,7 @@ namespace BusterWood.Data
 
         public void memory_used_list(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 return;
 
             foreach (var count in new[] { 1000, 100000, 1000000 })
@@ -55,7 +55,7 @@ namespace BusterWood.Data
 
         public void memory_used_relation(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 return;
 
             foreach (var count in new[] { 1000, 100000, 1000000 })

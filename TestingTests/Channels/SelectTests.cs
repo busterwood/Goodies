@@ -8,7 +8,7 @@ namespace BusterWood.Channels
     {        
         public static void executing_a_select_when_one_channel_is_ready_to_send_completes_immediately(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 t.SkipNow();
 
             var ch1 = new Channel<int>();
@@ -44,7 +44,7 @@ namespace BusterWood.Channels
         
         public static void executing_a_select_waits_for_one_case_to_succeed(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 t.SkipNow();
 
             var ch1 = new Channel<int>();
@@ -80,7 +80,7 @@ namespace BusterWood.Channels
         
         public static void if_more_that_once_case_is_ready_then_the_first_one_added_is_chose(Test t)
         {
-            if (Test.Short)
+            if (Tests.Short)
                 t.SkipNow();
 
             var ch1 = new Channel<int>();
