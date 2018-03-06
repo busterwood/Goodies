@@ -1,6 +1,7 @@
 ﻿using BusterWood.Collections;
 using BusterWood.Tasks;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,11 @@ namespace BusterWood.Batching
             _queryMany = queryMany ?? throw new ArgumentNullException(nameof(queryMany));
             _timer = new Timer(TimerCallback, null, Timeout.Never, Timeout.Never);
             _completionSources = new Dictionary<TKey, TaskCompletionSource<TValue>>();
-            _tcsFactory = _ => new TaskCompletionSource<TValue>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _tcsFactory = _ => new TaskCompletionSource<TValue>(
+#if !NET452
+                TaskCreationOptions.RunContinuationsAsynchronously
+#endif
+            );
             if (delay.HasValue)
                 Delay = delay.Value;
         }
@@ -65,13 +70,23 @@ namespace BusterWood.Batching
             Dictionary<TKey, TValue> results;
             try
             {
+#if NET452
+                results = await _queryMany(completionSources.Keys.ToList());
+#else
                 results = await _queryMany(completionSources.Keys);
+#endif
             }
             catch (Exception ex)
             {
                 // it failed, pass the exception to all completion sources
                 foreach (var tcs in completionSources.Values)
+                {
+#if NET452
+                    Task.Run(() => tcs.TrySetException(ex));
+#else
                     tcs.TrySetException(ex);
+#endif
+                }
                 return;
             }
 
@@ -81,7 +96,11 @@ namespace BusterWood.Batching
                 TValue value;
                 results.TryGetValue(pair.Key, out value);  // use default(TValue) if key not in dictionary
                 var tcs = pair.Value;
+#if NET452
+                Task.Run(() => tcs.TrySetResult(value));
+#else
                 tcs.TrySetResult(value);
+#endif
             }
         }
     }

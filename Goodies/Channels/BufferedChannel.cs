@@ -100,7 +100,7 @@ namespace BusterWood.Channels
                 {
                     // if the channel has been closed then return a cancelled task
                     if (_closed.IsCancellationRequested)
-                        return Task.FromCanceled<T>(_closed);
+                        return Tasks.FromCanceled<T>(_closed);
 
                     // the receiver must wait
                     var r = new Receiver<T>();
@@ -206,7 +206,7 @@ namespace BusterWood.Channels
             lock (_items)
             {
                 if (_closed.IsCancellationRequested)
-                    return Task.FromCanceled(_closed);
+                    return Tasks.FromCanceled(_closed);
 
                 if (_items.IsFull)
                 {
@@ -220,7 +220,7 @@ namespace BusterWood.Channels
                 {
                     // just add the value to the queue so items are received in sending order
                     _items.Enqueue(value);
-                    return Task.CompletedTask;
+                    return Tasks.CompletedTask;
                 }
 
                 // At this point queue is must be empty 
@@ -231,7 +231,7 @@ namespace BusterWood.Channels
                 if (receiver != null)
                 {
                     receiver.TrySetResult(value);
-                    return Task.CompletedTask;
+                    return Tasks.CompletedTask;
                 }
 
                 // no waiting receivers, add the item to the queue
@@ -242,7 +242,7 @@ namespace BusterWood.Channels
                 if (waiter != null)
                     waiter.TrySetResult(true);
 
-                return Task.CompletedTask;
+                return Tasks.CompletedTask;
             }
         }
 

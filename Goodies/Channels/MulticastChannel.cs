@@ -80,13 +80,13 @@ namespace BusterWood.Channels
             lock (_gate)
             {
                 if (_closed.IsCancellationRequested)
-                    return Task.FromCanceled(_closed);
+                    return Tasks.FromCanceled(_closed);
 
                 foreach (var s in _subscriptions)
                 {
                     s.TrySend(value);  // don't block if a receiver is not ready
                 }
-                return Task.CompletedTask;
+                return Tasks.CompletedTask;
             }
         }
 

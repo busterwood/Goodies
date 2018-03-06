@@ -10,7 +10,9 @@ namespace BusterWood.Channels
         public Waiter Next { get; set; } // linked list
 
         public Waiter()
+#if !NET452
             : base(TaskCreationOptions.RunContinuationsAsynchronously)
+#endif
         {
         }
     }

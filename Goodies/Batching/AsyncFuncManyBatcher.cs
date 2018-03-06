@@ -30,7 +30,11 @@ namespace BusterWood.Batching
             _queryMany = queryMany ?? throw new ArgumentNullException(nameof(queryMany));
             _timer = new Timer(TimerCallback, null, Timeout.Never, Timeout.Never);
             _completionSources = new Dictionary<TKey, TaskCompletionSource<IEnumerable<TValue>>>();
-            _tcsFactory = _ => new TaskCompletionSource<IEnumerable<TValue>>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _tcsFactory = _ => new TaskCompletionSource<IEnumerable<TValue>>(
+#if !NET452
+                TaskCreationOptions.RunContinuationsAsynchronously
+#endif
+            );
             if (delay.HasValue)
                 Delay = delay.Value;
         }
@@ -66,13 +70,23 @@ namespace BusterWood.Batching
             ILookup<TKey, TValue> results;
             try
             {
+#if NET452
+                results = await _queryMany(completionSources.Keys.ToList());
+#else
                 results = await _queryMany(completionSources.Keys);
+#endif
             }
             catch (Exception ex)
             {
                 // it failed, pass the exception to all completion sources
                 foreach (var tcs in completionSources.Values)
+                {
+#if NET452
+                    Task.Run(() => tcs.TrySetException(ex));
+#else
                     tcs.TrySetException(ex);
+#endif
+                }
                 return;
             }
 
@@ -80,7 +94,11 @@ namespace BusterWood.Batching
             foreach (var pair in completionSources)
             {
                 var values = results[pair.Key];  // lookups return an empty IEnumerable when the key is not present
+#if NET452
+                Task.Run(() => pair.Value.TrySetResult(values));
+#else
                 pair.Value.TrySetResult(values);
+#endif
             }
         }
     }

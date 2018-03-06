@@ -94,5 +94,6 @@ namespace BusterWood.Logging
                 Pop();
             }
         }
+
     }
 }

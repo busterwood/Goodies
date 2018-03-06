@@ -95,14 +95,14 @@ namespace BusterWood.Channels
             lock (_gate)
             {
                 if (_closed.IsCancellationRequested)
-                    return Task.FromCanceled(_closed);
+                    return Tasks.FromCanceled(_closed);
 
                 // if there is a waiting receiver then exchange now
                 var receiver = Queue.Dequeue(ref _receivers);
                 if (receiver != null)
                 {
                     receiver.TrySetResult(value);
-                    return Task.CompletedTask;
+                    return Tasks.CompletedTask;
                 }
 
                 // the sender must wait
@@ -185,7 +185,7 @@ namespace BusterWood.Channels
 
                 // if the channel has been closed then return a cancelled task
                 if (_closed.IsCancellationRequested)
-                    return Task.FromCanceled<T>(_closed);
+                    return Tasks.FromCanceled<T>(_closed);
 
                 // the receiver must wait
                 var r = new Receiver<T>();
