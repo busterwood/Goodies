@@ -1,4 +1,5 @@
-﻿using BusterWood.Collections;
+﻿using BusterWood.Channels;
+using BusterWood.Collections;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -12,6 +13,7 @@ namespace BusterWood.Testing
         internal MethodInfo method;
         internal readonly List<string> Messsages = new List<string>();
         internal readonly Action<string> LogMessage = Console.WriteLine;
+        internal readonly Channel<bool> Finished = new Channel<bool>();
 
         /// <summary>Skip long tests?</summary>
         public static bool Short { get; set; }
@@ -77,35 +79,46 @@ namespace BusterWood.Testing
 
         public override string ToString() => Name;
 
-        internal void Run()
-        {
-            if (method.IsStatic)
-                RunStatic();
-            else
-                RunInstance();
-        }
-
         internal bool IsAsync => method.ReturnType == typeof(Task);
 
-        private void RunStatic()
+        internal async Task RunAsync()
         {
-            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>));
-            test(this);
-        }
+            await Task.Yield(); // force async execution
 
-        private void RunInstance()
-        {
-            var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
-            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
-            using (instance as IDisposable) // tear down the test, if required
+            try
             {
-                test(this);
+                if (IsAsync)
+                {
+                    if (method.IsStatic)
+                        await RunStaticAsync();
+                    else
+                        await RunInstanceAsync();
+                }
+                else
+                {
+                    if (method.IsStatic)
+                        RunStatic();
+                    else
+                        RunInstance();
+                }
             }
-        }
-
-        internal Task RunAsync()
-        {
-            return method.IsStatic ? RunStaticAsync() : RunInstanceAsync();
+            catch(SkipException)
+            {
+                Skipped = true;
+            }
+            catch (FailException)
+            {
+                Failed = true;
+            }
+            catch (Exception ex)
+            {
+                Failed = true;
+                Log(ex.ToString());
+            }
+            finally
+            {
+                Finished.Send(true); // signal we have finished
+            }
         }
 
         private Task RunStaticAsync()
@@ -123,5 +136,22 @@ namespace BusterWood.Testing
                 await testAsync(this);
             }
         }
+
+        private void RunStatic()
+        {
+            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>));
+            test(this);
+        }
+
+        private void RunInstance()
+        {
+            var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
+            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
+            using (instance as IDisposable) // tear down the test, if required
+            {
+                test(this);
+            }
+        }
+
     }
 }

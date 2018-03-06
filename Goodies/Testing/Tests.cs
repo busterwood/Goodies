@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusterWood.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -75,75 +76,26 @@ namespace BusterWood.Testing
         public static bool Run(IEnumerable<Test> tests)
         {
             int failed = 0;
-            using (var finished = new AutoResetEvent(false))
+            foreach (var t in tests)
             {
-                foreach (var t in tests)
-                {
-                    if (t.IsAsync)
-                    {
-                        RunViaTask(t);
-                    }
-                    else
-                    {
-                        RunViaThreadPool(finished, t);
-                    }
+                t.RunAsync().DontWait();
+                t.Finished.Receive();
 
-                    if (t.Failed)
-                    {
-                        WriteLine(ConsoleColor.Red, "Failed " + t);
-                        failed++;
-                    }
-                    else if (t.Skipped)
-                    {
-                        WriteLine(ConsoleColor.Cyan, "Skipped " + t);
-                    }
-                    else if (Test.Verbose)
-                    {
-                        Console.WriteLine(t.ToString());
-                    }
+                if (t.Failed)
+                {
+                    WriteLine(ConsoleColor.Red, "Failed " + t);
+                    failed++;
+                }
+                else if (t.Skipped)
+                {
+                    WriteLine(ConsoleColor.Cyan, "Skipped " + t);
+                }
+                else if (Test.Verbose)
+                {
+                    Console.WriteLine(t.ToString());
                 }
             }
             return failed == 0;
-        }
-
-        private static void RunViaThreadPool(AutoResetEvent finished, Test t)
-        {
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                try
-                {
-                    t.Run();
-                }
-                catch (SkipException)
-                {
-                }
-                catch (FailException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    t.Log(ex.ToString());
-                    t.Fail();
-                }
-                finally
-                {
-                    finished.Set();
-                }
-            });
-
-            finished.WaitOne();
-        }
-
-        private static void RunViaTask(Test at)
-        {
-            try
-            {
-                at.RunAsync().Wait();
-            }
-            catch (AggregateException e) when (e.InnerException != null)
-            {
-                throw e.InnerException;
-            }
         }
 
         static void WriteLine(ConsoleColor color, string message)
