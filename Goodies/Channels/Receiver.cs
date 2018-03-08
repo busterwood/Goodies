@@ -14,23 +14,21 @@ namespace BusterWood.Channels
         {
         }
 
-        public new bool TrySetResult(T result)
+        public new void SetResult(T result)
         {
 #if NET452
             System.Threading.Tasks.Task.Run(() => { base.TrySetResult(result); });
-            return true; // fake it
 #else
-            return base.TrySetResult(result);
+            base.TrySetResult(result);
 #endif
         }
 
-        public bool TrySetCanceled(CancellationToken cancellationToken)
+        public new void SetCanceled(CancellationToken cancellationToken)
         {
 #if NET452
             System.Threading.Tasks.Task.Run(() => { base.TrySetCanceled(); });
-            return true; // fake it
 #else
-            return base.TrySetCanceled(cancellationToken);
+            base.TrySetCanceled(cancellationToken);
 #endif
 
         }

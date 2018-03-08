@@ -15,5 +15,14 @@ namespace BusterWood.Channels
 #endif
         {
         }
+
+        public new void SetResult(bool result)
+        {
+#if NET452
+            System.Threading.Tasks.Task.Run(() => { base.TrySetResult(result); });
+#else
+            base.TrySetResult(result);
+#endif
+        }
     }
 }

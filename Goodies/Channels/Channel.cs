@@ -34,7 +34,7 @@ namespace BusterWood.Channels
         {
             for (var r = _receivers.Head; r != null; r = r.Next)
             {
-                r.TrySetCanceled(_closed);
+                r.SetCanceled(_closed);
             }
             _receivers = new LinkedQueue<Receiver<T>>();
         }
@@ -70,7 +70,7 @@ namespace BusterWood.Channels
                 var receiver = Queue.Dequeue(ref _receivers);
                 if (receiver != null)
                 {
-                    receiver.TrySetResult(value);
+                    receiver.SetResult(value);
                     return;
                 }
 
@@ -81,7 +81,7 @@ namespace BusterWood.Channels
                 // if there is a select waiting then signal a value is ready
                 waiter = Queue.Dequeue(ref _selects);
             }
-            waiter?.TrySetResult(true);
+            waiter?.SetResult(true);
             sender.Task.Wait();
         }
 
@@ -101,7 +101,7 @@ namespace BusterWood.Channels
                 var receiver = Queue.Dequeue(ref _receivers);
                 if (receiver != null)
                 {
-                    receiver.TrySetResult(value);
+                    receiver.SetResult(value);
                     return Tasks.CompletedTask;
                 }
 
@@ -112,7 +112,7 @@ namespace BusterWood.Channels
                 // if there is a select waiting then signal a value is ready
                 waiter = Queue.Dequeue(ref _selects);
             }
-            waiter?.TrySetResult(true);
+            waiter?.SetResult(true);
             return sender.Task;
         }
 
@@ -135,7 +135,7 @@ namespace BusterWood.Channels
             else
             {
                 value = sender.Value;
-                sender.TrySetResult(true);
+                sender.SetResult(true);
                 return true;
             }
         }
@@ -153,7 +153,7 @@ namespace BusterWood.Channels
                 if (sender != null)
                 {
                     var value = sender.Value;
-                    sender.TrySetResult(true);
+                    sender.SetResult(true);
                     return value;
                 }
 
@@ -179,7 +179,7 @@ namespace BusterWood.Channels
                 if (sender != null)
                 {
                     var value = sender.Value;
-                    sender.TrySetResult(true);
+                    sender.SetResult(true);
                     return Task.FromResult(value);
                 }
 
@@ -203,7 +203,7 @@ namespace BusterWood.Channels
 
                 // if there is a waiting sender then signal the select to wake up
                 if (_senders.Head != null)
-                    waiter.TrySetResult(true);
+                    waiter.SetResult(true);
             }
         }
 
