@@ -68,25 +68,19 @@ namespace BusterWood.Testing
 
         internal bool IsAsync => method.ReturnType == typeof(Task);
 
-        internal async Task RunAsync()
+        internal virtual async Task RunAsync()
         {
             await Task.Yield(); // force async execution
 
             try
             {
-                if (IsAsync)
+                var instance = CreateInstance();
+                using (instance as IDisposable)
                 {
-                    if (method.IsStatic)
-                        await RunStaticAsync();
+                    if (IsAsync)
+                        await RunAsync(instance);
                     else
-                        await RunInstanceAsync();
-                }
-                else
-                {
-                    if (method.IsStatic)
-                        RunStatic();
-                    else
-                        RunInstance();
+                        Run(instance);
                 }
             }
             catch(SkipException)
@@ -108,41 +102,23 @@ namespace BusterWood.Testing
             }
         }
 
-        private Task RunStaticAsync()
-        {
-            var testAsync = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>));
-            return testAsync(this);
-        }
-
-        private async Task RunInstanceAsync()
-        {
-            object instance = CreateInstance(); // create a new instance per test, i.e. setup the test
-            var testAsync = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>), instance);
-            using (instance as IDisposable) // tear down the test, if required
-            {
-                await testAsync(this);
-            }
-        }
-
         private object CreateInstance()
         {
+            if (method.IsStatic)
+                return null;
             return ctor.GetParameters().Length == 0 ? ctor.Invoke(null) : ctor.Invoke(new object[] { this });
         }
 
-        private void RunStatic()
+        private async Task RunAsync(object instance)
         {
-            var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>));
-            test(this);
+            var testAsync = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>), instance);
+            await testAsync(this);
         }
 
-        private void RunInstance()
+        private void Run(object instance)
         {
-            var instance = CreateInstance(); // create a new instance per test, i.e. setup the test
             var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
-            using (instance as IDisposable) // tear down the test, if required
-            {
-                test(this);
-            }
+            test(this);
         }
 
     }
