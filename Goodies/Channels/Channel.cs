@@ -51,7 +51,12 @@ namespace BusterWood.Channels
                     return false;
                 receiver = Queue.Dequeue(ref _receivers);
             }
-            return receiver != null && receiver.TrySetResult(value);
+
+            if (receiver == null)
+                return false;
+
+            receiver.SetResult(value);
+            return true;
         }
 
         /// <summary>Synchronously sends a value to receiver, waiting until a receiver is ready to receive</summary>
