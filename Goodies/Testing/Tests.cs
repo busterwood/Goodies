@@ -75,18 +75,18 @@ namespace BusterWood.Testing
 
         //TODO: async test methods with a CancellationToken
         //TODO: timeout of test
-        //TODO: way of skipping all tests via the constructor, e.g. take a Test parameter into the ctor
 
         /// <summary>Finds all the tests in the <paramref name="type"/></summary>
         public static IEnumerable<Test> DiscoverTests(Type type)
         {
+            var ctor = type.GetConstructor(new[] { typeof(Test) }) ?? type.GetConstructor(Type.EmptyTypes);
             foreach (var m in type.GetMethods())
             {
                 var p = m.GetParameters();
                 if (p.Length == 1 && p[0].ParameterType == typeof(Test))
                 {
                     if (m.ReturnType == typeof(void) || m.ReturnType == typeof(Task))
-                        yield return new Test { method = m, type = type };
+                        yield return new Test { method = m, type = type, ctor = ctor };
                 }
             }
         }

@@ -19,11 +19,11 @@ namespace BusterWood.Testing
             t.FailNow();
         }
 
-        /// <summary>Skip is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.SkipNow"/></summary>
+        /// <summary>Skip is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Skip"/></summary>
         public static void Skip(this Test t, string message)
         {
             t.Log(message);
-            t.SkipNow();
+            t.Skip();
         }
 
         /// <summary>Checks the <paramref name="expression"/> returns true, or reports the <paramref name="expression"/> as an error</summary>

@@ -43,6 +43,31 @@ Instance methods are run on a new object instance per test.  If the object imple
 
 If all tests in a class need common setup code then put this code in the constructor and use non-static test methods.
 
+```
+public class BasicTests
+{
+	public BasicTests() // will be called per test for non-static methods
+	{
+		...
+	}
+	...
+}
+```
+
+If a constructor exists that takes a single `Test` parameter then that will be called in preference to the default constructor.
+
+```
+public class BasicTests
+{
+	public BasicTests(Test t)
+	{
+		if (Tests.Short)
+			t.Skip();  // skip all tests in short mode
+	}
+	...
+}
+```
+
 ### How to clean up a test after it has finished?
 
 If the test class implements `IDisposable` then the `Dispose()` method is called after each non-static test method is run.
@@ -73,8 +98,8 @@ Note that `Tests.Run()` returns the number of tests that failed, so can be used 
 ### Command Line Options
 
 The `Tests.Run()` method recognises the following parameter:
-* `--verbose` which sets the `Test.Verbose` property to TRUE and causes all messages and test names to be shown in the output.  Normally only failed test names and messages are shown.
-* `--short` which sets the `Test.Short` property to TRUE, and can be used by your test code to `SkipNow()` slow tests.
+* `--verbose` which sets the `Tests.Verbose` property to TRUE and causes all messages and test names to be shown in the output.  Normally only failed test names and messages are shown.
+* `--short` which sets the `Tests.Short` property to TRUE, and can be used by your test code to `SkipNow()` slow tests.
 
 # Test Class
 
@@ -82,7 +107,7 @@ The `Test` class have the following methods:
 * `void Fail()` marks the test as having Failed but continues execution.
 * `void FailNow()` marks the test as having Failed and stops its execution.
 * `void Log(string message)` adds a message to the log of the current test.  Messages are shown for failing tests, or all tests when in `--verbose` mode.
-* `void SkipNow()` marks the test as having been skipped (ignored) and stops execution of the test.
+* `void Skip()` marks the test as having been skipped (ignored) and stops execution of the test.
 
 The following extension methods to the `Test` class make it easier to use:
 * `void Error(string message)` calls `Log(message)` then `Fail()`

@@ -10,6 +10,7 @@ namespace BusterWood.Testing
     {
         internal Type type;
         internal MethodInfo method;
+        internal ConstructorInfo ctor;
         internal readonly List<string> Messsages = new List<string>();
         internal readonly Action<string> LogMessage = Console.WriteLine;
         internal readonly Channel<bool> Finished = new Channel<bool>();
@@ -57,7 +58,7 @@ namespace BusterWood.Testing
         }
 
         /// <summary>Marks the test as having been <see cref="Skipped"/> and stops its execution</summary>
-        public void SkipNow()
+        public void Skip()
         {
             Skipped = true;
             throw new SkipException();
@@ -115,12 +116,17 @@ namespace BusterWood.Testing
 
         private async Task RunInstanceAsync()
         {
-            var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
+            object instance = CreateInstance(); // create a new instance per test, i.e. setup the test
             var testAsync = (Func<Test, Task>)method.CreateDelegate(typeof(Func<Test, Task>), instance);
             using (instance as IDisposable) // tear down the test, if required
             {
                 await testAsync(this);
             }
+        }
+
+        private object CreateInstance()
+        {
+            return ctor.GetParameters().Length == 0 ? ctor.Invoke(null) : ctor.Invoke(new object[] { this });
         }
 
         private void RunStatic()
@@ -131,7 +137,7 @@ namespace BusterWood.Testing
 
         private void RunInstance()
         {
-            var instance = Activator.CreateInstance(type); // create a new instance per test, i.e. setup the test
+            var instance = CreateInstance(); // create a new instance per test, i.e. setup the test
             var test = (Action<Test>)method.CreateDelegate(typeof(Action<Test>), instance);
             using (instance as IDisposable) // tear down the test, if required
             {
