@@ -23,7 +23,7 @@ Small and simple library for testing, based on Go's `Testing` package.  No need 
 
 Tests are public methods that take a single parameter of type `BusterWood.Testing.Test`, for example:
 ```
-public static one_does_not_equal_two(Test t)
+public one_does_not_equal_two(Test t)
 {
 	if (1 == 2) // faster than using Assert but more verbose
 	    t.Error("1 should not equal 2");
@@ -35,9 +35,7 @@ public static one_does_not_equal_two_using_assert(Test t)
 }
 ```
 
-Static test methods are run in isolation.
-
-Instance methods are run on a new object instance per test.  If the object implements `IDisposable` then the `Dispose` method will be called after the test.
+Tests can be instance methods which are run on a new object instance per test.  Test methods can also be static methods.
 
 ### How to set-up a test?
 
