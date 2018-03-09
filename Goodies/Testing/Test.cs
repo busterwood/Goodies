@@ -26,6 +26,8 @@ namespace BusterWood.Testing
         /// <summary>reports whether the test was skipped</summary>
         public bool Skipped { get; private set; }
 
+        public bool Verbose { get; set; }
+
         /// <summary>Marks the function as having <see cref="Failed"/> and stops its execution</summary>
         public void Fatal()
         {
@@ -37,7 +39,7 @@ namespace BusterWood.Testing
         public void Error()
         {
             Failed = true;
-            if (!Tests.Verbose) // already logged when in verbose mode
+            if (!Verbose) // already logged when in verbose mode
                 ReportAllMessages();
         }
 
@@ -52,7 +54,7 @@ namespace BusterWood.Testing
         /// <summary>Records the text in the error log. For tests, the text will be printed only if the test fails or the verbose logging flag is set.</summary>
         public void Log(string message)
         {
-            if (Tests.Verbose)
+            if (Verbose)
                 LogMessage(message);
             Messsages.Add(message);
         }
@@ -88,6 +90,14 @@ namespace BusterWood.Testing
                 Skipped = true;
             }
             catch (FailException)
+            {
+                Failed = true;
+            }
+            catch (TargetInvocationException e) when (e.InnerException is SkipException)
+            {
+                Skipped = true;
+            }
+            catch (TargetInvocationException e) when (e.InnerException is FailException)
             {
                 Failed = true;
             }

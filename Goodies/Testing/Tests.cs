@@ -86,7 +86,7 @@ namespace BusterWood.Testing
                 if (p.Length == 1 && p[0].ParameterType == typeof(Test))
                 {
                     if (m.ReturnType == typeof(void) || m.ReturnType == typeof(Task))
-                        yield return new Test { method = m, type = type, ctor = ctor };
+                        yield return new Test { method = m, type = type, ctor = ctor, Verbose = Verbose };
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace BusterWood.Testing
                 {
                     WriteLine(ConsoleColor.Cyan, "Skipped " + t);
                 }
-                else if (Verbose)
+                else if (t.Verbose)
                 {
                     Console.WriteLine(t.ToString());
                 }

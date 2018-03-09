@@ -54,8 +54,10 @@
     <Compile Include="Batching\SingleResultAsyncBatcherTests.cs" />
     <Compile Include="Caching\AsyncBatchReadThroughCacheTests.cs" />
     <Compile Include="Caching\AsyncReadThroughCacheTests.cs" />
+    <Compile Include="Caching\BitPseudoLruMap.cs" />
     <Compile Include="Caching\CacheTests.cs" />
     <Compile Include="Caching\ConcurrentCacheTests.cs" />
+    <Compile Include="Caching\MixedReadWriteOverheadTests.cs" />
     <Compile Include="Caching\ReadThroughCacheTests.cs" />
     <Compile Include="Caching\ThunderingHerdProtectionTests.cs" />
     <Compile Include="Caching\ValueIsKey.cs" />
