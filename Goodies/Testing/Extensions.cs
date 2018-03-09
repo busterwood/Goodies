@@ -5,18 +5,18 @@ namespace BusterWood.Testing
 {
     public static class Extensions
     {
-        /// <summary>Equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Fail"/></summary>
+        /// <summary>Equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Error"/></summary>
         public static void Error(this Test t, string message)
         {
             t.Log(message);
-            t.Fail();
+            t.Error();
         }
 
-        /// <summary>Fatal is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.FailNow"/></summary>
+        /// <summary>Fatal is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Fatal"/></summary>
         public static void Fatal(this Test t, string message)
         {
             t.Log(message);
-            t.FailNow();
+            t.Fatal();
         }
 
         /// <summary>Skip is equivalent to <see cref="Test.Log"/> followed by <see cref="Test.Skip"/></summary>

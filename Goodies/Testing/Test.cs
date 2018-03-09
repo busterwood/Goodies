@@ -27,14 +27,14 @@ namespace BusterWood.Testing
         public bool Skipped { get; private set; }
 
         /// <summary>Marks the function as having <see cref="Failed"/> and stops its execution</summary>
-        public void FailNow()
+        public void Fatal()
         {
-            Fail();
+            Error();
             throw new FailException();
         }
 
         /// <summary>Marks the function as having <see cref="Failed"/> but continues execution</summary>
-        public void Fail()
+        public void Error()
         {
             Failed = true;
             if (!Tests.Verbose) // already logged when in verbose mode
