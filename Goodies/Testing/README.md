@@ -110,7 +110,7 @@ The `Test` class have the following methods:
 The following extension methods to the `Test` class make it easier to use:
 * `void Error(string message)` calls `Log(message)` then `Error()`
 * `void Fatal(string message)` calls `Log(message)` then `Fatal()`
-* `void Skip(string message)` calls `Log(message)` then `SkipNow()`
+* `void Skip(string message)` calls `Log(message)` then `Skip()`
 * `void Assert(Expression<Func<bool>> expression)` Checks that the expression returns true, or reports the expression as an `Error(string)`
 * `void AssertNot(Expression<Func<bool>> expression)` Checks that the expression returns false, or reports the expression as an `Error(string)`
 * `void AssertThrows<TException>(Expression<Func<object>> expression)` Checks that the expression throws an exception of type `TException` or reports an `Error()`
