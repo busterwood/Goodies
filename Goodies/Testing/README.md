@@ -83,10 +83,7 @@ namespace Sample
 {
     public class Program
     {
-        public static int Main()
-        {
-            return BusterWood.Testing.Tests.Run();
-        }
+        public static int Main() => BusterWood.Testing.Tests.Run();
     }
 }
 ```
