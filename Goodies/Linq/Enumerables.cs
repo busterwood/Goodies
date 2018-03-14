@@ -1,4 +1,5 @@
 ﻿using BusterWood.Collections;
+using BusterWood.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -128,7 +129,81 @@ namespace BusterWood.Linq
 
         /// <summary>Returns results of the <paramref name="chooser"/> function that return a value (the result of the function is not null)</summary>
         public static IEnumerable<TResult> Choose<T, TResult>(this IEnumerable<T> items, Func<T, TResult?> chooser) where TResult : struct
-            => items.Select(chooser).Where(res => res.HasValue).Select(res => res.Value);
+            => items.Select(chooser).Where(res => res.HasValue).Select(res => res.Value);        /// <summary>Returns results of the <paramref name="chooser"/> function that return a value (the result of the function is not null)</summary>
+
+        /// <summary>Applies the given function to successive elements, returning the first value where the <paramref name="chooser"/> function returns a some value (the result of the function is not null)</summary>
+        public static TResult Pick<T, TResult>(this IEnumerable<T> items, Func<T, TResult> chooser) where TResult : class
+            => items.Select(chooser).FirstOrDefault(res => res != null);
+
+        /// <summary>Applies the given function to successive elements, returning the first value where the <paramref name="chooser"/> function returns a some value (the result of the function is not null)</summary>
+        public static TResult? Pick<T, TResult>(this IEnumerable<T> items, Func<T, TResult?> chooser) where TResult : struct
+            => items.Select(chooser).FirstOrDefault(res => res.HasValue);
+
+        /// <summary>
+        /// Returns a sequence that yields sliding windows of containing elements drawn from the input sequence. 
+        /// Each window is returned as a fresh array.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">thrown when input sequence is null</exception>
+        /// <exception cref="ArgumentException">thrown when the input sequence is empty</exception>
+        public static IEnumerable<T[]> Window<T>(this IEnumerable<T> items, int windowSize)
+        {
+            Contract.RequiresNotNull(items);
+            Contract.Requires(windowSize > 0);
+
+            var e = items.GetEnumerator();
+
+            // fill initial window
+            var result = new T[windowSize];
+            for (int i = 0; i < windowSize; i++)
+            {
+                if (!e.MoveNext())
+                {
+                    if (i == 0)
+                        throw new ArgumentException("Sequence is empty");
+                    Array.Resize(ref result, i);
+                    yield return result;
+                    yield break;
+                }
+
+                result[i] = e.Current;
+            }
+
+            // return first window
+            yield return result;
+
+            // subsequent windows
+            while (e.MoveNext())
+            {
+                var prev = result;
+                result = new T[windowSize];
+                Array.Copy(prev, 1, result, 0, windowSize - 1);
+                result[windowSize - 1] = e.Current;
+                yield return result;
+            }
+        }
+
+        public static T? TryFind<T>(this IEnumerable<T> source, Func<T, bool> predicate) where T : struct
+        {
+            foreach (var v in source)
+            {
+                if (predicate(v))
+                    return v;
+            }
+            return null;
+        }
+
+        public static int IndexOf<T>(this IReadOnlyList<T> source, T item, IEqualityComparer<T> comparer = null) where T : struct
+        {
+            var comp = comparer ?? EqualityComparer<T>.Default;
+            int i = 0;
+            foreach (var v in source)
+            {
+                if (comp.Equals(v, item))
+                    return i;
+                i++;
+            }
+            return -1;
+        }
 
         public static void SetRelationship<T, TKey, TOther>(this IEnumerable<T> source, Func<T, TKey> keyExtractor, ILookup<TKey, TOther> details, Action<T, IEnumerable<TOther>> mutator)
         {

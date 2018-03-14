@@ -76,6 +76,7 @@
     <Compile Include="Linq\EnumerableTests.cs" />
     <Compile Include="Goodies\InTests.cs" />
     <Compile Include="Linq\ForTests.cs" />
+    <Compile Include="Linq\WindowTests.cs" />
     <Compile Include="Monies\MoneyBagTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Monies\MoneyTests.cs" />

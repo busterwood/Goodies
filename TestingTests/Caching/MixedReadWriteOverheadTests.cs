@@ -12,7 +12,7 @@ namespace BusterWood.Caching
 
         public MixedReadWriteOverheadTests(Test t)
         {
-            testSizes = (Tests.Short) ? new[] { 10000, 100000 } : new[] { 10000, 100000, 500000 };
+            testSizes = (Tests.Short) ? new[] { 10000 } : new[] { 10000, 100000, 500000 };
             t.Verbose = true;
         }
 
