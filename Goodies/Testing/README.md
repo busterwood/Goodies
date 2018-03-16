@@ -31,7 +31,12 @@ public one_does_not_equal_two(Test t)
 
 public static one_does_not_equal_two_using_assert(Test t)
 {
-	t.Assert(() => 1 != 2); // slower but less code to write
+	t.Assert(1, 2);
+}
+
+public static one_does_not_equal_two_using_assert_expression(Test t)
+{
+	t.Assert(() => 1 != 2); // slower but might produce more meaningful error messages for complex expressions
 }
 ```
 
