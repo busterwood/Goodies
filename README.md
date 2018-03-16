@@ -18,4 +18,4 @@ So much useful & free stuff for .NET, built as a library for .NET Standard 2.0.
 * [BusterWood.Monies](https://github.com/busterwood/Goodies/blob/master/Goodies/Monies/README.md) namespace contains `Money` struct to ensure that you don't add accidentally add GBP and USD together.
 * `BusterWood.Reflect.Emit` namespace contains extension methods for emiting IL via `ILGenerator`.
 * `BusterWood.Restarting` namespace contains `RestartMonitoring` that monitor failures in asychrous processes and restarts them on failure (with delay).
-* [BusterWood.Testing](https://github.com/busterwood/Goodies/blob/master/Goodies/Testing/README.md) namespace contains a simple testing library, with no external dependencies.
+* [BusterWood.Testing](https://github.com/busterwood/Goodies/blob/master/Goodies/Testing/README.md) namespace contains a simple testing library inspired by [Go's testing` package](https://golang.org/pkg/testing/)
