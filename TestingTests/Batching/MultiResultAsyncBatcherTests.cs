@@ -15,7 +15,7 @@ namespace BusterWood.Batching
             var b = new AsyncFuncManyBatcher<long, int>(keys => { calls++; return Task.FromResult(values); }, TimeSpan.FromMilliseconds(10));
             IEnumerable<int> result = await b.QueryAsync(1);
             t.Assert(() => Enumerable.SequenceEqual(new[] { 2, 3 }, result));
-            t.Assert(() => 1 == calls);
+            t.Assert(1, calls);
         }
         
         public static async Task can_query_many_values_in_one_batch(Test t)
@@ -27,7 +27,7 @@ namespace BusterWood.Batching
             await Task.WhenAll(tasks);
             t.Assert(() => Enumerable.SequenceEqual(new[] { 2 }, tasks[0].Result));
             t.Assert(() => Enumerable.SequenceEqual(new[] { 3 }, tasks[1].Result));
-            t.Assert(() => 1 == calls);
+            t.Assert(1, calls);
         }
         
         public static async Task can_query_again_after_first_batch_query(Test t)
@@ -42,7 +42,7 @@ namespace BusterWood.Batching
             t.Assert(() => Enumerable.SequenceEqual(new[] { 2 }, valuesForKey1));
             IEnumerable<int> valuesForKey2 = await b.QueryAsync(2);
             t.Assert(() => Enumerable.SequenceEqual(new[] { 3 }, valuesForKey2));
-            t.Assert(() => 2 == calls);
+            t.Assert(2, calls);
         }
         
         public static void any_exception_caught_by_the_batch_query_is_returned_to_all_query_tasks(Test t)

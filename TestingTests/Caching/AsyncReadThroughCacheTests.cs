@@ -25,8 +25,8 @@ namespace BusterWood.Caching
                 if (actual != i)
                     t.Error($"Expected {i} but got {actual}");
             }
-            t.Assert(() => 3 == cache._gen1.Count);
-            t.Assert(() => 1 == cache._gen0.Count);
+            t.Assert(3, cache._gen1.Count);
+            t.Assert(1, cache._gen0.Count);
         }
 
         public static async Task drops_items_in_gen1_when_gen0_is_full(Test t)
@@ -38,8 +38,8 @@ namespace BusterWood.Caching
                 if (actual != i)
                     t.Error($"Expected {i} but got {actual}");
             }
-            t.Assert(() => 3 == cache._gen1.Count);
-            t.Assert(() => 1 == cache._gen0.Count);
+            t.Assert(3, cache._gen1.Count);
+            t.Assert(1, cache._gen0.Count);
         }
 
     }

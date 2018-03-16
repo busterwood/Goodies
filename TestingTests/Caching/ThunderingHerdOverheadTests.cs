@@ -1,78 +1,67 @@
-﻿using BusterWood.Caching;
-using NUnit.Framework;
+﻿using BusterWood.Testing;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace UnitTests
+namespace BusterWood.Caching
 {
-    [TestFixture, Ignore("too slow")]
     public class ThunderingHerdOverheadTests
     {
         ValueIsKey<string, string> valueIsKey;
         string[] keys = CreateKeyStrings(100);
+        PerformaceMonitor pm;
 
-        [SetUp]
-        public void Setup()
+        public ThunderingHerdOverheadTests(Test t)
         {
+            if (Tests.Short)
+                t.Skip();
             valueIsKey = new ValueIsKey<string, string> { SleepFor=TimeSpan.FromMilliseconds(10) };
+            pm = new PerformaceMonitor(start: true);
         }
 
-        [TestCase(-1)]
-        public void BitPseudoLru_cache_half(int x)
+        public void BitPseudoLru_cache_half(Test t)
         {
-            var pm = new PerformaceMonitor(start: true);
-
             var cache = new BitPseudoLruMap<string, string>(valueIsKey.WithThunderingHerdProtection(), keys.Length / 2);
-            ReadMixKeys(keys, cache);
+            ReadMixKeys(keys, cache, t);
 
-            pm.Stop();
-            Console.WriteLine(pm.Report(keys.Length, cache.Count) + $", {valueIsKey.HitCount} hits to underlying data source");
+            Console.WriteLine($"BitPseudoLru half {valueIsKey.HitCount} hits to underlying data source, {pm.Stop()}");
             GC.KeepAlive(cache);
             GC.KeepAlive(keys);
         }
 
-        [TestCase(-1)]
-        public void generational_cache_half(int x)
+        public void generational_cache_half(Test t)
         {
-            var pm = new PerformaceMonitor(start: true);
-
             var cache = valueIsKey.WithThunderingHerdProtection().WithGenerationalCache(keys.Length / 4, null);
-            ReadMixKeys(keys, cache);
+            ReadMixKeys(keys, cache, t);
             cache.Dispose();
-            pm.Stop();
-            Console.WriteLine(pm.Report(keys.Length, cache.Count) + $", {valueIsKey.HitCount} hits to underlying data source");
+            Console.WriteLine($"Generational half {valueIsKey.HitCount} hits to underlying data source, {pm.Stop()}");
             GC.KeepAlive(cache);
             GC.KeepAlive(keys);
         }
 
-        [TestCase(-1)]
-        public void generational_timed(int x)
+        public void generational_timed(Test t)
         {
-            var pm = new PerformaceMonitor(start: true);
-
             var cache = valueIsKey.WithThunderingHerdProtection().WithGenerationalCache(null, TimeSpan.FromSeconds(5));
-            ReadMixKeys(keys, cache);
+            ReadMixKeys(keys, cache, t);
             cache.Dispose();
-            pm.Stop();
-            Console.WriteLine(pm.Report(keys.Length, cache.Count) + $", {valueIsKey.HitCount} hits to underlying data source");
+            Console.WriteLine($"Generational timed {valueIsKey.HitCount} hits to underlying data source, {pm.Stop()}");
             GC.KeepAlive(cache);
             GC.KeepAlive(keys);
         }
 
-        static void ReadMixKeys(string[] keys, ICache<string, string> cache)
+        static void ReadMixKeys(string[] keys, ICache<string, string> cache, Test t)
         {
             Task[] tasks = new Task[4];
             for (int i = 0; i < tasks.Length; i++)
             {
                 var count = keys.Length;
                 var offset = 0; // (keys.Length / 4) * i;
-                tasks[i] = Task.Run(() => ReadMany(keys, cache, offset, count));
+                tasks[i] = Task.Run(() => ReadMany(keys, cache, offset, count, t));
             }
             Task.WaitAll(tasks);
         }
 
-        static void ReadMany(string[] keys, ICache<string, string> cache, int offset, int count)
+        static void ReadMany(string[] keys, ICache<string, string> cache, int offset, int count, Test t)
         {
             for (int i = 0; i < count; i++)
             {
@@ -80,37 +69,34 @@ namespace UnitTests
                 var key = keys[index];
                 var read = cache[key];
                 if (read != key)
-                    Assert.AreEqual(key, read);
+                    t.Assert(key, read);
             }
         }
-
-        [TestCase(-1)]
-        public void concurrent_dictionary_memory_overhead(int x)
+        
+        public void concurrent_dictionary_memory_overhead(Test t)
         {
-            var pm = new PerformaceMonitor(start: true);
-
             var cache = new ConcurrentDictionary<string, string>();
-            ReadMixKeys(keys, cache);
+            ReadMixKeys(keys, cache, t);
             
             pm.Stop();
-            Console.WriteLine(pm.Report(keys.Length, cache.Count) + $", {valueIsKey.HitCount} hits to underlying data source");
+            Console.WriteLine($"concurrent dictionary {valueIsKey.HitCount} hits to underlying data source, {pm.Stop()}");
             GC.KeepAlive(cache);
             GC.KeepAlive(keys);
         }
 
-        private void ReadMixKeys(string[] keys, ConcurrentDictionary<string, string> cache)
+        private void ReadMixKeys(string[] keys, ConcurrentDictionary<string, string> cache, Test t)
         {
             Task[] tasks = new Task[4];
             for (int i = 0; i < tasks.Length; i++)
             {
                 var count = keys.Length;
                 var offset = 0; //  (keys.Length / 4) * i;
-                tasks[i] = Task.Run(() => ReadMany(keys, cache, offset, count));
+                tasks[i] = Task.Run(() => ReadMany(keys, cache, offset, count, t));
             }
             Task.WaitAll(tasks);
         }
 
-        private void ReadMany(string[] keys, ConcurrentDictionary<string, string> cache, int offset, int count)
+        private void ReadMany(string[] keys, ConcurrentDictionary<string, string> cache, int offset, int count, Test t)
         {
             for (int i = 0; i < count; i++)
             {
@@ -125,7 +111,7 @@ namespace UnitTests
                 }
 
                 if (read != key)
-                    Assert.AreEqual(key, read);
+                    t.Assert(key, read);
             }
         }
 

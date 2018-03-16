@@ -28,11 +28,27 @@ namespace BusterWood.Testing
 
         /// <summary>Checks the <paramref name="expression"/> returns true, or reports the <paramref name="expression"/> as an error</summary>
         /// <remarks>This method is easy to use, but much slower than checking a condition with an if statement then calling <see cref="Error(Test, string)"/>/// </remarks>
+        public static void Assert<T>(this Test t, T expected, T actual)
+        {
+            if (!Equals(expected, actual))
+                t.Error($"Expected '{expected}' but was '{actual}'");
+        }
+
+        /// <summary>Checks the <paramref name="expression"/> returns true, or reports the <paramref name="expression"/> as an error</summary>
+        /// <remarks>This method is easy to use, but much slower than checking a condition with an if statement then calling <see cref="Error(Test, string)"/>/// </remarks>
         public static void Assert(this Test t, Expression<Func<bool>> expression)
         {
             var func = expression.Compile();
             if (!func())
                 t.Error(expression.ToString());
+        }
+
+        /// <summary>Checks the <paramref name="expression"/> returns false, or reports the <paramref name="expression"/> as an error</summary>
+        /// <remarks>This method is easy to use, but much slower than checking a condition with an if statement then calling <see cref="Error(Test, string)"/>/// </remarks>
+        public static void AssertNot<T>(this Test t, T expected, T actual)
+        {
+            if (Equals(expected, actual))
+                t.Error($"Expected not '{expected}' but was '{actual}'");
         }
 
         /// <summary>Checks the <paramref name="expression"/> returns false, or reports the <paramref name="expression"/> as an error</summary>

@@ -59,6 +59,7 @@
     <Compile Include="Caching\ConcurrentCacheTests.cs" />
     <Compile Include="Caching\MixedReadWriteOverheadTests.cs" />
     <Compile Include="Caching\ReadThroughCacheTests.cs" />
+    <Compile Include="Caching\ThunderingHerdOverheadTests.cs" />
     <Compile Include="Caching\ThunderingHerdProtectionTests.cs" />
     <Compile Include="Caching\ValueIsKey.cs" />
     <Compile Include="Channels\BufferedChannelTests.cs" />

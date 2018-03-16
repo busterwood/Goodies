@@ -199,14 +199,12 @@ namespace BusterWood.Monies
 
         public static void less_than_or_equal(Test t)
         {
-            if (!(10m.GBP() <= 11m.GBP()))
-                t.Error("10m.GBP() <= 11m.GBP())");
+            t.Assert(() => 10m.GBP() <= 11m.GBP());
         }
 
         public static void less_than_or_equal_when_equal(Test t)
         {
-            if (!(10m.GBP() <= 10m.GBP()))
-                t.Error("10m.GBP() <= 10m.GBP())");
+            t.Assert(() => 10m.GBP() <= 10m.GBP());
         }
 
         public static void not_less_than_or_equal_when_more_than(Test t)
@@ -216,14 +214,12 @@ namespace BusterWood.Monies
 
         public static void more_than_or_equal(Test t)
         {
-            if (!(12m.GBP() >= 11m.GBP()))
-                t.Error("12m.GBP() >= 11m.GBP())");
+            t.Assert(() => 12m.GBP() >= 11m.GBP());
         }
 
         public static void more_than_or_equal_when_equal(Test t)
         {
-            if (!(10m.GBP() >= 10m.GBP()))
-                t.Error("10m.GBP() >= 10m.GBP())");
+            t.Assert(() => 10m.GBP() >= 10m.GBP());
         }
 
         public static void not_more_than_or_equal_when_less_than(Test t)
@@ -246,8 +242,7 @@ namespace BusterWood.Monies
             foreach (var c in cases)
             {
                 var m = new Money(10m, c.Ccy);
-                if (!(c.Expected == m.ToString()))
-                    t.Error("c.Expected == m.ToString())");
+                t.Assert(c.Expected, m.ToString());
             }
         }
     }

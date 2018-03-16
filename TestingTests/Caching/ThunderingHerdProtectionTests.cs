@@ -12,7 +12,7 @@ namespace BusterWood.Caching
             var source = new HerdValueIsKey<int, int>();
             var thp = source.WithThunderingHerdProtection();
             var c = new ReadThroughCache<int, int>(thp, 10, null);
-            t.Assert(() => 1 == c[1]);
+            t.Assert(1, c[1]);
         }
     }
 

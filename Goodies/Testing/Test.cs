@@ -103,8 +103,7 @@ namespace BusterWood.Testing
             }
             catch (Exception ex)
             {
-                Failed = true;
-                Log(ex.ToString());
+                this.Error(ex.ToString());
             }
             finally
             {

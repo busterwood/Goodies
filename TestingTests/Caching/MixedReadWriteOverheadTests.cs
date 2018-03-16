@@ -88,7 +88,7 @@ namespace BusterWood.Caching
                 var key = keys[index];
                 var read = cache[key];
                 if (read != key)
-                    t.Assert(() => key == read);
+                    t.Assert(key, read);
             }
         }
 
@@ -136,7 +136,7 @@ namespace BusterWood.Caching
                 }
 
                 if (read != key)
-                    t.Assert(() => key == read);
+                    t.Assert(key, read);
             }
         }
 

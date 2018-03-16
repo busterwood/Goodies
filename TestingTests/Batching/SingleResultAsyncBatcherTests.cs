@@ -13,8 +13,8 @@ namespace BusterWood.Batching
             int calls = 0;
             var b = new AsyncFuncBatcher<long, int>(keys => { calls++; return Task.FromResult(values); }, TimeSpan.FromMilliseconds(10));
             var result = await b.QueryAsync(1);
-            t.Assert(() => 2 == result);
-            t.Assert(() => 1 == calls);
+            t.Assert(2, result);
+            t.Assert(1, calls);
         }
 
         public async Task can_query_many_values_in_one_batch(Test t)
@@ -24,9 +24,9 @@ namespace BusterWood.Batching
             var b = new AsyncFuncBatcher<long, int>(keys => { calls++; return Task.FromResult(values); }, TimeSpan.FromMilliseconds(10));
             var tasks = new[] { b.QueryAsync(1), b.QueryAsync(2) };
             await Task.WhenAll(tasks);
-            t.Assert(() => 2 == tasks[0].Result);
-            t.Assert(() => 3 == tasks[1].Result);
-            t.Assert(() => 1 == calls);
+            t.Assert(2, tasks[0].Result);
+            t.Assert(3, tasks[1].Result);
+            t.Assert(1, calls);
         }
 
         public async Task can_query_again_after_first_batch_query(Test t)
@@ -38,10 +38,10 @@ namespace BusterWood.Batching
             int calls = 0;
             var b = new AsyncFuncBatcher<long, int>(keys => Task.FromResult(values[calls++]), TimeSpan.FromMilliseconds(10));
             int valuesforKey1 = await b.QueryAsync(1);
-            t.Assert(() => 2 == valuesforKey1);
+            t.Assert(2, valuesforKey1);
             int valuesforKey2 = await b.QueryAsync(2);
-            t.Assert(() => 3 == valuesforKey2);
-            t.Assert(() => 2 == calls);
+            t.Assert(3, valuesforKey2);
+            t.Assert(2, calls);
         }
 
         public void any_exception_caught_by_the_batch_query_is_returned_to_all_query_tasks(Test t)

@@ -14,8 +14,8 @@ namespace BusterWood.Data
             rel.AddColumn<int>("id");
             rel.AddColumn<string>("name");
             var r = rel.AddRow();
-            t.Assert(() => 0 == r.Get<int>("id"));
-            t.Assert(() => null == r.Get<string>("name"));
+            t.Assert(0, r.Get<int>("id"));
+            t.Assert(null, r.Get<string>("name"));
         }
         
         public void can_set_the_data_in_the_added_row(Test t)
@@ -26,8 +26,8 @@ namespace BusterWood.Data
             var r = rel.AddRow();
             r.Set(0, 1);
             r.Set(1, "hello");
-            t.Assert(() => 1 == r.Get<int>("id"));
-            t.Assert(() => "hello" == r.Get<string>("name"));
+            t.Assert(1, r.Get<int>("id"));
+            t.Assert("hello", r.Get<string>("name"));
         }
 
         public void memory_used_list(Test t)
