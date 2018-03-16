@@ -71,6 +71,9 @@
     <Compile Include="Collections\UniqueListTests.cs" />
     <Compile Include="Data\RelationshipTests.cs" />
     <Compile Include="Data\RelationTests.cs" />
+    <Compile Include="Ducks\DelegateTests.cs" />
+    <Compile Include="Ducks\InstanceMethodTests.cs" />
+    <Compile Include="Ducks\StaticMethodTests.cs" />
     <Compile Include="Equality\ClassEqualityTests.cs" />
     <Compile Include="Equality\StructEqualityTests.cs" />
     <Compile Include="Linq\ChooseTests.cs" />

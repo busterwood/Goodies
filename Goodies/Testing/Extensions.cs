@@ -82,7 +82,7 @@ namespace BusterWood.Testing
         }
 
         /// <summary>Check the <paramref name="expression"/> throw an exception of type <typeparamref name="T"/></summary>
-        public static T AssertThrows<T>(this Test t, Action act, string message) where T : Exception
+        public static T AssertThrows<T>(this Test t, Action act, string message = null) where T : Exception
         {
             try
             {
