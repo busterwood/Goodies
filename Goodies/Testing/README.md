@@ -23,18 +23,18 @@ Small and simple library for testing, based on Go's `Testing` package.  No need 
 
 Tests are public methods that take a single parameter of type `BusterWood.Testing.Test`, for example:
 ```
-public one_does_not_equal_two(Test t)
+public void one_does_not_equal_two(Test t)
 {
 	if (1 == 2) // faster than using Assert but more verbose
 	    t.Error("1 should not equal 2");
 }
 
-public static one_does_not_equal_two_using_assert(Test t)
+public static void one_does_not_equal_two_using_assert(Test t)
 {
 	t.Assert(1, 2);
 }
 
-public static one_does_not_equal_two_using_assert_expression(Test t)
+public static void one_does_not_equal_two_using_assert_expression(Test t)
 {
 	t.Assert(() => 1 != 2); // slower but might produce more meaningful error messages for complex expressions
 }
