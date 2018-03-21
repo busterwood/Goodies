@@ -76,6 +76,8 @@
     <Compile Include="Ducks\StaticMethodTests.cs" />
     <Compile Include="Equality\ClassEqualityTests.cs" />
     <Compile Include="Equality\StructEqualityTests.cs" />
+    <Compile Include="Json\ParserTests.cs" />
+    <Compile Include="Json\ScannerTests.cs" />
     <Compile Include="Linq\ChooseTests.cs" />
     <Compile Include="Linq\EnumerableTests.cs" />
     <Compile Include="Goodies\InTests.cs" />
