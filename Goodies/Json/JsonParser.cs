@@ -17,6 +17,22 @@ namespace BusterWood.Json
             this.scanner = scanner;
         }
 
+        public object Read()
+        {
+            scanner.MoveNext();
+            switch (scanner.Current.Type)
+            {
+                case Type.StartObject:
+                    return ReadObjectBody();
+                case Type.StartArray:
+                    return ReadArrayBody();
+                case 0:
+                    return null;
+                default:
+                    throw new ParseException($"Unexpected {scanner.Current.Type} '{scanner.Current.Text}' at {scanner.Current.Index}");
+            }
+        }
+
         public Dictionary<string, object> ReadObject()
         {
             Read(Type.StartObject);

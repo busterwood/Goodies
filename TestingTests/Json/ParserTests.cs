@@ -154,6 +154,36 @@ namespace BusterWood.Json
             t.Assert("abc", arr[4]);
         }
 
+        public static void can_read_null(Test t)
+        {
+            var s = NewParser("");
+            var obj = s.Read();
+            t.Assert(null, obj);
+        }
+
+        public static void can_read_object(Test t)
+        {
+            var s = NewParser("{}");
+            var map = s.Read() as Dictionary<string, object>;
+            t.Assert(0, map?.Count);
+        }
+
+        public static void can_read_array(Test t)
+        {
+            var s = NewParser("[]");
+            var list = s.Read() as List<object>;
+            t.Assert(0, list?.Count);
+        }
+
+        public static void cannot_read_other_when_only_object_or_array_expected(Test t)
+        {
+            foreach (var txt in new string[] { "null", "true", "false", "\"hello\"", "123", ",", ":" })
+            {
+                var s = NewParser(txt);
+                var ex = t.AssertThrows<ParseException>(() => s.Read());
+            }
+        }
+
         static Parser NewParser(string text) => new Parser(new Parser.Scanner(new StringReader(text)));
     }
 }
