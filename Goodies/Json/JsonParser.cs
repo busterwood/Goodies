@@ -8,15 +8,25 @@ namespace BusterWood.Json
 {
     public class Parser
     {
-        static readonly object _true = true;
-        static readonly object _false = false;
+        static readonly object _true = true;    // pre-boxed value
+        static readonly object _false = false;  // pre-boxed value
         readonly Scanner scanner;
+
+        public Parser(string text) : this(new StringReader(text))
+        {
+        }
+
+        public Parser(TextReader reader) : this(new Scanner(reader))
+        {
+        }
 
         public Parser(Scanner scanner)
         {
             this.scanner = scanner;
         }
 
+        /// <summary>Read a JSON document, i.e. an array or an object.  Note empty input returns NULL</summary>
+        /// <exception cref="ParseException">thrown in a parse error</exception>
         public object Read()
         {
             scanner.MoveNext();
@@ -33,6 +43,8 @@ namespace BusterWood.Json
             }
         }
 
+        /// <summary>Reads a JSON object</summary>
+        /// <exception cref="ParseException">thrown in a parse error</exception>
         public Dictionary<string, object> ReadObject()
         {
             Read(Type.StartObject);
@@ -112,6 +124,8 @@ namespace BusterWood.Json
             }
         }
 
+        /// <summary>Reads a JSON array</summary>
+        /// <exception cref="ParseException">thrown in a parse error</exception>
         public List<object> ReadArray()
         {
             Read(Type.StartArray);
