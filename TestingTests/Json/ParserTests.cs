@@ -34,20 +34,16 @@ namespace BusterWood.Json
 
         public static void cannot_read_object_with_name_colon_but_no_value(Test t)
         {
-            var s = NewParser(@"{
-    ""first"" : 
-}");
+            var s = NewParser(@"{ ""first"" :  }");
             var ex = t.AssertThrows<ParseException>(() => s.ReadObject());
-            t.Assert("Unexpected EndObject '}' at 20", ex.Message);
+            t.Assert("Unexpected EndObject '}' at 14", ex.Message);
         }
 
         public static void cannot_read_object_with_name_value_but_no_colon(Test t)
         {
-            var s = NewParser(@"{
-    ""first"" 123
-}");
+            var s = NewParser(@"{ ""first"" 123 }");
             var ex = t.AssertThrows<ParseException>(() => s.ReadObject());
-            t.Assert("Expected a Colon but got Number '123' at 16", ex.Message);
+            t.Assert("Expected a Colon but got Number '123' at 11", ex.Message);
         }
 
         public static void can_read_object_with_multiple_properties(Test t)
