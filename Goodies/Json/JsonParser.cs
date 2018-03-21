@@ -323,8 +323,10 @@ namespace BusterWood.Json
                             case 't':
                                 sb.Append('\t');
                                 break;
+                            case 'u':
+                                ReadUnicode(sb);
+                                break;
                             default:
-                                //TODO: \u1234 for Unicode
                                 throw new ParseException($"Unexpected '\\{ch}' in string at {index}");
                         }
                     }
@@ -344,6 +346,24 @@ namespace BusterWood.Json
                     }
                     prev = ch;
                 }
+            }
+
+            private void ReadUnicode(StringBuilder sb)
+            {
+                var temp = new char[4];
+                for (int i = 0; i < temp.Length; i++)
+                {
+                    int next = reader.Read();
+                    if (next < 0)
+                        throw new ParseException($"Unexpected end of Unicode escape sequence in String at {index}");
+                    index++;
+                    var ch = (char)next;
+                    if (!char.IsNumber(ch))
+                        throw new ParseException($"Unexpected '{ch}' in Unicode escape sequence in String at {index}");
+                    temp[i] = ch;
+                }
+                var unicode = (char)int.Parse(new string(temp), System.Globalization.NumberStyles.HexNumber);
+                sb.Append(unicode);
             }
 
             private Token ReadNumber(char firstChar)

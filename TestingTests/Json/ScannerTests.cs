@@ -65,6 +65,19 @@ namespace BusterWood.Json
             AssertString(t, s, "abc\b123");
         }
 
+        public static void can_read_string_with_embedded_unicode(Test t)
+        {
+            var s = NewScanner(" \"abc\\u1234\"");
+            AssertString(t, s, "abc\u1234");
+        }
+
+        public static void cannot_read_string_with_embedded_unicode_that_is_too_short(Test t)
+        {
+            var s = NewScanner(" \"abc\\u1\"");
+            var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
+            t.Assert("Unexpected '\"' in Unicode escape sequence in String at 9", ex.Message);
+        }
+
         public static void cannot_read_string_with_null_right_after(Test t)
         {
             var s = NewScanner(" \"abc123\"null");
