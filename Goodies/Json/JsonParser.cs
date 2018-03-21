@@ -216,12 +216,19 @@ namespace BusterWood.Json
                     case ',':
                         return new Token(index, ",", Type.Comma);
                     case '-':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
                         return ReadNumber((char)ch);
                     default:
-                        if (char.IsNumber((char)ch))
-                            return ReadNumber((char)ch);
-                        else
-                            throw new ParseException($"Unexpected '{(char)ch}' at {index}");
+                        throw new ParseException($"Unexpected '{(char)ch}' at {index}");
                 }
             }
 
