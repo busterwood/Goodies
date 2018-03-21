@@ -69,6 +69,13 @@ namespace BusterWood.Json
             AssertString(t, s, "abc\b123");
         }
 
+        public static void cannot_read_string_with_null_right_after(Test t)
+        {
+            var s = NewScanner(" \"abc123\"null");
+            var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
+            t.Assert("Unexpected 'n' after String at 10", ex.Message);
+        }
+
         public static void can_read_integer(Test t)
         {
             for (int i = -100; i < 100; i++)
@@ -87,10 +94,24 @@ namespace BusterWood.Json
             }
         }
 
+        public static void cannot_read_number_with_null_right_after(Test t)
+        {
+            var s = NewScanner("123null");
+            var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
+            t.Assert("Unexpected 'n' after Number at 4", ex.Message);
+        }
+
         public static void can_read_null(Test t)
         {
             var s = NewScanner(" null ");
             AssertToken(t, s, new Parser.Token(2, "null", Parser.Type.Null));
+        }
+
+        public static void cannot_read_null_with_suffix(Test t)
+        {
+            var s = NewScanner(" nulla");
+            var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
+            t.Assert("Unexpected 'a' after Null at 6", ex.Message);
         }
 
         public static void can_read_true(Test t)
@@ -99,10 +120,24 @@ namespace BusterWood.Json
             AssertToken(t, s, new Parser.Token(2, "true", Parser.Type.True));
         }
 
+        public static void cannot_read_true_with_suffix(Test t)
+        {
+            var s = NewScanner(" true1");
+            var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
+            t.Assert("Unexpected '1' after True at 6", ex.Message);
+        }
+
         public static void can_read_false(Test t)
         {
             var s = NewScanner(" false ");
             AssertToken(t, s, new Parser.Token(2, "false", Parser.Type.False));
+        }
+
+        public static void cannot_read_false_with_suffix(Test t)
+        {
+            var s = NewScanner(" false.");
+            var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
+            t.Assert("Unexpected '.' at 7", ex.Message);
         }
 
         public static void can_read_start_of_object(Test t)

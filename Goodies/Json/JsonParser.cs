@@ -151,41 +151,11 @@ namespace BusterWood.Json
             }
         }
 
-        public struct Token
-        {
-            public int Index { get; }
-            public string Text { get; }
-            public Type Type { get; }
-
-            public Token(int index, string text, Type type) : this()
-            {
-                Index = index;
-                Text = text;
-                Type = type;
-            }
-
-            public bool HasValue => Type != 0;
-        }
-
-        public enum Type
-        {
-            StartObject = 1,
-            EndObject,
-            StartArray,
-            EndArray,
-            Number,
-            String,
-            True,
-            False,
-            Null,
-            Colon,
-            Comma,
-        }
-
+        /// <remarks>Nested in the parser, you should not need this separately</remarks>
         public class Scanner : IEnumerator<Token>
         {
             readonly TextReader reader;
-            int index = 0;
+            int index;
 
             public Scanner(TextReader reader)
             {
@@ -251,7 +221,7 @@ namespace BusterWood.Json
                         if (char.IsNumber((char)ch))
                             return ReadNumber((char)ch);
                         else
-                            throw new ParseException($"Unexpected '{(char)ch}' at index {index}");
+                            throw new ParseException($"Unexpected '{(char)ch}' at {index}");
                 }
             }
 
@@ -301,7 +271,7 @@ namespace BusterWood.Json
                     int ch = reader.Read();
                     index++;
                     if (ch != e)
-                        throw new ParseException($"Expected 'e' when reading {type} but got '{(char)ch}' at {index}");
+                        throw new ParseException($"Expected '{e}' when reading {type} but got '{(char)ch}' at {index}");
                 }
             }
 
@@ -309,7 +279,7 @@ namespace BusterWood.Json
             {
                 var next = reader.Peek();
                 if (next >= 0 && char.IsLetterOrDigit((char)next))
-                    throw new ParseException($"Unexpected character {next} after '{type}'");
+                    throw new ParseException($"Unexpected '{(char)next}' after {type} at {index+1}");
             }
 
             private Token ReadString()
@@ -339,19 +309,19 @@ namespace BusterWood.Json
                                 sb.Append(ch);
                                 break;
                             case 'b':
-                                sb.Append((char)8);
+                                sb.Append('\b');
                                 break;
                             case 'f':
-                                sb.Append((char)12);
+                                sb.Append('\f');
                                 break;
                             case 'n':
-                                sb.Append((char)10);
+                                sb.Append('\n');
                                 break;
                             case 'r':
-                                sb.Append((char)13);
+                                sb.Append('\r');
                                 break;
                             case 't':
-                                sb.Append((char)9);
+                                sb.Append('\t');
                                 break;
                             default:
                                 //TODO: \u1234 for Unicode
@@ -427,6 +397,37 @@ namespace BusterWood.Json
             }
 
             public void Reset() => throw new NotImplementedException();
+        }
+
+        public struct Token
+        {
+            public int Index { get; }
+            public string Text { get; }
+            public Type Type { get; }
+
+            public Token(int index, string text, Type type) : this()
+            {
+                Index = index;
+                Text = text;
+                Type = type;
+            }
+
+            public bool HasValue => Type != 0;
+        }
+
+        public enum Type
+        {
+            StartObject = 1,
+            EndObject,
+            StartArray,
+            EndArray,
+            Number,
+            String,
+            True,
+            False,
+            Null,
+            Colon,
+            Comma,
         }
     }
 

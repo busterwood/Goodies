@@ -154,7 +154,7 @@ namespace BusterWood.Json
             t.Assert("abc", arr[4]);
         }
 
-        public static void can_read_null(Test t)
+        public static void read_returns_null_for_empty_input(Test t)
         {
             var s = NewParser("");
             var obj = s.Read();
