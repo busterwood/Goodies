@@ -8,11 +8,7 @@ namespace BusterWood.Json
         public static void can_read_empty_string(Test t)
         {
             var s = NewScanner(" \"\"");
-            t.Assert(true, s.MoveNext());
-            var cur = s.Current;
-            t.Assert(Parser.Type.String, cur.Type);
-            t.Assert("", cur.Text);
-            t.Assert(2, cur.Index);
+            AssertString(t, s, "");
         }
 
         public static void can_read_string(Test t)
