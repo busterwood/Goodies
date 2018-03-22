@@ -263,6 +263,8 @@ namespace BusterWood.Json
         {
             readonly TextReader reader;
             int index;
+            char[] buffer = new char[16]; // use our own string builder for 20% faster scanning
+            int bufferLen;
 
             public Scanner(TextReader reader)
             {
@@ -400,7 +402,7 @@ namespace BusterWood.Json
             private Token ReadString()
             {
                 int startIdx = index;
-                var sb = new StringBuilder();
+                ClearBuf();
                 var prev = '"';
                 for (;;)
                 {
@@ -416,30 +418,30 @@ namespace BusterWood.Json
                         switch (ch)
                         {
                             case '\\':
-                                sb.Append(ch);
+                                AddToBuf(ch);
                                 prev = (char)0; // don't allow double escapes
                                 continue;
                             case '/':
                             case '"':
-                                sb.Append(ch);
+                                AddToBuf(ch);
                                 break;
                             case 'b':
-                                sb.Append('\b');
+                                AddToBuf('\b');
                                 break;
                             case 'f':
-                                sb.Append('\f');
+                                AddToBuf('\f');
                                 break;
                             case 'n':
-                                sb.Append('\n');
+                                AddToBuf('\n');
                                 break;
                             case 'r':
-                                sb.Append('\r');
+                                AddToBuf('\r');
                                 break;
                             case 't':
-                                sb.Append('\t');
+                                AddToBuf('\t');
                                 break;
                             case 'u':
-                                sb.Append(ReadUnicode());
+                                AddToBuf(ReadUnicode());
                                 break;
                             default:
                                 throw new ParseException($"Unexpected '\\{ch}' in string at {index}");
@@ -453,7 +455,7 @@ namespace BusterWood.Json
                                 break;
                             case '"':
                                 CheckEnded(Type.String);
-                                return new Token(startIdx, sb.ToString(), Type.String);
+                                return new Token(startIdx, BufToString(), Type.String);
                             case '\b':
                             case '\f':
                             case '\n':
@@ -461,7 +463,7 @@ namespace BusterWood.Json
                             case '\t':
                                 throw new ParseException($"Unexpected character '{next:X}' in string at {index}");
                             default:
-                                sb.Append(ch);
+                                AddToBuf(ch);
                                 break;
                         }
                     }
@@ -489,28 +491,28 @@ namespace BusterWood.Json
             private Token ReadNumber(char firstChar)
             {
                 int startIdx = index;
-                var sb = new StringBuilder();
-                sb.Append(firstChar);
+                ClearBuf();
+                AddToBuf(firstChar);
 
-                if (!ReadDigits(sb) && firstChar == '-')
+                if (!ReadDigits() && firstChar == '-')
                     throw new ParseException($"Expected to read some digits after '-' at {index}");
 
                 int next = reader.Peek();
                 if (next == '.')
                 {
-                    sb.Append('.');
+                    AddToBuf('.');
                     reader.Read();
                     index++;
-                    if (!ReadDigits(sb))
+                    if (!ReadDigits())
                         throw new ParseException($"Expected to read some digits after '.' at {index}");
                 }
 
                 //TODO: E+-digits
                 CheckEnded(Type.Number);
-                return new Token(startIdx, sb.ToString(), Type.Number);
+                return new Token(startIdx, BufToString(), Type.Number);
             }
 
-            bool ReadDigits(StringBuilder sb)
+            bool ReadDigits()
             {
                 bool readDigit = false;
                 for (;;)
@@ -522,7 +524,7 @@ namespace BusterWood.Json
                     char ch = (char)next;
                     if (char.IsNumber(ch))
                     {
-                        sb.Append(ch);
+                        AddToBuf(ch);
                         readDigit = true;
                         reader.Read(); // we peeked above, move to next char
                         index++;
@@ -531,6 +533,17 @@ namespace BusterWood.Json
                         return readDigit;
                 }
             }
+
+            void ClearBuf() => bufferLen = 0;
+
+            void AddToBuf(char ch)
+            {
+                if (bufferLen == buffer.Length)
+                    Array.Resize(ref buffer, bufferLen * 2);
+                buffer[bufferLen++] = ch;
+            }
+
+            string BufToString() => new string(buffer, 0, bufferLen);
 
             public void Dispose()
             {
