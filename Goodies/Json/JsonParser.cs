@@ -110,13 +110,7 @@ namespace BusterWood.Json
                 case Type.String:
                     return scanner.Current.Text;
                 case Type.Number:
-                    var txt = scanner.Current.Text;
-                    if (txt.IndexOf('.') > 0)
-                        return double.Parse(txt);
-                    else if (txt.Length >= 10) // getting close to int.MaxValue
-                        return long.Parse(txt);
-                    else
-                        return int.Parse(txt);
+                    return ReadNumber();
                 case Type.StartObject:
                     return ReadObjectBody();
                 case Type.StartArray:
@@ -124,6 +118,17 @@ namespace BusterWood.Json
                 default:
                     throw new ParseException($"Unexpected {scanner.Current.Type} '{scanner.Current.Text}' at {scanner.Current.Index}");
             }
+        }
+
+        private object ReadNumber()
+        {
+            var txt = scanner.Current.Text;
+            if (txt.IndexOf('.') > 0)
+                return double.Parse(txt);
+            else if (txt.Length >= 10) // getting close to int.MaxValue
+                return long.Parse(txt);
+            else
+                return int.Parse(txt);
         }
 
         /// <summary>Reads a JSON array</summary>
