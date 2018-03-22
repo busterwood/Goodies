@@ -1,4 +1,5 @@
 ﻿using BusterWood.Testing;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -126,22 +127,22 @@ namespace BusterWood.Json
 
         public static void cannot_read_array_trailing_comma(Test t)
         {
-            var s = NewParser("[123,]");
-            var ex = t.AssertThrows<ParseException>(() => s.ReadArray());
+            var p = NewParser("[123,]");
+            var ex = t.AssertThrows<ParseException>(() => p.ReadArray());
             t.Assert("Unexpected EndArray ']' at 6", ex.Message);
         }
 
         public static void cannot_read_array_with_double_comma (Test t)
         {
-            var s = NewParser("[1,,2]");
-            var ex = t.AssertThrows<ParseException>(() => s.ReadArray());
+            var p = NewParser("[1,,2]");
+            var ex = t.AssertThrows<ParseException>(() => p.ReadArray());
             t.Assert("Unexpected Comma ',' at 4", ex.Message);
         }
 
         public static void can_read_array_with_multiple_values(Test t)
         {
-            var s = NewParser(@"[123,null,true,false,""abc""]");
-            var arr = s.ReadArray();
+            var p = NewParser(@"[123,null,true,false,""abc""]");
+            var arr = p.ReadArray();
             t.Assert(5, arr?.Count);
             t.Assert(123, arr[0]);
             t.Assert(null, arr[1]);
@@ -152,22 +153,22 @@ namespace BusterWood.Json
 
         public static void read_returns_null_for_empty_input(Test t)
         {
-            var s = NewParser("");
-            var obj = s.Read();
+            var p = NewParser("");
+            var obj = p.Read();
             t.Assert(null, obj);
         }
 
         public static void can_read_object(Test t)
         {
-            var s = NewParser("{}");
-            var map = s.Read() as Dictionary<string, object>;
+            var p = NewParser("{}");
+            var map = p.Read() as Dictionary<string, object>;
             t.Assert(0, map?.Count);
         }
 
         public static void can_read_array(Test t)
         {
-            var s = NewParser("[]");
-            var list = s.Read() as List<object>;
+            var p = NewParser("[]");
+            var list = p.Read() as List<object>;
             t.Assert(0, list?.Count);
         }
 
@@ -175,10 +176,41 @@ namespace BusterWood.Json
         {
             foreach (var txt in new string[] { "null", "true", "false", "\"hello\"", "123", ",", ":" })
             {
-                var s = NewParser(txt);
-                var ex = t.AssertThrows<ParseException>(() => s.Read());
+                var p = NewParser(txt);
+                var ex = t.AssertThrows<ParseException>(() => p.Read());
             }
         }
+
+        public static void can_read_large_file(Test t)
+        {
+            t.Verbose = true;
+            var txt = File.ReadAllText(@"Json\canada.json");
+            for (int i = 0; i < 1; i++)
+            {
+                var pm = new PerformaceMonitor(true);
+                var p = NewParser(txt);
+                var result = p.Read();
+                t.Log("Reading 2MB Json file " + pm.Stop());
+                GC.KeepAlive(result);
+            }
+            GC.KeepAlive(txt);
+        }
+
+        public static void can_read_twitter_file(Test t)
+        {
+            t.Verbose = true;
+            var txt = File.ReadAllText(@"Json\twitter.json");
+            for (int i = 0; i < 1; i++)
+            {
+                var pm = new PerformaceMonitor(true);
+                var p = NewParser(txt);
+                var result = p.Read();
+                t.Log("Reading 617K Json file " + pm.Stop());
+                GC.KeepAlive(result);
+            }
+            GC.KeepAlive(txt);
+        }
+
 
         static Parser NewParser(string text) => new Parser(new Parser.Scanner(new StringReader(text)));
     }

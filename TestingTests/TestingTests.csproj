@@ -97,6 +97,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Goodies.snk" />
+    <Content Include="Json\canada.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Json\twitter.json" >
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

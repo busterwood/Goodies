@@ -113,6 +113,8 @@ namespace BusterWood.Json
                     var txt = scanner.Current.Text;
                     if (txt.IndexOf('.') > 0)
                         return double.Parse(txt);
+                    else if (txt.Length >= 10) // getting close to int.MaxValue
+                        return long.Parse(txt);
                     else
                         return int.Parse(txt);
                 case Type.StartObject:
