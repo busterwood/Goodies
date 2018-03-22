@@ -36,6 +36,16 @@ namespace BusterWood.Collections
             return value;
         }
 
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue valueToAdd)
+        {
+            if (!dictionary.TryGetValue(key, out TValue value))
+            {
+                dictionary.Add(key, valueToAdd);
+                value = valueToAdd;
+            }
+            return value;
+        }
+
         /// <summary>
         /// Get a existing value from <paramref name="dictionary"/> returns the default value for TValue (null, 0, etc).
         /// </summary>

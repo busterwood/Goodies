@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusterWood.Collections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,7 @@ namespace BusterWood.Json
         static readonly object[] _emptyArray = new object[0];  // pre-boxed value
 
         readonly Scanner scanner;
+        readonly Dictionary<string, string> _names = new Dictionary<string, string>();
 
         public Parser(string text) : this(new StringReader(text))
         {
@@ -71,7 +73,7 @@ namespace BusterWood.Json
             for (;;)
             {
                 Read(Type.String);
-                string name = scanner.Current.Text;
+                string name = ReadName();
                 Read(Type.Colon);
                 object value = ReadValue();
 
@@ -89,6 +91,12 @@ namespace BusterWood.Json
                         throw new ParseException($"Expected a comma or end of object but got {scanner.Next.Type} '{scanner.Next.Text}' at {scanner.Next.Index}");
                 }
             }
+        }
+
+        private string ReadName()
+        {
+            string name = scanner.Current.Text;
+            return _names.GetOrAdd(name, name); // cache and reuse names
         }
 
         private void Read(Type expected)
@@ -534,7 +542,7 @@ namespace BusterWood.Json
             public string Text { get; }
             public Type Type { get; }
 
-            public Token(int index, string text, Type type) : this()
+            public Token(int index, string text, Type type) 
             {
                 Index = index;
                 Text = text;
