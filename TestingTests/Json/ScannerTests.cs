@@ -1,10 +1,35 @@
 ﻿using BusterWood.Testing;
+using System;
 using System.IO;
 
 namespace BusterWood.Json
 {
     public class ScannerTests
     {
+        public static void can_read_integer_minus9(Test t)
+        {
+            var s = NewScanner(" -9");
+            AssertToken(t, s, new Parser.Token(2, "-9", Parser.Type.Number));
+        }
+
+        public static void can_read_integer(Test t)
+        {
+            for (int i = -100; i < 100; i++)
+            {
+                var s = NewScanner(" " + i);
+                AssertToken(t, s, new Parser.Token(2, i.ToString(), Parser.Type.Number));
+            }
+        }
+
+        public static void can_read_number(Test t)
+        {
+            for (double i = -10.0; i < 10.0; i += 0.1)
+            {
+                var s = NewScanner($" {i:N1}");
+                AssertToken(t, s, new Parser.Token(2, i.ToString("N1"), Parser.Type.Number));
+            }
+        }
+
         public static void can_read_empty_string(Test t)
         {
             var s = NewScanner(" \"\"");
@@ -94,24 +119,6 @@ namespace BusterWood.Json
             t.Assert("Unexpected 'n' after String at 10", ex.Message);
         }
 
-        public static void can_read_integer(Test t)
-        {
-            for (int i = -100; i < 100; i++)
-            {
-                var s = NewScanner(" " + i);
-                AssertToken(t, s, new Parser.Token(2, i.ToString(), Parser.Type.Number));
-            }
-        }
-
-        public static void can_read_number(Test t)
-        {
-            for (double i = -10.0; i < 10.0; i+= 0.1)
-            {
-                var s = NewScanner($" {i:N1}");
-                AssertToken(t, s, new Parser.Token(2, i.ToString("N1"), Parser.Type.Number));
-            }
-        }
-
         public static void cannot_read_number_with_null_right_after(Test t)
         {
             var s = NewScanner("123null");
@@ -155,7 +162,7 @@ namespace BusterWood.Json
         {
             var s = NewScanner(" false.");
             var ex = t.AssertThrows<ParseException>(() => s.MoveNext());
-            t.Assert("Unexpected '.' at 7", ex.Message);
+            t.Assert("Unexpected '.' (0x2E) at 7", ex.Message);
         }
 
         public static void can_read_start_of_object(Test t)
@@ -194,6 +201,61 @@ namespace BusterWood.Json
             AssertToken(t, s, new Parser.Token(2, ":", Parser.Type.Colon));
         }
 
+
+        public static void can_read_large_file(Test t)
+        {
+            t.Verbose = true;
+            var txt = File.ReadAllText(@"Json\canada.json");
+            for (int i = 0; i < 10; i++)
+            {
+                var pm = new PerformaceMonitor(true);
+                var s = NewScanner(txt);
+                while (s.MoveNext())
+                {
+                    GC.KeepAlive(s.Current.Text);
+                }
+                t.Log("Reading 2MB Json file " + pm.Stop());
+            }
+            GC.KeepAlive(txt);
+        }
+
+        public static void can_read_twitter_file(Test t)
+        {
+            char.IsWhiteSpace(' ');
+            t.Verbose = true;
+            var txt = File.ReadAllText(@"Json\twitter.json");
+            for (int i = 0; i < 10; i++)
+            {
+                var pm = new PerformaceMonitor(true);
+                var s = NewScanner(txt);
+                while (s.MoveNext())
+                {
+                    GC.KeepAlive(s.Current.Text);
+                }
+                t.Log("Reading 617K Json file " + pm.Stop());
+            }
+            GC.KeepAlive(txt);
+        }
+
+
+        public static void tuning(Test t)
+        {
+            t.Skip();
+            char.IsWhiteSpace(' ');
+            t.Verbose = true;
+            var txt = File.ReadAllText(@"Json\twitter.json");
+            var pm = new PerformaceMonitor(true);
+            for (int i = 0; i < 1000; i++)
+            {
+                var s = NewScanner(txt);
+                while (s.MoveNext())
+                {
+                    GC.KeepAlive(s.Current.Text);
+                }
+            }
+            t.Log("Reading 617K Json file " + pm.Stop());
+            GC.KeepAlive(txt);
+        }
 
         static Parser.Scanner NewScanner(string text) => new Parser.Scanner(new StringReader(text));
 

@@ -186,7 +186,7 @@ namespace BusterWood.Json
         {
             t.Verbose = true;
             var txt = File.ReadAllText(@"Json\canada.json");
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var pm = new PerformaceMonitor(true);
                 var p = NewParser(txt);
@@ -201,7 +201,7 @@ namespace BusterWood.Json
         {
             t.Verbose = true;
             var txt = File.ReadAllText(@"Json\twitter.json");
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var pm = new PerformaceMonitor(true);
                 var p = NewParser(txt);

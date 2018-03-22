@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TestingTests</RootNamespace>
     <AssemblyName>TestingTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -40,6 +40,9 @@
     <AssemblyOriginatorKeyFile>Goodies.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,6 +79,7 @@
     <Compile Include="Ducks\StaticMethodTests.cs" />
     <Compile Include="Equality\ClassEqualityTests.cs" />
     <Compile Include="Equality\StructEqualityTests.cs" />
+    <Compile Include="Json\NewtonSoftJsonTests.cs" />
     <Compile Include="Json\ParserTests.cs" />
     <Compile Include="Json\ScannerTests.cs" />
     <Compile Include="Linq\ChooseTests.cs" />
@@ -100,9 +104,10 @@
     <Content Include="Json\canada.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Json\twitter.json" >
+    <Content Include="Json\twitter.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -348,7 +348,7 @@ namespace BusterWood.Json
                         case ',':
                             return new Token(index, ",", Type.Comma);
                         default:
-                            throw new ParseException($"Unexpected '{(char)ch}' at {index}");
+                            throw new ParseException($"Unexpected '{(char)ch}' (0x{ch:X}) at {index}");
                     }
                 }
             }
