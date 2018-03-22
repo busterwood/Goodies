@@ -299,61 +299,57 @@ namespace BusterWood.Json
 
             private Token Read()
             {
-                int ch = NextCharSkippingWhitespace();
-                if (ch == -1)
-                    return new Token(index, null, 0);
-
-                switch (ch)
-                {
-                    case 't':
-                        return ReadTrue();
-                    case 'f':
-                        return ReadFalse();
-                    case 'n':
-                        return ReadNull();
-                    case '"':
-                        return ReadString();
-                    case '{':
-                        return new Token(index, "{", Type.StartObject);
-                    case '}':
-                        return new Token(index, "}", Type.EndObject);
-                    case '[':
-                        return new Token(index, "[", Type.StartArray);
-                    case ']':
-                        return new Token(index, "]", Type.EndArray);
-                    case ':':
-                        return new Token(index, ":", Type.Colon);
-                    case ',':
-                        return new Token(index, ",", Type.Comma);
-                    case '-':
-                    case '0':
-                    case '1':
-                    case '2':
-                    case '3':
-                    case '4':
-                    case '5':
-                    case '6':
-                    case '7':
-                    case '8':
-                    case '9':
-                        return ReadNumber((char)ch);
-                    default:
-                        throw new ParseException($"Unexpected '{(char)ch}' at {index}");
-                }
-            }
-
-            private int NextCharSkippingWhitespace()
-            {
                 for (;;)
                 {
                     int ch = reader.Read();
                     if (ch == -1)
-                        return -1;
+                        return new Token(index, null, 0);
 
                     index++;
-
-                    if (!char.IsWhiteSpace((char)ch))
-                        return ch;
+                    
+                    switch (ch)
+                    {
+                        case ' ':
+                        case '\t':
+                        case '\n':
+                        case '\r':
+                        case '\f':
+                            break; // whitespace
+                        case '"':
+                            return ReadString();
+                        case '-':
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            return ReadNumber((char)ch);
+                        case 't':
+                            return ReadTrue();
+                        case 'f':
+                            return ReadFalse();
+                        case 'n':
+                            return ReadNull();
+                        case '{':
+                            return new Token(index, "{", Type.StartObject);
+                        case '}':
+                            return new Token(index, "}", Type.EndObject);
+                        case '[':
+                            return new Token(index, "[", Type.StartArray);
+                        case ']':
+                            return new Token(index, "]", Type.EndArray);
+                        case ':':
+                            return new Token(index, ":", Type.Colon);
+                        case ',':
+                            return new Token(index, ",", Type.Comma);
+                        default:
+                            throw new ParseException($"Unexpected '{(char)ch}' at {index}");
+                    }
                 }
             }
 
@@ -403,7 +399,6 @@ namespace BusterWood.Json
             {
                 int startIdx = index;
                 ClearBuf();
-                var prev = '"';
                 for (;;)
                 {
                     int next = reader.Read();
@@ -411,63 +406,57 @@ namespace BusterWood.Json
                         throw new ParseException($"Expected end of string but got end of file at {index}");
 
                     index++;
-                    char ch = (char)next;
 
-                    if(prev == '\\')
+                    switch ((char)next)
                     {
-                        switch (ch)
-                        {
-                            case '\\':
-                                AddToBuf(ch);
-                                prev = (char)0; // don't allow double escapes
-                                continue;
-                            case '/':
-                            case '"':
-                                AddToBuf(ch);
-                                break;
-                            case 'b':
-                                AddToBuf('\b');
-                                break;
-                            case 'f':
-                                AddToBuf('\f');
-                                break;
-                            case 'n':
-                                AddToBuf('\n');
-                                break;
-                            case 'r':
-                                AddToBuf('\r');
-                                break;
-                            case 't':
-                                AddToBuf('\t');
-                                break;
-                            case 'u':
-                                AddToBuf(ReadUnicode());
-                                break;
-                            default:
-                                throw new ParseException($"Unexpected '\\{ch}' in string at {index}");
-                        }
+                        case '\\':
+                            AddToBuf(ReadEscapeChar());
+                            break;
+                        case '"':
+                            CheckEnded(Type.String);
+                            return new Token(startIdx, BufToString(), Type.String);
+                        case '\b':
+                        case '\f':
+                        case '\n':
+                        case '\r':
+                        case '\t':
+                            throw new ParseException($"Unexpected character '{next:X}' in string at {index}");
+                        default:
+                            AddToBuf((char)next);
+                            break;
                     }
-                    else
-                    {
-                        switch (ch)
-                        {
-                            case '\\':
-                                break;
-                            case '"':
-                                CheckEnded(Type.String);
-                                return new Token(startIdx, BufToString(), Type.String);
-                            case '\b':
-                            case '\f':
-                            case '\n':
-                            case '\r':
-                            case '\t':
-                                throw new ParseException($"Unexpected character '{next:X}' in string at {index}");
-                            default:
-                                AddToBuf(ch);
-                                break;
-                        }
-                    }
-                    prev = ch;
+                }
+            }
+
+            private char ReadEscapeChar()
+            {
+                int next = reader.Read();
+                if (next == -1)
+                    throw new ParseException($"Expected end of string but got end of file at {index}");
+
+                index++;
+                char ch = (char)next;
+
+                switch (ch)
+                {
+                    case '\\':
+                    case '/':
+                    case '"':
+                        return ch;
+                    case 'b':
+                        return '\b';
+                    case 'f':
+                        return '\f';
+                    case 'n':
+                        return '\n';
+                    case 'r':
+                        return '\r';
+                    case 't':
+                        return '\t';
+                    case 'u':
+                        return ReadUnicode();
+                    default:
+                        throw new ParseException($"Unexpected '\\{ch}' in string at {index}");
                 }
             }
 
