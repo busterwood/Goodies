@@ -10,6 +10,8 @@ namespace BusterWood.Json
     {
         static readonly object _true = true;    // pre-boxed value
         static readonly object _false = false;  // pre-boxed value
+        static readonly object[] _emptyArray = new object[0];  // pre-boxed value
+
         readonly Scanner scanner;
 
         public Parser(string text) : this(new StringReader(text))
@@ -133,30 +135,45 @@ namespace BusterWood.Json
 
         /// <summary>Reads a JSON array</summary>
         /// <exception cref="ParseException">thrown in a parse error</exception>
-        public List<object> ReadArray()
+        public IList ReadArray()
         {
             Read(Type.StartArray);
             return ReadArrayBody();
         }
 
-        private List<object> ReadArrayBody()
+        private IList ReadArrayBody()
         {
-            var result = new List<object>();
-
             switch (scanner.Next.Type)
             {
                 case 0:
                     throw new ParseException($"Expected a value or end of array but got end-of-file at {scanner.Next.Index}");
                 case Type.EndArray:
                     scanner.MoveNext();
-                    return result;
+                    return _emptyArray;
             }
 
+            // optimization for array of integers
+            if (scanner.Next.IsInteger)
+                return TryReadIntArrayBody();
+
+            // optimization for array of doubles
+            if (scanner.Next.IsDouble)
+                return TryReadDoubleArrayBody();
+
+            var result = new List<object>();
+            return ReadArrayBody(result);
+        }
+
+        private IList TryReadIntArrayBody()
+        {
+            var numbers = new List<int>();
             for (;;)
             {
-                object value = ReadValue();
-
-                result.Add(value);
+                var next = scanner.Next;
+                if (!next.IsInteger)
+                    break; // fall back to List<object>
+                numbers.Add(int.Parse(next.Text));
+                scanner.MoveNext();
 
                 switch (scanner.Next.Type)
                 {
@@ -165,7 +182,66 @@ namespace BusterWood.Json
                         break;
                     case Type.EndArray:
                         scanner.MoveNext();
-                        return result;
+                        return numbers;
+                    default:
+                        throw new ParseException($"Expected a comma or end of array but got {scanner.Next.Type} '{scanner.Next.Text}' at {scanner.Next.Index}");
+                }
+            }
+
+            // array contains a mixture of values, fall back to a list of objects
+            var objs = new List<object>(numbers.Count);
+            foreach (var i in numbers)
+                objs.Add(i);
+            return ReadArrayBody(objs);
+        }
+
+        private IList TryReadDoubleArrayBody()
+        {
+            var numbers = new List<double>();
+            for (;;)
+            {
+                var next = scanner.Next;
+                if (next.Type != Type.Number)
+                    break; // fall back to List<object>
+                numbers.Add(double.Parse(next.Text));
+                scanner.MoveNext();
+
+                switch (scanner.Next.Type)
+                {
+                    case Type.Comma:
+                        scanner.MoveNext();
+                        break;
+                    case Type.EndArray:
+                        scanner.MoveNext();
+                        return numbers;
+                    default:
+                        throw new ParseException($"Expected a comma or end of array but got {scanner.Next.Type} '{scanner.Next.Text}' at {scanner.Next.Index}");
+                }
+            }
+
+            // array contains a mixture of values, fall back to a list of objects
+            var objs = new List<object>(numbers.Count);
+            foreach (var d in numbers)
+                objs.Add(d);
+            return ReadArrayBody(objs);
+        }
+
+        private IList ReadArrayBody(List<object> objs)
+        {
+            for (;;)
+            {
+                object value = ReadValue();
+
+                objs.Add(value);
+
+                switch (scanner.Next.Type)
+                {
+                    case Type.Comma:
+                        scanner.MoveNext();
+                        break;
+                    case Type.EndArray:
+                        scanner.MoveNext();
+                        return objs;
                     default:
                         throw new ParseException($"Expected a comma or end of array but got {scanner.Next.Type} '{scanner.Next.Text}' at {scanner.Next.Index}");
                 }
@@ -466,6 +542,8 @@ namespace BusterWood.Json
             }
 
             public bool HasValue => Type != 0;
+            internal bool IsInteger => Type == Type.Number && Text.IndexOf('.') < 0 && Text.Length < 10;
+            internal bool IsDouble => Type == Type.Number && Text.IndexOf('.') > 0;
         }
 
         public enum Type

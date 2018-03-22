@@ -1,5 +1,6 @@
 ﻿using BusterWood.Testing;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -168,7 +169,7 @@ namespace BusterWood.Json
         public static void can_read_array(Test t)
         {
             var p = NewParser("[]");
-            var list = p.Read() as List<object>;
+            var list = p.Read() as IList;
             t.Assert(0, list?.Count);
         }
 
