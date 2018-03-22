@@ -360,6 +360,12 @@ namespace BusterWood.Json
                             case '"':
                                 CheckEnded(Type.String);
                                 return new Token(startIdx, sb.ToString(), Type.String);
+                            case '\b':
+                            case '\f':
+                            case '\n':
+                            case '\r':
+                            case '\t':
+                                throw new ParseException($"Unexpected character '{next:X}' in string at {index}");
                             default:
                                 sb.Append(ch);
                                 break;
