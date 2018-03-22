@@ -1,4 +1,5 @@
 ﻿using BusterWood.Collections;
+using BusterWood.Contracts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace BusterWood.Json
 
         public Parser(Scanner scanner)
         {
+            Contract.RequiresNotNull(scanner);
             this.scanner = scanner;
         }
 
@@ -264,6 +266,7 @@ namespace BusterWood.Json
 
             public Scanner(TextReader reader)
             {
+                Contract.RequiresNotNull(reader);
                 this.reader = reader;
             }
 
@@ -542,7 +545,7 @@ namespace BusterWood.Json
             public string Text { get; }
             public Type Type { get; }
 
-            public Token(int index, string text, Type type) 
+            public Token(int index, string text, Type type)
             {
                 Index = index;
                 Text = text;
