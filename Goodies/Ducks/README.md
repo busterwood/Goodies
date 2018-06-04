@@ -48,7 +48,7 @@ namespace MyStuff {
 
 If the object's methods do not exactly match the target interface then an `InvalidCastException` will be thrown.
 
-Style note: you may wish to define [extension methods](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods) that do the duck typing as an extension method, e.g. the first method above could be defined as as an extension method.
+Style note: you may wish to define [extension methods](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods) to do the duck typing, e.g. the first method above could be defined as as an extension method.
 
 ## Why static duck typing?
 
