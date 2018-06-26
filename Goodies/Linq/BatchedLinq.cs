@@ -42,6 +42,16 @@ namespace BusterWood.Linq
             return new DistinctBatcher<T>(source, equality);
         }
 
+        public static IBatcher<T> Skip<T>(this IBatcher<T> source, int count)
+        {
+            return new SkipBatcher<T>(source, count);
+        }
+
+        public static IBatcher<T> Take<T>(this IBatcher<T> source, int count)
+        {
+            return new TakeBatcher<T>(source, count);
+        }
+
         /// <summary>Returns a <see cref="List{T}"/> of all items in the data <paramref name="source"/></summary>
         public static List<T> ToList<T>(this IBatcher<T> source)
         {

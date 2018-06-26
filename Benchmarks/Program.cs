@@ -1,0 +1,131 @@
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Jobs;
+using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Running;
+using BusterWood.Linq;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace BusterWood.Linq
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+#if DEBUG
+            var b = new WhereToListBenchmark() { N = 26 };
+            b.Setup();
+            var res = b.Batched();
+#else
+            BenchmarkRunner.Run<WhereToListBenchmark>();
+#endif
+        }
+    }
+
+    //[HardwareCounters(HardwareCounter.BranchMispredictions, HardwareCounter.BranchInstructions)]
+    [RyuJitX64Job, /*LegacyJitX86Job,*/ MemoryDiagnoser]
+    public class WhereToListBenchmark
+    {
+        List<string> _strings;
+
+        [Params(26)]
+        public int N { get; set; }
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            _strings = new List<string>(N);
+            for (int i = 0; i < N; i++)
+            {
+                _strings.Add(i.ToString());
+            }
+        }
+
+        [Benchmark(Baseline = true)]
+        public object Linq()
+        {
+            return _strings.Where(s => s.Contains("3")).Select(int.Parse).ToList();
+        }
+
+        [Benchmark]
+        public object Foreach()
+        {
+            var result = new List<int>();
+            foreach (var s in _strings)
+            {
+                if (s.Contains("3"))
+                    result.Add(int.Parse(s));
+            }
+            return result;
+        }
+
+        [Benchmark]
+        public object For()
+        {
+            var result = new List<int>();
+            for (int i = 0; i < _strings.Count; i++)
+            {
+                if (_strings[i].Contains("3"))
+                    result.Add(int.Parse(_strings[i]));
+            }
+            return result;
+        }
+
+
+        [Benchmark]
+        //[Arguments(100)]
+        //[Arguments(200)]
+        //[Arguments(400)]
+        //[Arguments(0)]
+        public object Batched()
+        {
+            return _strings.Batched(100).Where(s => s.Contains("3")).Select(int.Parse).ToList();
+        }
+    }
+
+    [RyuJitX64Job, /*LegacyJitX86Job,*/ MemoryDiagnoser]
+    public class AggregateBenchmark
+    {
+        List<int> values;
+
+        [Params(1062)]
+        public int N { get; set; }
+
+        [Params(100/*, 200*/)]
+        public int BatchSize { get; set; }
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            values = new List<int>(N);
+            for (int i = 0; i < N; i++)
+            {
+                values.Add(i);
+            }
+        }
+
+        [Benchmark]
+        public int Batched()
+        {
+            return values.Batched(BatchSize).Aggregate(0, (v, acc) => v + acc);
+        }
+
+        [Benchmark]
+        public int Linq()
+        {
+            return values.Aggregate(0, (v, acc) => v + acc);
+        }
+
+        [Benchmark]
+        public int Foreach()
+        {
+            var result = 0;
+            foreach (var v in values)
+            {
+                result += v;
+            }
+            return result;
+        }
+
+    }
+}

@@ -20,7 +20,7 @@ namespace BusterWood.Linq
         {
             var sb = source.NextBatch();
             if (sb == default(ArraySegment<T>))
-                return default(ArraySegment<TResult>);
+                return new ArraySegment<TResult>();
 
             TResult[] batch = new TResult[sb.Count];
             var sarr = sb.Array;

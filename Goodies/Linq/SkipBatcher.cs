@@ -2,18 +2,18 @@
 
 namespace BusterWood.Linq
 {
-    class WhereBatcher<T> : IBatcher<T>
+    class SkipBatcher<T> : IBatcher<T>
     {
         readonly IBatcher<T> source;
-        private readonly Func<T, bool> predicate;
+        int _skip;
 
         public int BatchSize { get; }
 
-        public WhereBatcher(IBatcher<T> source, Func<T, bool> predicate)
+        public SkipBatcher(IBatcher<T> source, int skip)
         {
             this.source = source;
-            this.predicate = predicate;
             BatchSize = source.BatchSize;
+            _skip = skip;
         }
 
         public ArraySegment<T> NextBatch()
@@ -29,17 +29,19 @@ namespace BusterWood.Linq
                 var sarr = sb.Array;
                 int start = sb.Offset;
                 int end = sb.Count + sb.Offset;
+                if (_skip > 0)
+                {
+                    int toSkip = Math.Min(_skip, sb.Count);
+                    start += toSkip;
+                    _skip -= toSkip;
+                }
                 for (int i = start; i < end; i++)
                 {
-                    if (predicate(sarr[i]))
-                    {
-                        batch[count] = sarr[i];
-                        count++;
-                        if (count == batch.Length)
-                            return new ArraySegment<T>(batch);
-                    }
+                    batch[count] = sarr[i];
+                    count++;
+                    if (count == batch.Length)
+                        return new ArraySegment<T>(batch);
                 }
-
                 sb = source.NextBatch();
             } while (sb != default(ArraySegment<T>));
 
