@@ -1,19 +1,22 @@
-﻿using System;
+﻿using BusterWood.Collections;
+using System;
+using System.Collections.Generic;
 
 namespace BusterWood.Linq
 {
-    class WhereBatcher<T> : IBatcher<T>
+    /// <summary>Returns batches of unique elements</summary>
+    class DistinctBatcher<T> : IBatcher<T>
     {
         readonly IBatcher<T> source;
-        private readonly Func<T, bool> predicate;
+        readonly UniqueList<T> _unique; // use unique list so we can set initial capacity
 
         public int BatchSize { get; }
 
-        public WhereBatcher(IBatcher<T> source, Func<T, bool> predicate)
+        public DistinctBatcher(IBatcher<T> source, EqualityComparer<T> equality)
         {
             this.source = source;
-            this.predicate = predicate;
             BatchSize = source.BatchSize;
+            _unique = new UniqueList<T>(BatchSize, equality);
         }
 
         public ArraySegment<T> NextBatch()
@@ -31,7 +34,7 @@ namespace BusterWood.Linq
                 int end = sb.Count + sb.Offset;
                 for (int i = start; i < end; i++)
                 {
-                    if (predicate(sarr[i]))
+                    if (_unique.Add(sarr[i]))
                     {
                         batch[count] = sarr[i];
                         count++;

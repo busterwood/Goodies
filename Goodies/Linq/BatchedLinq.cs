@@ -35,6 +35,13 @@ namespace BusterWood.Linq
             return new SelectBatcher<T, TResult>(source, mapFunction);
         }
 
+        /// <summary>Filters a <paramref name="source"/> to contain unique elements</summary>
+        /// <remarks>Lazy evaluated</remarks>
+        public static IBatcher<T> Distinct<T>(this IBatcher<T> source, EqualityComparer<T> equality = null)
+        {
+            return new DistinctBatcher<T>(source, equality);
+        }
+
         /// <summary>Returns a <see cref="List{T}"/> of all items in the data <paramref name="source"/></summary>
         public static List<T> ToList<T>(this IBatcher<T> source)
         {

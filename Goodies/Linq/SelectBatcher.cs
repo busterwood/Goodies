@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace BusterWood.Linq
 {
-
     class SelectBatcher<T, TResult> : IBatcher<TResult>
     {
         readonly IBatcher<T> source;

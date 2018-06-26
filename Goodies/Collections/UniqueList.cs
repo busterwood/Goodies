@@ -34,12 +34,19 @@ namespace BusterWood.Collections
         }
 
         /// <summary>Create a new list, optionally setting an <see cref="IEqualityComparer{T}"/></summary>
-        public UniqueList(IEqualityComparer<T> equality = null)
+        public UniqueList(IEqualityComparer<T> equality = null) : this(3, equality)
         {
-            const int InitialSize = 3;
-            indexes = new int[InitialSize+1];
-            hashCodes = new int[InitialSize];
-            values = new T[InitialSize];
+        }
+
+        /// <summary>Create a new list, optionally setting an <see cref="IEqualityComparer{T}"/></summary>
+        public UniqueList(int capacity, IEqualityComparer<T> equality = null)
+        {
+            if (capacity < 3)
+                throw new ArgumentOutOfRangeException(nameof(capacity), "must be three or more");
+
+            indexes = new int[(int)(capacity * 1.25f)];
+            hashCodes = new int[capacity];
+            values = new T[capacity];
             count = 0;
             Equality = equality ?? EqualityComparer<T>.Default;
         }
