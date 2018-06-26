@@ -1,10 +1,24 @@
-﻿Batched Linq
-============
+﻿# Batched Linq
 
 Faster execution of common LINQ expressions using batching of source data.
 Modern CPUs like working with arrays of data, by using arrays we can execute 
 faster than Linq, *faster than foreach loops* even though it allocates more 
 (garbage is short lived so will tyically be collected in G0).
+
+## Less virtual method calls
+
+In LINQ uses enumerators, and specifically two virtual method calls `enumerator.MoveNext()` and read `enumerator.Current`.
+
+For example when executing `source.Where().ToList()` for a source of 100 items:
+* `Where` will make 2 virtual method calls for each item of source (200 VM calls)
+* `ToList` will make 2 virtual method calls for each item returned by `Where` (e.g. 100 VM calls if `Where` filters out 50% of the source)
+
+Using the same example, Batched LINQ will make way less calls (for a batch size of 100):
+* `Batched` will make 1 method call to copy the source list into an Array
+* `Where` will iterate the array (2 virtual method calls in total)
+* `ToList` will iterate the array (2 virtual method calls in total)
+
+## Benchmarks
 
 For example, here is a comparison of doing Where().Select().ToList() over a list of string:
 
