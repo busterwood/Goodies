@@ -12,7 +12,7 @@ So much useful & free stuff for .NET, built as a library for .NET Standard 2.0.
 * [BusterWood.Ducks](https://github.com/busterwood/Goodies/blob/master/Goodies/Ducks/README.md) namespace contains run-time duck typing.
 * [BusterWood.Equality](https://github.com/busterwood/Goodies/blob/master/Goodies/Equality/README.md) namespace contains run-time creation of equality comparers using property names.
 * [BusterWood.Goodies](https://github.com/busterwood/Goodies/blob/master/Goodies/Goodies/README.md) namespace contains structs to ensure you don't mix up your customer and order identifiers, and extension methods for arrays, enums, TimeSpans and strings.
-* `BusterWood.Linq` namespace contains additional LINQ methods and asynchronous enumerables.
+* [BusterWood.Linq](https://github.com/busterwood/Goodies/blob/master/Goodies/Linq/README.md) namespace contains 20% faster LINQ via batching, additional LINQ methods and asynchronous enumerables.
 * `BusterWood.Logging` namespace contains `Log` static class for structured logging to `Console.Error` (StdErr).
 * [BusterWood.Mapping](https://github.com/busterwood/Goodies/blob/master/Goodies/Mapping/README.md) namespace contains extension methods for copying objects with rules for name and type conversion.
 * [BusterWood.Monies](https://github.com/busterwood/Goodies/blob/master/Goodies/Monies/README.md) namespace contains `Money` struct to ensure that you don't add accidentally add GBP and USD together.
