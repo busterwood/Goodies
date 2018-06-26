@@ -12,7 +12,7 @@ namespace BusterWood.Linq
         public ArrayBatcher(T[] source, int batchSize)
         {
             this.source = source;
-            BatchSize = batchSize;
+            BatchSize = Math.Min(source.Length, batchSize); // no point having a larger batch size if source is small
         }
 
         public ArraySegment<T> NextBatch()
