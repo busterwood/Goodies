@@ -13,21 +13,44 @@ namespace BusterWood.Linq
         public ListBatcher(List<T> source, int batchSize)
         {
             this.source = source;
-            BatchSize = Math.Min(source.Count, batchSize); // no point having a larger batch size if source is small
+            if (source.Count < batchSize)
+                BatchSize = source.Count;   // no point having a larger batch size if source is small
+            //else if (source.Count < batchSize * 3)
+            //    BatchSize = (source.Count / 2) + 1; // avoid memory overhead when list size is small
+            else
+                BatchSize = batchSize; 
         }
 
-        public ArraySegment<T> NextBatch()
-        {
-            if (sourceIndex >= source.Count)
-                return default(ArraySegment<T>);
+        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source, BatchSize);
 
-            int remaining = source.Count - sourceIndex;
-            var batch = new T[BatchSize < remaining ? BatchSize : remaining];
-            source.CopyTo(sourceIndex, batch, 0, batch.Length);
-            sourceIndex += batch.Length;
-            return new ArraySegment<T>(batch);
+        public class Enumerator : IBatchEnumerator<T>
+        {
+            readonly List<T> source;
+            int sourceIndex;
+
+            public int BatchSize { get; }
+
+            public Enumerator(List<T> source, int batchSize)
+            {
+                this.source = source;
+                BatchSize = batchSize;
+            }
+
+            public bool NextBatch(T[] batch, out int count)
+            {
+                if (sourceIndex >= source.Count)
+                {
+                    count = 0;
+                    return false;
+                }
+
+                int remaining = source.Count - sourceIndex;
+                count = BatchSize < remaining ? BatchSize : remaining;
+                source.CopyTo(sourceIndex, batch, 0, count);
+                sourceIndex += count;
+                return true;
+            }
         }
     }
-
 
 }

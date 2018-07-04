@@ -1,33 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace BusterWood.Linq
 {
     class EnumerableBatcher<T> : IBatcher<T>
     {
-        readonly IEnumerator<T> source;
+        readonly IEnumerable<T> source;
 
         public int BatchSize { get; }
 
         public EnumerableBatcher(IEnumerable<T> source, int batchSize)
         {
-            this.source = source.GetEnumerator();
+            this.source = source;
             BatchSize = batchSize;
         }
 
-        public ArraySegment<T> NextBatch()
+        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source.GetEnumerator(), BatchSize);
+
+        public class Enumerator : IBatchEnumerator<T>
         {
-            var batch = new T[BatchSize];
-            for (int i = 0; i < batch.Length; i++)
+            readonly IEnumerator<T> source;
+            int sourceIndex;
+
+            public int BatchSize { get; }
+
+            public Enumerator(IEnumerator<T> source, int batchSize)
             {
-                if (source.MoveNext())
-                    batch[i] = source.Current;
-                else
-                    return new ArraySegment<T>(batch, 0, i);
+                this.source = source;
+                BatchSize = batchSize;
             }
-            return new ArraySegment<T>(batch);
+
+            public bool NextBatch(T[] batch, out int count)
+            {
+                for (count = 0; count < batch.Length; count++)
+                {
+                    if (source.MoveNext())
+                        batch[count] = source.Current;
+                    else
+                        break;
+                }
+                return count > 0;
+            }
         }
     }
-
-
 }

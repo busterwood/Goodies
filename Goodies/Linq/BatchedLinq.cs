@@ -56,15 +56,14 @@ namespace BusterWood.Linq
         public static List<T> ToList<T>(this IBatcher<T> source)
         {
             var result = new List<T>();
-            for (var batch = source.NextBatch(); batch != default(ArraySegment<T>); batch = source.NextBatch())
+            var batch = new T[source.BatchSize];
+            var e = source.GetBatchEnumerator();
+            while (e.NextBatch(batch, out int count))
             {
-                result.Capacity += batch.Count; // ensure list capacity
-                var arr = batch.Array;
-                int start = batch.Offset;
-                int end = batch.Count + batch.Offset;
-                for (int i = start; i < end; i++)
+                result.Capacity += count; // ensure list capacity
+                for (int i = 0; i < count; i++)
                 {
-                    result.Add(arr[i]);
+                    result.Add(batch[i]);
                 }
             }
             return result;
@@ -77,15 +76,14 @@ namespace BusterWood.Linq
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IBatcher<TValue> source, Func<TValue, TKey> keySelector)
         {
             var result = new Dictionary<TKey, TValue>(source.BatchSize);
-            for (var batch = source.NextBatch(); batch != default(ArraySegment<TValue>); batch = source.NextBatch())
+            var batch = new TValue[source.BatchSize];
+            var e = source.GetBatchEnumerator();
+            while (e.NextBatch(batch, out int count))
             {
-                var arr = batch.Array;
-                int start = batch.Offset;
-                int end = batch.Count + batch.Offset;
-                for (int i = start; i < end; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    var key = keySelector(arr[i]);
-                    result.Add(key, arr[i]);
+                    var key = keySelector(batch[i]);
+                    result.Add(key, batch[i]);
                 }
             }
             return result;
@@ -99,15 +97,14 @@ namespace BusterWood.Linq
         public static Dictionary<TKey, TValue> ToDictionary<T, TKey, TValue>(this IBatcher<T> source, Func<T, TKey> keySelector, Func<T, TValue> valueSelector)
         {
             var result = new Dictionary<TKey, TValue>(source.BatchSize);
-            for (var batch = source.NextBatch(); batch != default(ArraySegment<T>); batch = source.NextBatch())
+            var batch = new T[source.BatchSize];
+            var e = source.GetBatchEnumerator();
+            while (e.NextBatch(batch, out int count))
             {
-                var arr = batch.Array;
-                int start = batch.Offset;
-                int end = batch.Count + batch.Offset;
-                for (int i = start; i < end; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    var key = keySelector(arr[i]);
-                    var value = valueSelector(arr[i]);
+                    var key = keySelector(batch[i]);
+                    var value = valueSelector(batch[i]);
                     result.Add(key, value);
                 }
             }
@@ -118,14 +115,13 @@ namespace BusterWood.Linq
         /// <remarks>Stops at the first matching value</remarks>
         public static bool Any<T>(this IBatcher<T> source, Func<T, bool> predicate)
         {
-            for (var batch = source.NextBatch(); batch != default(ArraySegment<T>); batch = source.NextBatch())
+            var batch = new T[source.BatchSize];
+            var e = source.GetBatchEnumerator();
+            while (e.NextBatch(batch, out int count))
             {
-                var arr = batch.Array;
-                int start = batch.Offset;
-                int end = batch.Count + batch.Offset;
-                for (int i = start; i < end; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    if (predicate(arr[i]))
+                    if (predicate(batch[i]))
                         return true;
                 }
             }
@@ -136,14 +132,13 @@ namespace BusterWood.Linq
         /// <remarks>Stops at the first value that does not match</remarks>
         public static bool All<T>(this IBatcher<T> source, Func<T, bool> predicate)
         {
-            for (var batch = source.NextBatch(); batch != default(ArraySegment<T>); batch = source.NextBatch())
+            var batch = new T[source.BatchSize];
+            var e = source.GetBatchEnumerator();
+            while (e.NextBatch(batch, out int count))
             {
-                var arr = batch.Array;
-                int start = batch.Offset;
-                int end = batch.Count + batch.Offset;
-                for (int i = start; i < end; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    if (!predicate(arr[i]))
+                    if (!predicate(batch[i]))
                         return false;
                 }
             }
@@ -158,14 +153,13 @@ namespace BusterWood.Linq
         public static TAcc Aggregate<T, TAcc>(this IBatcher<T> source, TAcc intial, Func<T, TAcc, TAcc> accumulate)
         {
             var result = intial;
-            for (var batch = source.NextBatch(); batch != default(ArraySegment<T>); batch = source.NextBatch())
+            var batch = new T[source.BatchSize];
+            var e = source.GetBatchEnumerator();
+            while (e.NextBatch(batch, out int count))
             {
-                var arr = batch.Array;
-                int start = batch.Offset;
-                int end = batch.Count + batch.Offset;
-                for (int i = start; i < end; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    result = accumulate(arr[i], result);
+                    result = accumulate(batch[i], result);
                 }
             }
             return result;

@@ -1,6 +1,6 @@
 ﻿# Batched Linq
 
-**20% Faster execution** of LINQ statements using array-batching of source data.
+**Up to 25% Faster execution** of LINQ statements using array-batching of source data.
 Modern CPUs like working with arrays of data, by using arrays we can execute 
 faster than Linq, *faster than foreach loops*, **faster that for loops**, even though it allocates more 
 (garbage is short lived so will tyically be collected in G0).
@@ -64,9 +64,9 @@ public object Batched()
 
 ```
 
-We can see that with a batch size of 100, the batched version is **15-23% faster** than LINQ, 
+We can see that with a batch size of 100, the batched version is between **9 and 24% faster** than LINQ, 
 depending on the size of the input list (N).
-Batching was faster than `foreach` in all cases, and was faster and a `for` loop when the input list size was greater than 100!
+Batching was faster than `foreach` in all cases, and was faster and a `for` loop when the input list size was greater than 1000!
 ```
 BenchmarkDotNet=v0.10.14, OS=Windows 10.0.17134
 Intel Core i5-6500 CPU 3.20GHz (Skylake), 1 CPU, 4 logical and 4 physical cores
@@ -76,23 +76,17 @@ Frequency=3117183 Hz, Resolution=320.8025 ns, Timer=TSC
 
 Job=RyuJitX64  Jit=RyuJit  Platform=X64
 
-  Method |    N |       Mean |     Error |    StdDev | Scaled |  Gen 0 | Allocated |
--------- |----- |-----------:|----------:|----------:|-------:|-------:|----------:|
-    Linq |   20 |   1.847 us | 0.0142 us | 0.0133 us |   1.00 | 0.0935 |     296 B |
- Foreach |   20 |   1.574 us | 0.0061 us | 0.0057 us |   0.85 | 0.0248 |      80 B |
-     For |   20 |   1.471 us | 0.0104 us | 0.0097 us |   0.80 | 0.0248 |      80 B |
- Batched |   20 |   1.541 us | 0.0072 us | 0.0068 us |   0.83 | 0.1850 |     584 B |
-         |      |            |           |           |        |        |           |
-    Linq |  120 |  11.058 us | 0.0641 us | 0.0599 us |   1.00 | 0.1831 |     592 B |
- Foreach |  120 |  10.218 us | 0.0438 us | 0.0410 us |   0.92 | 0.1068 |     376 B |
-     For |  120 |   9.771 us | 0.0822 us | 0.0769 us |   0.88 | 0.1068 |     376 B |
- Batched |  120 |   8.382 us | 0.0719 us | 0.0673 us |   0.76 | 0.6409 |    2048 B |
-         |      |            |           |           |        |        |           |
-    Linq | 1020 | 103.987 us | 0.4600 us | 0.4303 us |   1.00 | 1.3428 |    4529 B |
- Foreach | 1020 |  97.301 us | 0.8166 us | 0.7638 us |   0.94 | 1.3428 |    4313 B |
-     For | 1020 |  93.435 us | 0.3137 us | 0.2780 us |   0.90 | 1.3428 |    4313 B |
- Batched | 1020 |  79.896 us | 0.7070 us | 0.6613 us |   0.77 | 4.1504 |   13210 B |
-
+  Method |    N |      Mean |     Error |    StdDev | Scaled |  Gen 0 | Allocated |
+-------- |----- |----------:|----------:|----------:|-------:|-------:|----------:|
+    Linq |  126 | 10.309 us | 0.0262 us | 0.0232 us |   1.00 | 0.1831 |     592 B |
+ Foreach |  126 |  9.529 us | 0.0395 us | 0.0309 us |   0.92 | 0.1068 |     376 B |
+     For |  126 |  9.093 us | 0.0170 us | 0.0133 us |   0.88 | 0.1068 |     376 B |
+ Batched |  126 |  9.404 us | 0.0156 us | 0.0122 us |   0.91 | 0.7935 |    2504 B |
+         |      |           |           |           |        |        |           |
+    Linq | 1026 | 91.234 us | 0.4703 us | 0.3400 us |   1.00 | 1.3428 |    4529 B |
+ Foreach | 1026 | 85.109 us | 0.1343 us | 0.1190 us |   0.93 | 1.3428 |    4313 B |
+     For | 1026 | 81.371 us | 0.1475 us | 0.1380 us |   0.89 | 1.3428 |    4313 B |
+ Batched | 1026 | 69.673 us | 0.0650 us | 0.0542 us |   0.76 | 1.3428 |    4481 B |
 
 // * Legends *
   N         : Value of the 'N' parameter

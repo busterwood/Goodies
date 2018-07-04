@@ -5,40 +5,48 @@ namespace BusterWood.Linq
     class TakeBatcher<T> : IBatcher<T>
     {
         readonly IBatcher<T> source;
-        int _take;
+        readonly int take;
 
-        public int BatchSize { get; }
+        public int BatchSize => source.BatchSize;
 
         public TakeBatcher(IBatcher<T> source, int count)
         {
             this.source = source;
-            BatchSize = source.BatchSize;
-            _take = count;
+            take = count;
         }
 
-        public ArraySegment<T> NextBatch()
+        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source.GetBatchEnumerator(), take);
+
+        public class Enumerator : IBatchEnumerator<T>
         {
-            var sb = source.NextBatch();
-            if (sb == default(ArraySegment<T>))
-                return new ArraySegment<T>();
+            readonly IBatchEnumerator<T> source;
+            readonly T[] sourceBatch;
+            int take;
 
-            T[] batch = new T[Math.Min(BatchSize, _take)];
-            int count = 0;
-            do
+            public int BatchSize => source.BatchSize;
+
+            public Enumerator(IBatchEnumerator<T> source, int take)
             {
-                int toCopy = batch.Length - count;
-                Array.Copy(sb.Array, sb.Offset, batch, count, toCopy);
-                count += toCopy;
+                this.source = source;
+                this.take = take;
+                sourceBatch = new T[BatchSize];
+            }
 
-                if (count == batch.Length)
-                    break;
+            public bool NextBatch(T[] batch, out int count)
+            {
+                count = 0;
+                while (source.NextBatch(sourceBatch, out int sbCount))
+                {
+                    int toCopy = batch.Length - count;
+                    Array.Copy(sourceBatch, 0, batch, count, toCopy);
+                    count += toCopy;
 
-                sb = source.NextBatch();
-            } while (sb != default(ArraySegment<T>));
-            _take -= count;
-            return count == 0 ? default(ArraySegment<T>) : new ArraySegment<T>(batch, 0, count);
+                    if (count == batch.Length)
+                        break;
+                }
+
+                return count > 0;
+            }
         }
     }
-
-
 }

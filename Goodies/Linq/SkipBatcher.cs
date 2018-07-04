@@ -5,7 +5,7 @@ namespace BusterWood.Linq
     class SkipBatcher<T> : IBatcher<T>
     {
         readonly IBatcher<T> source;
-        int _skip;
+        readonly int skip;
 
         public int BatchSize { get; }
 
@@ -13,41 +13,49 @@ namespace BusterWood.Linq
         {
             this.source = source;
             BatchSize = source.BatchSize;
-            _skip = skip;
+            this.skip = skip;
         }
 
-        public ArraySegment<T> NextBatch()
+        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source.GetBatchEnumerator(), skip);
+
+        public class Enumerator : IBatchEnumerator<T>
         {
-            var sb = source.NextBatch();
-            if (sb == default(ArraySegment<T>))
-                return new ArraySegment<T>();
+            readonly IBatchEnumerator<T> source;
+            readonly T[] sourceBatch;
+            int skip;
 
-            T[] batch = new T[BatchSize];
-            int count = 0;
-            do
+            public int BatchSize => source.BatchSize;
+
+            public Enumerator(IBatchEnumerator<T> source, int skip)
             {
-                var sarr = sb.Array;
-                int start = sb.Offset;
-                int end = sb.Count + sb.Offset;
-                if (_skip > 0)
-                {
-                    int toSkip = Math.Min(_skip, sb.Count);
-                    start += toSkip;
-                    _skip -= toSkip;
-                }
-                for (int i = start; i < end; i++)
-                {
-                    batch[count] = sarr[i];
-                    count++;
-                    if (count == batch.Length)
-                        return new ArraySegment<T>(batch);
-                }
-                sb = source.NextBatch();
-            } while (sb != default(ArraySegment<T>));
+                this.source = source;
+                this.skip = skip;
+                sourceBatch = new T[BatchSize];
+            }
 
-            return count == 0 ? new ArraySegment<T>() : new ArraySegment<T>(batch, 0, count);
+            public bool NextBatch(T[] batch, out int count)
+            {
+                count = 0;
+                while (source.NextBatch(sourceBatch, out int sbCount))
+                {
+                    int start = 0;
+                    if (skip > 0)
+                    {
+                        int toSkip = Math.Min(skip, sbCount);
+                        start += toSkip;
+                        skip -= toSkip;
+                    }
+                    for (int i = start; i < sbCount; i++)
+                    {
+                        batch[count] = sourceBatch[i];
+                        count++;
+                        if (count == batch.Length)
+                            return true;
+                    }                    
+                }
+
+                return count > 0;
+            }
         }
     }
-
-
 }

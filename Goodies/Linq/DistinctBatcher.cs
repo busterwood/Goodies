@@ -1,5 +1,4 @@
 ﻿using BusterWood.Collections;
-using System;
 using System.Collections.Generic;
 
 namespace BusterWood.Linq
@@ -8,7 +7,7 @@ namespace BusterWood.Linq
     class DistinctBatcher<T> : IBatcher<T>
     {
         readonly IBatcher<T> source;
-        readonly UniqueList<T> _unique; // use unique list so we can set initial capacity
+        readonly EqualityComparer<T> _equality;
 
         public int BatchSize { get; }
 
@@ -16,37 +15,46 @@ namespace BusterWood.Linq
         {
             this.source = source;
             BatchSize = source.BatchSize;
-            _unique = new UniqueList<T>(BatchSize, equality);
+            _equality = equality;
         }
 
-        public ArraySegment<T> NextBatch()
-        {
-            T[] batch = new T[BatchSize];
-            int count = 0;
-            while (count < batch.Length)
-            {
-                var sb = source.NextBatch();
-                if (sb == default(ArraySegment<T>))
-                    return sb;
+        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source.GetBatchEnumerator(), _equality);
 
-                var sarr = sb.Array;
-                int start = sb.Offset;
-                int end = sb.Count + sb.Offset;
-                for (int i = start; i < end; i++)
-                {
-                    if (_unique.Add(sarr[i]))
-                    {
-                        batch[count] = sarr[i];
-                        count++;
-                        if (count == batch.Length)
-                            return new ArraySegment<T>(batch);
-                    }
-                }
+        public class Enumerator : IBatchEnumerator<T>
+        {
+            readonly IBatchEnumerator<T> source;
+            readonly UniqueList<T> unique; // use unique list so we can set initial capacity
+            readonly T[] sourceBatch;
+
+            public int BatchSize => source.BatchSize;
+
+            public Enumerator(IBatchEnumerator<T> source, EqualityComparer<T> equality)
+            {
+                this.source = source;
+                unique = new UniqueList<T>(BatchSize, equality);
+                sourceBatch = new T[BatchSize];
             }
 
-            return new ArraySegment<T>(batch, 0, count);
+            public bool NextBatch(T[] batch, out int count)
+            {
+                count = 0;
+                while (source.NextBatch(sourceBatch, out int sbCount) && count < batch.Length)
+                {
+                    for (int i = 0; i < sbCount; i++)
+                    {
+                        if (unique.Add(sourceBatch[i]))
+                        {
+                            batch[count] = sourceBatch[i];
+                            count++;
+                            if (count == batch.Length)
+                                return true;
+                        }
+                    }
+                }
+
+                return count > 0;
+            }
         }
+
     }
-
-
 }

@@ -5,32 +5,44 @@ namespace BusterWood.Linq
     class SelectBatcher<T, TResult> : IBatcher<TResult>
     {
         readonly IBatcher<T> source;
-        private readonly Func<T, TResult> map;
+        readonly Func<T, TResult> selector;
 
-        public int BatchSize { get; }
+        public int BatchSize => source.BatchSize;
 
-        public SelectBatcher(IBatcher<T> source, Func<T, TResult> map)
+        public SelectBatcher(IBatcher<T> source, Func<T, TResult> selector)
         {
             this.source = source;
-            this.map = map;
-            BatchSize = source.BatchSize;
+            this.selector = selector;
         }
 
-        public ArraySegment<TResult> NextBatch()
-        {
-            var sb = source.NextBatch();
-            if (sb == default(ArraySegment<T>))
-                return new ArraySegment<TResult>();
+        public IBatchEnumerator<TResult> GetBatchEnumerator() => new Enumerator(source.GetBatchEnumerator(), selector);
 
-            TResult[] batch = new TResult[sb.Count];
-            var sarr = sb.Array;
-            for (int i = 0; i < batch.Length; i++)
+        public class Enumerator : IBatchEnumerator<TResult>
+        {
+            readonly IBatchEnumerator<T> source;
+            readonly Func<T, TResult> selector;
+            readonly T[] sourceBatch;
+
+            public int BatchSize => source.BatchSize;
+
+            public Enumerator(IBatchEnumerator<T> source, Func<T, TResult> selector)
             {
-                batch[i] = map(sarr[i + sb.Offset]);
+                this.source = source;
+                this.selector = selector;
+                sourceBatch = new T[BatchSize];
             }
-            return new ArraySegment<TResult>(batch);
+
+            public bool NextBatch(TResult[] batch, out int count)
+            {
+                if (!source.NextBatch(sourceBatch, out count))
+                    return false;
+
+                for (int i = 0; i < count; i++)
+                {
+                    batch[i] = selector(sourceBatch[i]);
+                }
+                return true;
+            }
         }
     }
-
-
 }

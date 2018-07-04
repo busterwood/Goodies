@@ -13,7 +13,7 @@ namespace BusterWood.Linq
         static void Main(string[] args)
         {
 #if DEBUG
-            var b = new WhereToListBenchmark() { N = 26 };
+            var b = new WhereToListBenchmark() { N = 126 };
             b.Setup();
             var res = b.Batched();
 #else
@@ -28,7 +28,7 @@ namespace BusterWood.Linq
     {
         List<string> _strings;
 
-        [Params(26)]
+        [Params(126/*, 1026*/)]
         public int N { get; set; }
 
         [GlobalSetup]
@@ -71,12 +71,7 @@ namespace BusterWood.Linq
             return result;
         }
 
-
         [Benchmark]
-        //[Arguments(100)]
-        //[Arguments(200)]
-        //[Arguments(400)]
-        //[Arguments(0)]
         public object Batched()
         {
             return _strings.Batched(100).Where(s => s.Contains("3")).Select(int.Parse).ToList();
