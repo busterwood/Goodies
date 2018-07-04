@@ -55,12 +55,12 @@ namespace BusterWood.Linq
         /// <summary>Returns a <see cref="List{T}"/> of all items in the data <paramref name="source"/></summary>
         public static List<T> ToList<T>(this IBatcher<T> source)
         {
-            var result = new List<T>();
+            var result = new List<T>(source.BatchSize);
             var batch = new T[source.BatchSize];
             var e = source.GetBatchEnumerator();
             while (e.NextBatch(batch, out int count))
             {
-                result.Capacity += count; // ensure list capacity
+                //result.Capacity += count; // ensure list capacity
                 for (int i = 0; i < count; i++)
                 {
                     result.Add(batch[i]);

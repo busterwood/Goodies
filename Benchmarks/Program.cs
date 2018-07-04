@@ -28,7 +28,7 @@ namespace BusterWood.Linq
     {
         List<string> _strings;
 
-        [Params(126/*, 1026*/)]
+        [Params(45, 159, 345, 526, 1811)]
         public int N { get; set; }
 
         [GlobalSetup]
@@ -47,17 +47,17 @@ namespace BusterWood.Linq
             return _strings.Where(s => s.Contains("3")).Select(int.Parse).ToList();
         }
 
-        [Benchmark]
-        public object Foreach()
-        {
-            var result = new List<int>();
-            foreach (var s in _strings)
-            {
-                if (s.Contains("3"))
-                    result.Add(int.Parse(s));
-            }
-            return result;
-        }
+        //[Benchmark]
+        //public object Foreach()
+        //{
+        //    var result = new List<int>();
+        //    foreach (var s in _strings)
+        //    {
+        //        if (s.Contains("3"))
+        //            result.Add(int.Parse(s));
+        //    }
+        //    return result;
+        //}
 
         [Benchmark]
         public object For()
@@ -74,7 +74,7 @@ namespace BusterWood.Linq
         [Benchmark]
         public object Batched()
         {
-            return _strings.Batched(100).Where(s => s.Contains("3")).Select(int.Parse).ToList();
+            return _strings.Batched(80).Where(s => s.Contains("3")).Select(int.Parse).ToList();
         }
     }
 
