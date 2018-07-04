@@ -10,7 +10,7 @@ namespace BusterWood.Linq
         public static IBatcher<T> Batched<T>(this IEnumerable<T> source, int batchSize = 0)
         {
             if (batchSize <= 0)
-                batchSize = BatchSize<T>.Suggested;
+                batchSize = 80; // looks like a good default
 
             if (source is List<T> list)
                 return new ListBatcher<T>(list, batchSize);
@@ -60,7 +60,6 @@ namespace BusterWood.Linq
             var e = source.GetBatchEnumerator();
             while (e.NextBatch(batch, out int count))
             {
-                //result.Capacity += count; // ensure list capacity
                 for (int i = 0; i < count; i++)
                 {
                     result.Add(batch[i]);

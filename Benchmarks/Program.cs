@@ -74,7 +74,7 @@ namespace BusterWood.Linq
         [Benchmark]
         public object Batched()
         {
-            return _strings.Batched(80).Where(s => s.Contains("3")).Select(int.Parse).ToList();
+            return _strings.Batched().Where(s => s.Contains("3")).Select(int.Parse).ToList();
         }
     }
 
@@ -83,11 +83,8 @@ namespace BusterWood.Linq
     {
         List<int> values;
 
-        [Params(1062)]
+        [Params(126, 1062)]
         public int N { get; set; }
-
-        [Params(100/*, 200*/)]
-        public int BatchSize { get; set; }
 
         [GlobalSetup]
         public void Setup()
@@ -99,10 +96,15 @@ namespace BusterWood.Linq
             }
         }
 
-        [Benchmark]
-        public int Batched()
+        [Benchmark(Baseline =true)]
+        public int Foreach()
         {
-            return values.Batched(BatchSize).Aggregate(0, (v, acc) => v + acc);
+            var result = 0;
+            foreach (var v in values)
+            {
+                result += v;
+            }
+            return result;
         }
 
         [Benchmark]
@@ -112,12 +114,19 @@ namespace BusterWood.Linq
         }
 
         [Benchmark]
-        public int Foreach()
+        public int Batched()
+        {
+            return values.Batched().Aggregate(0, (v, acc) => v + acc);
+        }
+
+        [Benchmark]
+        public int For()
         {
             var result = 0;
-            foreach (var v in values)
+            for (int i = 0; i < values.Count; i++)
             {
-                result += v;
+                result += values[i];
+
             }
             return result;
         }

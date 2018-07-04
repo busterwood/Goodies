@@ -7,15 +7,16 @@ namespace BusterWood.Linq
         readonly IBatcher<T> source;
         readonly int take;
 
-        public int BatchSize => source.BatchSize;
-
+        public int BatchSize { get; }
+        
         public TakeBatcher(IBatcher<T> source, int count)
         {
             this.source = source;
             take = count;
+            BatchSize = Math.Min(source.BatchSize, take);
         }
 
-        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source.GetBatchEnumerator(), take);
+        public IBatchEnumerator<T> GetBatchEnumerator() => new Enumerator(source.GetBatchEnumerator(), BatchSize, take);
 
         public class Enumerator : IBatchEnumerator<T>
         {
@@ -23,26 +24,25 @@ namespace BusterWood.Linq
             readonly T[] sourceBatch;
             int take;
 
-            public int BatchSize => source.BatchSize;
+            public int BatchSize { get; }
 
-            public Enumerator(IBatchEnumerator<T> source, int take)
+            public Enumerator(IBatchEnumerator<T> source, int batchSize, int take)
             {
                 this.source = source;
+                BatchSize = batchSize;
+                sourceBatch = new T[batchSize];
                 this.take = take;
-                sourceBatch = new T[BatchSize];
             }
 
             public bool NextBatch(T[] batch, out int count)
             {
                 count = 0;
-                while (source.NextBatch(sourceBatch, out int sbCount))
+                while (take > 0 && count < batch.Length && source.NextBatch(sourceBatch, out int sbCount))
                 {
-                    int toCopy = batch.Length - count;
+                    int toCopy = Math.Min(sbCount - count, take);
                     Array.Copy(sourceBatch, 0, batch, count, toCopy);
                     count += toCopy;
-
-                    if (count == batch.Length)
-                        break;
+                    take -= toCopy;
                 }
 
                 return count > 0;
